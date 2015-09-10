@@ -54,8 +54,7 @@ class LSystem {
 		return this.generations.next(argument)
 	}
 
-	// iterate n times - executes this.generations.next() n-1 times,
-	// then returns the remaining this.generations.next()
+	// iterate n times - executes this.generations.next() n-1 times
 	iterate(n) {
 		if (typeof n === 'number') {
 			for (var i = 0; i < n - 1; i++) {
@@ -77,6 +76,6 @@ var bla = new LSystem({
 	productions: [['A', 'AARA-BB-B'], ['B', 'ABBA-+--B+-'], ['R', 'RA-']]
 })
 
-let foo = bla.next()
+let foo = bla.iterate(2)
 console.log(foo)
 // let test = bla.iterate(3)
