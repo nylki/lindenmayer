@@ -26,14 +26,14 @@ var kochkurve = new lsys({
 
 
 class LSystem {
-	constructor({word, productions}) {
+	constructor({word, productions, save}) {
 			this.word = word
 			this.productions = new Map(productions)
 			this.iterations = 0
-			this.generations = this.generations()
+			this.generate = this.generate()
 	}
 
-	*generations(){
+	*generate(){
 		while(++this.iterations) {
 			let newWord = ''
 			for (let literal of this.word) {
@@ -51,23 +51,20 @@ class LSystem {
 
 	// just a shortcut to be able to use an instance of LSystem like a generator
 	next(argument){
-		return this.generations.next(argument)
+		return this.generate.next(argument)
 	}
 
-	// iterate n times - executes this.generations.next() n-1 times
+	// iterate n times - executes this.generate.next() n-1 times
 	iterate(n) {
 		if (typeof n === 'number') {
 			for (var i = 0; i < n - 1; i++) {
-				this.generations.next()
+				this.generate.next()
 			}
 		}
-		return this.generations.next()
+		return this.generate.next()
 	}
 
 }
-
-
-
 
 
 
@@ -76,6 +73,6 @@ var bla = new LSystem({
 	productions: [['A', 'AARA-BB-B'], ['B', 'ABBA-+--B+-'], ['R', 'RA-']]
 })
 
-let foo = bla.iterate(20)
+let foo = bla.iterate(10)
 console.log(foo)
 // let test = bla.iterate(3)
