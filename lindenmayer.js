@@ -76,6 +76,6 @@ var bla = new LSystem({
 	productions: [['A', 'AARA-BB-B'], ['B', 'ABBA-+--B+-'], ['R', 'RA-']]
 })
 
-let foo = bla.iterate(2)
+let foo = bla.iterate(20)
 console.log(foo)
 // let test = bla.iterate(3)
