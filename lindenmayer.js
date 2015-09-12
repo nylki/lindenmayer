@@ -25,9 +25,10 @@ var kochkurve = new lsys({
 */
 
 class LSystem {
-	constructor({word, productions, save}) {
+	constructor({word, productions, finals}) {
 			this.word = word
 			this.productions = new Map(productions)
+			if(finals) this.finals = new Map(finals)
 			this.iterations = 0
 			this.generate = this.generate()
 	}
@@ -63,13 +64,28 @@ class LSystem {
 		return this.generate.next()
 	}
 
+	final(){
+		for (let literal of this.word) {
+			if(this.finals.has(literal)){
+				var finalFunction = this.finals.get(literal)
+				var typeOfFinalFunction = typeof finalFunction
+				if((typeOfFinalFunction !== 'function')) {
+
+					throw new Error( '\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
+				}
+				// execute literals function
+				finalFunction()
+
+			} else {
+				// console.error(literal + 'has no final function.')
+			}
+		}
+
+
+	}
+
 }
 
  exports.LSystem = LSystem
 
-
-
-var bla = new LSystem({
-	word:'A---',
-	productions: [['A', 'AARA-BB-B'], ['B', 'ABBA-+--B+-'], ['R', 'RA-']]
-})
+console.log('loaded lindenmayer.js')

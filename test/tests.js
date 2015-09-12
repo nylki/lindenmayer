@@ -28,5 +28,34 @@ describe('Correct behavior of L-Systems', function() {
   })
 
 
+  it('should execute final functions to draw eg. visualizations.', function() {
+    var vizsys = new lsys.LSystem({
+    	word:'A---',
+    	productions: [
+        ['A', 'AARA-BB-B'],
+        ['B', 'ABBA-+--B+-'],
+        ['R', 'RA-']
+      ],
+    	finals: [
+        ['A', () => {vizsys.output += '/'}],
+        ['B', () => {vizsys.output += '#'}],
+        ['R', () => {vizsys.output += '~'}],
+        ['-', () => {vizsys.output += '-'}],
+        ['+', () => {vizsys.output += '+'}]
+      ]
+    })
+
+    vizsys.output = ''
+
+    vizsys.iterate(2)
+    vizsys.final()
+    expect(vizsys.output).toBe('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
+
+
+  })
+
+
+
+
 
 });
