@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+
+	</body>
+	<script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
+  <script src="https://google.github.io/traceur-compiler/src/bootstrap.js"></script>
+	<script src="lindenmayer.js" type="module" charset="utf-8"></script>
+	<script type="module">
+	console.log('bla');
+	var bla = new LSystem({
+		word:'A---',
+		productions: [['A', 'AARA-BB-B'], ['B', 'ABBA-+--B+-'], ['R', 'RA-']]
+	})
+
+	let foo = bla.iterate(2)
+
+	console.log(foo)
+	// let test = bla.iterate(3)
+	</script>
+</html>

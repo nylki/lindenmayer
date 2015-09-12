@@ -24,7 +24,6 @@ var kochkurve = new lsys({
 
 */
 
-
 class LSystem {
 	constructor({word, productions, save}) {
 			this.word = word
@@ -66,13 +65,11 @@ class LSystem {
 
 }
 
+ exports.LSystem = LSystem
+
 
 
 var bla = new LSystem({
 	word:'A---',
 	productions: [['A', 'AARA-BB-B'], ['B', 'ABBA-+--B+-'], ['R', 'RA-']]
 })
-
-let foo = bla.iterate(10)
-console.log(foo)
-// let test = bla.iterate(3)
