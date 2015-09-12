@@ -1,4 +1,4 @@
-# L-Systems in JS (WIP!)
+# L-Systems in JS (WIP!) [![Build Status](https://travis-ci.org/nylki/lindenmayer.svg?branch=master)](https://travis-ci.org/nylki/lindenmayer)
 Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus
 on a concise syntax. stay tuned :)
 
