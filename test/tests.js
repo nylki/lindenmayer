@@ -18,13 +18,20 @@ describe('Correct behavior of L-Systems', function() {
 
   it('should generate the Koch-curve', function() {
     var koch = new lsys.LSystem({
-      word:'F',
-      productions: [['F', 'F+F--F+F']]
+      word: 'F++F++F',
+      productions: [
+        ['F', 'F-F++F-F']
+      ]
     })
 
-    expect(koch.next().value).toBe('F+F--F+F')
-    expect(koch.next().value).toBe('F+F--F+F+F+F--F+F--F+F--F+F+F+F--F+F')
-    expect(koch.next().value).toBe('F+F--F+F+F+F--F+F--F+F--F+F+F+F--F+F+F+F--F+F+F+F--F+F--F+F--F+F+F+F--F+F--F+F--F+F+F+F--F+F--F+F--F+F+F+F--F+F+F+F--F+F+F+F--F+F--F+F--F+F+F+F--F+F')
+    expect(koch.next().value).toBe('F-F++F-F++F-F++F-F++F-F++F-F')
+
+    expect(koch.next().value).toBe('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+
+    expect(koch.next().value).toBe('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+
+    var wordFromGenerator = koch.next().value
+    expect(wordFromGenerator).toBe(koch.word)
   })
 
 

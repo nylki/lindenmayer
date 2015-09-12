@@ -65,6 +65,7 @@ class LSystem {
 	}
 
 	final(){
+		console.log('final');
 		for (let literal of this.word) {
 			if(this.finals.has(literal)){
 				var finalFunction = this.finals.get(literal)
@@ -86,6 +87,6 @@ class LSystem {
 
 }
 
- exports.LSystem = LSystem
+ if(module !== undefined) exports.LSystem = LSystem
 
 console.log('loaded lindenmayer.js')
