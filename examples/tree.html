@@ -9,11 +9,6 @@
 <body>
 	<canvas id="canvas" width="1600" height="1200"></canvas>
 
-
-
-
-
-
 	<script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script>
 	<script src="lindenmayer_ES5.js" charset="utf-8"></script>
 	<script>
@@ -24,42 +19,47 @@
 			var canvas = document.getElementById('canvas')
 			var ctx = canvas.getContext("2d")
 
-			var koch = new LSystem({
-				word: 'F++F++F',
+			var tree = new LSystem({
+				word: 'X',
 				productions: [
-					['F', 'F-F++F-F']
+					['X', 'F-[[X]+X]+F[+FX]-X'],
+					['F','FF']
+
 				],
 				finals: [
 					['F', function() {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
-						ctx.lineTo(0, 50/(koch.iterations + 1))
+						ctx.lineTo(0, 30/(tree.iterations + 1))
 						ctx.stroke()
-						ctx.translate(0, 50/(koch.iterations + 1))
+						ctx.translate(0, 30/(tree.iterations + 1))
 					}],
 					['+', function() {
-						ctx.rotate((Math.PI/180) * 60)
+						ctx.rotate((Math.PI/180) * 22.5)
 					}],
 					['-', function() {
-						ctx.rotate((Math.PI/180) * -60)
+						ctx.rotate((Math.PI/180) * -22.5)
+					}],
+					['[', function() {
+						ctx.save()
+					}],
+					[']', function() {
+						ctx.restore()
 					}]
 				]
 			})
 
-
-
-
 			document.addEventListener('click', function (e) {
-				console.log(koch.iterations);
+				console.log(tree.iterations);
+				console.log(tree.word);
 
 				ctx.save()
-				ctx.translate(700, 400)
-				ctx.moveTo(0,0)
-				ctx.rotate((Math.PI/180) * 60)
-				koch.final()
-				console.log(koch.word);
-				koch.next()
 
+				ctx.translate(700, 1000)
+				ctx.moveTo(0,0)
+				ctx.rotate((Math.PI/180) * 180)
+				tree.final()
+				tree.next()
 
 				ctx.restore()
 
