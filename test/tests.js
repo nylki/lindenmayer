@@ -8,7 +8,7 @@ describe('Correct behavior of L-Systems', function() {
   it('should handle UTF8', function() {
     var test = new lsys.LSystem({
       word:'⚣⚤●',
-      productions: [['⚣', '♂♂'], ['⚤', '♀♁'], ['●', '○◐◑']]
+      productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
     expect(test.next().value).toBe('♂♂♀♁○◐◑')
   })
