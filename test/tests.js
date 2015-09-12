@@ -10,7 +10,7 @@ describe('Correct behavior of L-Systems', function() {
       word:'⚣⚤●',
       productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
-    expect(test.next().value).toBe('♂♂♀♁○◐◑')
+    expect(test.next().value).toBe('♂♂♀♂○◐◑')
   })
 
 
