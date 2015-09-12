@@ -11,6 +11,7 @@ Regarding ES6:
 
 - [ ] allow Symbols(and generally objects maybe?) in addition to single chars
       this would allow stuff like: 
+
 ```.js
 let buildingsys = new LSystem({
       word:[floor, escalator, floor, escalator, floor, roof],
@@ -20,8 +21,9 @@ let buildingsys = new LSystem({
         ]
     })
 ```
+
 - [ ] allow functions as productions (useful for stochastic L-Systems). **see below**
-- [ ] and final productions: productions that are special, which should be applied in the end to eg create the actual structures out of your literals. **see below**
+- [x] and final productions: productions that are special, which should be applied in the end to eg create the actual structures out of your literals. **see below**
 
 ```.js
 productions: [
