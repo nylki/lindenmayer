@@ -13,6 +13,10 @@
 	<script src="lindenmayer_ES5.js" charset="utf-8"></script>
 	<script>
 
+	function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
 
 		window.onload = function() {
 
@@ -27,25 +31,17 @@
 
 				],
 				finals: [
-					['F', function() {
+					['F', () => {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 30/(tree.iterations + 1))
 						ctx.stroke()
 						ctx.translate(0, 30/(tree.iterations + 1))
 					}],
-					['+', function() {
-						ctx.rotate((Math.PI/180) * 22.5)
-					}],
-					['-', function() {
-						ctx.rotate((Math.PI/180) * -22.5)
-					}],
-					['[', function() {
-						ctx.save()
-					}],
-					[']', function() {
-						ctx.restore()
-					}]
+					['+', () => { ctx.rotate((Math.PI/180) * 22.5) } ],
+					['-', () => { ctx.rotate((Math.PI/180) * -22.5) }],
+					['[', () => { ctx.save() }],
+					[']', () => { ctx.restore() }]
 				]
 			})
 
@@ -53,15 +49,15 @@
 				console.log(tree.iterations);
 				console.log(tree.word);
 
-				ctx.save()
+				ctx.restore()
+				ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+				ctx.save()
 				ctx.translate(700, 1000)
 				ctx.moveTo(0,0)
 				ctx.rotate((Math.PI/180) * 180)
 				tree.final()
 				tree.next()
-
-				ctx.restore()
 
 			});
 

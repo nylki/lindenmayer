@@ -51,6 +51,9 @@
 			document.addEventListener('click', function (e) {
 				console.log(koch.iterations);
 
+				ctx.restore()
+				ctx.clearRect(0, 0, canvas.width, canvas.height)
+
 				ctx.save()
 				ctx.translate(700, 100)
 				ctx.moveTo(0,0)
@@ -60,7 +63,7 @@
 				koch.next()
 
 
-				ctx.restore()
+
 
 			});
 

@@ -7,7 +7,7 @@
 </head>
 
 <body>
-	<canvas id="canvas" width="1600" height="1200"></canvas>
+	<canvas id="canvas" width="1000" height="1000"></canvas>
 
 
 
@@ -52,8 +52,11 @@
 			document.addEventListener('click', function (e) {
 				console.log(koch.iterations);
 
+				ctx.restore()
+				ctx.clearRect(0, 0, canvas.width, canvas.height)
+
 				ctx.save()
-				ctx.translate(700, 400)
+				ctx.translate(450, 900)
 				ctx.moveTo(0,0)
 				ctx.rotate((Math.PI/180) * 60)
 				koch.final()
@@ -61,7 +64,7 @@
 				koch.next()
 
 
-				ctx.restore()
+
 
 			});
 
