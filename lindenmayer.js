@@ -38,7 +38,14 @@ class LSystem {
 			let newWord = ''
 			for (let literal of this.word) {
 				if(this.productions.has(literal)){
-					newWord += this.productions.get(literal)
+					// check if production is function or not
+					let p = this.productions.get(literal)
+					if(typeof p === 'function') {
+						newWord += p()
+					} else {
+						newWord += p
+					}
+					
 				} else {
 					newWord += literal
 				}
@@ -48,6 +55,7 @@ class LSystem {
 			yield this.word
 		}
 	}
+
 
 	// just a shortcut to be able to use an instance of LSystem like a generator
 	next(argument){
