@@ -95,6 +95,11 @@ class LSystem {
 
 }
 
- if(module !== undefined) exports.LSystem = LSystem
+// if in node export LSystem, otherwise don't attempt to
+try {
+    exports.LSystem = LSystem
+}
+catch(err) {
 
-console.log('loaded lindenmayer.js')
+}
+
