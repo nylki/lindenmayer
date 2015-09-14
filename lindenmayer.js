@@ -45,7 +45,7 @@ class LSystem {
 					} else {
 						newWord += p
 					}
-					
+
 				} else {
 					newWord += literal
 				}
@@ -73,7 +73,6 @@ class LSystem {
 	}
 
 	final(){
-		console.log('final');
 		for (let literal of this.word) {
 			if(this.finals.has(literal)){
 				var finalFunction = this.finals.get(literal)
