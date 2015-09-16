@@ -168,15 +168,14 @@
 
 	function draw() {
 		console.log('draw');
-		ctx.save()
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 		ctx.translate(300, 300)
 		ctx.moveTo(0, 0)
 		ctx.rotate((Math.PI / 180) * 180)
 
 		lsys.final().then(() => {
-			ctx.restore()
-			console.log('then draw finished')
+
 		})
 
 
