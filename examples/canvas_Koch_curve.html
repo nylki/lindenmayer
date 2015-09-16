@@ -59,9 +59,8 @@
 				ctx.translate(950, 600)
 				ctx.moveTo(0,0)
 				ctx.rotate((Math.PI/180) * 60)
-				koch.final()
-				console.log(koch.word);
-				koch.next()
+
+				koch.iterate().then(koch.final())
 
 
 

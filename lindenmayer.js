@@ -1,96 +1,92 @@
 
 'use strict'
-/*
 
-productions are in the form:
-productions:
-[
-	['A', 'B++'],
-	['B', 'BBA-B']
-]
-
-which then get transformed to a map via
-this.productions = new Map(production)
-
-or you can use a map directly
-
-
-
-var kochkurve = new lsys({
-	word:'A',
-	productions: [['A', 'A+BB'], ['B', 'BA--']]
-})
-
-
-*/
+var runningCount = 0
 
 class LSystem {
 	constructor({word, productions, finals}) {
 			this.word = word
 			this.productions = new Map(productions)
+
 			if(finals) this.finals = new Map(finals)
 			this.iterations = 0
-			this.generate = this.generate()
-	}
-
-	*generate(){
-		while(++this.iterations) {
-			let newWord = ''
-			for (let literal of this.word) {
-				if(this.productions.has(literal)){
-					// check if production is function or not
-					let p = this.productions.get(literal)
-					if(typeof p === 'function') {
-						newWord += p()
-					} else {
-						newWord += p
-					}
-
-				} else {
-					newWord += literal
-				}
-			}
-
-			this.word = newWord
-			yield this.word
-		}
+			console.log(this)
 	}
 
 
-	// just a shortcut to be able to use an instance of LSystem like a generator
-	next(argument){
-		return this.generate.next(argument)
+	// keep old objects but add new ones
+	update({word, productions, finals}) {
+
 	}
 
 	// iterate n times - executes this.generate.next() n-1 times
-	iterate(n) {
-		if (typeof n === 'number') {
-			for (var i = 0; i < n - 1; i++) {
-				this.generate.next()
-			}
-		}
-		return this.generate.next()
+	iterate(n=1) {
+
+		if (typeof n !== 'number') throw(new Error('wrong argument for iterate().Needs Number. Instead: ', n))
+		if(n === 0) n = 1
+
+
+		return new Promise((resolve, reject) => {
+			let newWord
+
+				for (let iteration = 0; iteration < n; iteration++, this.iterations++) {
+					// set word to the newly generated newWord to be used in next iteration
+					// unless it's the first or only iteration, then init with this.word
+					let word = (iteration === 0) ? this.word : newWord
+
+					// … and reset newWord for next iteration
+					 newWord = ''
+
+					for (let literal of word) {
+						if(this.productions.has(literal)){
+							// check if production is function or not
+							let p = this.productions.get(literal)
+							if(typeof p === 'function') {
+								newWord += p()
+							} else {
+								newWord += p
+							}
+						} else {
+							// if no production exists for literal, continue and just append literal
+							newWord += literal
+						}
+					}
+
+				}
+
+				// finally set this.word to newWord
+				this.word = newWord
+				// and also resolve with newWord for convenience
+				resolve(newWord)
+
+		})
 	}
 
-	final(){
+
+
+final() {
+	return new Promise((resolve, reject) => {
+
 		for (let literal of this.word) {
-			if(this.finals.has(literal)){
+			if (this.finals.has(literal)) {
 				var finalFunction = this.finals.get(literal)
 				var typeOfFinalFunction = typeof finalFunction
-				if((typeOfFinalFunction !== 'function')) {
-
-					throw new Error( '\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
+				if ((typeOfFinalFunction !== 'function')) {
+					console.log('reject', finalFunction );
+					reject(Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!'))
 				}
 				// execute literals function
 				finalFunction()
 
 			} else {
-				// console.error(literal + 'has no final function.')
+				// literal has no final function
 			}
 		}
+		resolve('finished final functions..')
+	})
 
 
-	}
+}
 
 }
 
@@ -101,4 +97,3 @@ try {
 catch(err) {
 
 }
-

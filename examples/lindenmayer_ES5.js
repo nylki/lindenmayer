@@ -1,32 +1,11 @@
 
 'use strict';
-/*
-
-productions are in the form:
-productions:
-[
-	['A', 'B++'],
-	['B', 'BBA-B']
-]
-
-which then get transformed to a map via
-this.productions = new Map(production)
-
-or you can use a map directly
-
-
-
-var kochkurve = new lsys({
-	word:'A',
-	productions: [['A', 'A+BB'], ['B', 'BA--']]
-})
-
-
-*/
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var runningCount = 0;
 
 var LSystem = (function () {
 	function LSystem(_ref) {
@@ -38,152 +17,140 @@ var LSystem = (function () {
 
 		this.word = word;
 		this.productions = new Map(productions);
+
 		if (finals) this.finals = new Map(finals);
 		this.iterations = 0;
-		this.generate = this.generate();
+		console.log(this);
 	}
 
+	// if in node export LSystem, otherwise don't attempt to
+
+	// keep old objects but add new ones
+
 	_createClass(LSystem, [{
-		key: 'generate',
-		value: regeneratorRuntime.mark(function generate() {
-			var newWord, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, literal;
-
-			return regeneratorRuntime.wrap(function generate$(context$2$0) {
-				while (1) switch (context$2$0.prev = context$2$0.next) {
-					case 0:
-						if (! ++this.iterations) {
-							context$2$0.next = 26;
-							break;
-						}
-
-						newWord = '';
-						_iteratorNormalCompletion = true;
-						_didIteratorError = false;
-						_iteratorError = undefined;
-						context$2$0.prev = 5;
-
-						for (_iterator = this.word[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-							literal = _step.value;
-
-							if (this.productions.has(literal)) {
-								newWord += this.productions.get(literal);
-							} else {
-								newWord += literal;
-							}
-						}
-
-						context$2$0.next = 13;
-						break;
-
-					case 9:
-						context$2$0.prev = 9;
-						context$2$0.t0 = context$2$0['catch'](5);
-						_didIteratorError = true;
-						_iteratorError = context$2$0.t0;
-
-					case 13:
-						context$2$0.prev = 13;
-						context$2$0.prev = 14;
-
-						if (!_iteratorNormalCompletion && _iterator['return']) {
-							_iterator['return']();
-						}
-
-					case 16:
-						context$2$0.prev = 16;
-
-						if (!_didIteratorError) {
-							context$2$0.next = 19;
-							break;
-						}
-
-						throw _iteratorError;
-
-					case 19:
-						return context$2$0.finish(16);
-
-					case 20:
-						return context$2$0.finish(13);
-
-					case 21:
-						this.word = newWord;
-						context$2$0.next = 24;
-						return this.word;
-
-					case 24:
-						context$2$0.next = 0;
-						break;
-
-					case 26:
-					case 'end':
-						return context$2$0.stop();
-				}
-			}, generate, this, [[5, 9, 13, 21], [14,, 16, 20]]);
-		})
-
-		// just a shortcut to be able to use an instance of LSystem like a generator
-	}, {
-		key: 'next',
-		value: function next(argument) {
-			return this.generate.next(argument);
+		key: 'update',
+		value: function update(_ref2) {
+			var word = _ref2.word;
+			var productions = _ref2.productions;
+			var finals = _ref2.finals;
 		}
 
 		// iterate n times - executes this.generate.next() n-1 times
 	}, {
 		key: 'iterate',
-		value: function iterate(n) {
-			if (typeof n === 'number') {
-				for (var i = 0; i < n - 1; i++) {
-					this.generate.next();
+		value: function iterate() {
+			var _this = this;
+
+			var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+
+			if (typeof n !== 'number') throw new Error('wrong argument for iterate().Needs Number. Instead: ', n);
+			if (n === 0) n = 1;
+
+			return new Promise(function (resolve, reject) {
+				var newWord = undefined;
+
+				for (var iteration = 0; iteration < n; iteration++, _this.iterations++) {
+					// set word to the newly generated newWord to be used in next iteration
+					// unless it's the first or only iteration, then init with this.word
+					var word = iteration === 0 ? _this.word : newWord;
+
+					// … and reset newWord for next iteration
+					newWord = '';
+
+					var _iteratorNormalCompletion = true;
+					var _didIteratorError = false;
+					var _iteratorError = undefined;
+
+					try {
+						for (var _iterator = word[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+							var literal = _step.value;
+
+							if (_this.productions.has(literal)) {
+								// check if production is function or not
+								var p = _this.productions.get(literal);
+								if (typeof p === 'function') {
+									newWord += p();
+								} else {
+									newWord += p;
+								}
+							} else {
+								// if no production exists for literal, continue and just append literal
+								newWord += literal;
+							}
+						}
+					} catch (err) {
+						_didIteratorError = true;
+						_iteratorError = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion && _iterator['return']) {
+								_iterator['return']();
+							}
+						} finally {
+							if (_didIteratorError) {
+								throw _iteratorError;
+							}
+						}
+					}
 				}
-			}
-			return this.generate.next();
+
+				// finally set this.word to newWord
+				_this.word = newWord;
+				// and also resolve with newWord for convenience
+				resolve(newWord);
+			});
 		}
 	}, {
 		key: 'final',
 		value: function final() {
-			console.log('final');
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
+			var _this2 = this;
 
-			try {
-				for (var _iterator2 = this.word[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var literal = _step2.value;
+			return new Promise(function (resolve, reject) {
+				var _iteratorNormalCompletion2 = true;
+				var _didIteratorError2 = false;
+				var _iteratorError2 = undefined;
 
-					if (this.finals.has(literal)) {
-						var finalFunction = this.finals.get(literal);
-						var typeOfFinalFunction = typeof finalFunction;
-						if (typeOfFinalFunction !== 'function') {
-
-							throw new Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
-						}
-						// execute literals function
-						finalFunction();
-					} else {
-						// console.error(literal + 'has no final function.')
-					}
-				}
-			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
-			} finally {
 				try {
-					if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-						_iterator2['return']();
+
+					for (var _iterator2 = _this2.word[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+						var literal = _step2.value;
+
+						if (_this2.finals.has(literal)) {
+							var finalFunction = _this2.finals.get(literal);
+							var typeOfFinalFunction = typeof finalFunction;
+							if (typeOfFinalFunction !== 'function') {
+								console.log('reject', finalFunction);
+								reject(Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!'));
+							}
+							// execute literals function
+							finalFunction();
+						} else {
+							// literal has no final function
+						}
 					}
+				} catch (err) {
+					_didIteratorError2 = true;
+					_iteratorError2 = err;
 				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
+					try {
+						if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+							_iterator2['return']();
+						}
+					} finally {
+						if (_didIteratorError2) {
+							throw _iteratorError2;
+						}
 					}
 				}
-			}
+
+				resolve('finished final functions..');
+			});
 		}
 	}]);
 
 	return LSystem;
 })();
 
-if (module !== undefined) exports.LSystem = LSystem;
-
-console.log('loaded lindenmayer.js');
+try {
+	exports.LSystem = LSystem;
+} catch (err) {}

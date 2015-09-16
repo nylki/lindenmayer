@@ -1,5 +1,9 @@
+var chai = require("chai")
+var chaiAsPromised = require("chai-as-promised")
+var expect = chai.expect
+var should = chai.should
+chai.use(chaiAsPromised)
 
-var expect = require('expect');
 var lsys = require('../lindenmayer')
 
 describe('Correct behavior of L-Systems', function() {
@@ -10,7 +14,7 @@ describe('Correct behavior of L-Systems', function() {
       word:'⚣⚤●',
       productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
-    expect(test.next().value).toBe('♂♂♀♂○◐◑')
+    expect(test.next().value).to.equal('♂♂♀♂○◐◑')
   })
 
 
@@ -24,15 +28,15 @@ describe('Correct behavior of L-Systems', function() {
       ]
     })
 
-    expect(koch.next().value).toBe('F-F++F-F++F-F++F-F++F-F++F-F')
+    expect(koch.next().value).to.equal('F-F++F-F++F-F++F-F++F-F++F-F')
 
-    expect(koch.next().value).toBe('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+    expect(koch.next().value).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
 
-    expect(koch.next().value).toBe('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+    expect(koch.next().value).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
 
 
     var wordFromGenerator = koch.next().value
-    expect(wordFromGenerator).toBe(koch.word)
+    expect(wordFromGenerator).to.equal(koch.word)
   })
 
 
@@ -57,7 +61,7 @@ describe('Correct behavior of L-Systems', function() {
 
     vizsys.iterate(2)
     vizsys.final()
-    expect(vizsys.output).toBe('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
+    expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
   })
 
   it('Final functions must be functions. Should throw an error on any other type.', function() {
@@ -69,31 +73,27 @@ describe('Correct behavior of L-Systems', function() {
       ]
     })
 
-    expect(function () {
-      vizsys.next()
-      vizsys.final()
-    }).toThrow(/not a function/)
-
-    expect(function () {
-      vizsys.finals.set('Z', 7)
-      vizsys.final()
-    }).toThrow(/not a function/)
-
-    expect(function () {
-      vizsys.finals.set('Z', new Date())
-      vizsys.final()
-    }).toThrow(/not a function/)
+    vizsys.next()
+    return vizsys.final().should.eventually.be.rejected
 
 
-    var rotation = 5
-    expect(function () {
-      vizsys.finals.set('Z', () => {rotation *= 2})
-      vizsys.final()
-    }).toNotThrow(/not a function/)
-
-    expect(rotation).toBe(10)
+    // vizsys.finals.set('Z', 7)
+    // vizsys.final().should.equal.rejected
+    //
+    // vizsys.finals.set('Z', new Date())
+    // vizsys.final().should.equal.rejected
 
 
+
+    // var rotation = 5
+    // expect(function () {
+    //   vizsys.finals.set('Z', () => {rotation *= 2})
+    //   vizsys.final()
+    // }).toNotThrow(/not a function/)
+    //
+    // expect(rotation).to.equal(10)
+    //
+    //
 
   })
 
@@ -116,13 +116,13 @@ describe('Correct behavior of L-Systems', function() {
 
     funcprodsys.iterate(2)
     expect(funcprodsys.word.length)
-      .toBeLessThan(11)
-      .toBeGreaterThan(7)
+      .to.equalLessThan(11)
+      .to.equalGreaterThan(7)
 
     funcprodsys.next()
     expect(funcprodsys.word.length)
-      .toBeLessThan(17)
-      .toBeGreaterThan(12)
+      .to.equalLessThan(17)
+      .to.equalGreaterThan(12)
 
 
 

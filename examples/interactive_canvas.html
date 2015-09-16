@@ -1,163 +1,196 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>Interactive L-Systems</title>
-	</head>
-	<body>
 
-		<div class="input">
-			<label for="word">Initiator:</label>
-			<input id="word" name="word" type="text" value="F">
+<head>
+	<meta charset="utf-8">
+	<title>Interactive L-Systems</title>
+</head>
 
-			<label for="angle">rotation angle (δ):</label>
-			<input id="angle" name="angle" type="range" min="-180" max="180" value="90">
+<body>
+
+	<div class="input">
+		<label for="word">Initiator:</label>
+		<input id="word" name="word" type="text" value="F">
+
+		<label for="angle">rotation angle (δ):</label>
+		<input id="angleSlider" name="angle" type="range" min="-180" max="180" value="90">
+		<input id="angleField" name="angle" type="text" min="-180" max="180" value="90">
 
 
-			<div class="productions">
-					<!-- going to be filled -->
-			</div>
-			<input class="addBtn" name="newProduction" type="button" value="+">
-			<input class="iterateBtn" name="iterate" type="button" value="next iteration">
-			<input class="resetIterations" name="resetIterations" type="button" value="reset iteration">
-
+		<div class="productions">
+			<!-- going to be filled -->
 		</div>
+		<input class="addBtn" name="newProduction" type="button" value="+">
+		<input class="iterateBtn" name="iterate" type="button" value="next iteration">
+		<input class="resetIterations" name="resetIterations" type="button" value="reset iteration">
 
-		<canvas height="1600" id="canvas" width="1000"></canvas>
+	</div>
 
-	</body>
+	<canvas height="1600" id="canvas" width="1000"></canvas>
 
-	<script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script>
-	<script src="lindenmayer_ES5.js" charset="utf-8"></script>
-	<script type="text/javascript">
+</body>
 
-		var canvas = document.getElementById('canvas')
-		var ctx = canvas.getContext("2d")
-
-		var productionFields = document.querySelector('.productions')
-		var addBtn = document.querySelector('.addBtn')
-		var iterateBtn = document.querySelector('.iterateBtn')
-		var restBtn = document.querySelector('.resetIterations')
+<!-- <script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script> -->
+<script src="lindenmayer_ES5.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var canvas = document.getElementById('canvas')
+	var ctx = canvas.getContext("2d")
 
 
-		var wordField = document.querySelector('#word')
-		var angleSlider = document.querySelector('#angle')
+	var productionFields = document.querySelector('.productions')
+	var addBtn = document.querySelector('.addBtn')
+	var iterateBtn = document.querySelector('.iterateBtn')
+	var restBtn = document.querySelector('.resetIterations')
 
-		angleSlider.addEventListener('input', draw)
 
-		var angle = () => angleSlider.value
+	var wordField = document.querySelector('#word')
+	var angleSlider = document.querySelector('#angleSlider')
+	var angleField = document.querySelector('#angleField')
 
-		wordField.addEventListener('keyup', reset)
+
+	var angle
+
+
+
+	lsys = new LSystem({
+		word: wordField.value,
+		finals: [
+			['F', () => {
+				ctx.beginPath()
+				ctx.moveTo(0, 0)
+				ctx.lineTo(0, 30 / (lsys.iterations + 1))
+				ctx.stroke()
+				ctx.translate(0, 30 / (lsys.iterations + 1))
+			}],
+			['+', () => {
+				ctx.rotate((Math.PI / 180) * angle)
+			}],
+			['-', () => {
+				ctx.rotate((Math.PI / 180) * -angle)
+			}],
+			['[', () => {
+				ctx.save()
+			}],
+			[']', () => {
+				ctx.restore()
+			}]
+		]
+	})
+
+	function updateAngle(newAngle) {
+		angle = newAngle
+		angleField.value = angle
+		angleSlider.value = angle
+		}
+
+	angleSlider.addEventListener('input', () => {
+		updateAngle(angleSlider.value)
+		window.requestAnimationFrame(draw)
+	})
+
+	angleField.addEventListener('input', () => {
+		updateAngle(angleField.value)
+		window.requestAnimationFrame(draw)
+	})
+
+	wordField.addEventListener('keyup', () => {
+		lsys.word = wordField.value
+		fieldsChanged()
+	})
+
+
+	var productionsFields
+	var drawPromise
+
+	function addProductionField() {
+		var newProd = document.createElement('div')
+		var fromField = document.createElement('input')
+		var toField = document.createElement('input')
+
+		newProd.classList.add('production')
+		fromField.addEventListener('keyup', fieldsChanged)
+		toField.addEventListener('keyup', fieldsChanged)
+
+
+		newProd.appendChild(fromField)
+		newProd.appendChild(toField)
+		productionFields.appendChild(newProd)
+	}
+
+	addBtn.addEventListener('click', addProductionField)
+	iterateBtn.addEventListener('click', () => {iterate()})
+	restBtn.addEventListener('click', reset)
+
+
+
+
+	function fieldsChanged() {
+		// for convenience generate new L-System but create new viz at previous iteration
+		// so you can see the changes live... (for smaller complexity)
+
+		var prevIterations = 0
+		var prevFinals = []
+		if (lsys) {
+			prevIterations = lsys.iterations
+			if (lsys.finals) prevFinals = lsys.finals
+		}
+
 		lsys = new LSystem({
 			word: wordField.value,
-			finals: [
-				['F', () => {
-					ctx.beginPath()
-					ctx.moveTo(0,0)
-					ctx.lineTo(0, 30/(lsys.iterations + 1))
-					ctx.stroke()
-					ctx.translate(0, 30/(lsys.iterations + 1))
-				}],
-				['+', () => { ctx.rotate((Math.PI/180) * angle()) } ],
-				['-', () => { ctx.rotate((Math.PI/180) * -angle()) }],
-				['[', () => { ctx.save() }],
-				[']', () => { ctx.restore() }]
-			]
+			finals: prevFinals
+		})
+
+		var productions = document.querySelectorAll('.production')
+
+		// first aggregate key value fields and set to lsys' production
+		for (var i = 0; i < productions.length; i++) {
+			console.log(productions[i].children[0].value, ' => ', productions[i].children[1].value)
+
+			lsys.productions.set(
+				productions[i].children[0].value,
+				productions[i].children[1].value);
+		}
+
+		lsys.iterate(prevIterations).then(window.requestAnimationFrame(draw))
+
+	}
+
+	function iterate(n=1) {
+		return lsys.iterate(n).then( (res) => {
+			console.log(res)
+			window.requestAnimationFrame(draw)
+		})
+
+	}
+
+
+
+
+	function draw() {
+		console.log('draw');
+		ctx.save()
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		ctx.translate(300, 300)
+		ctx.moveTo(0, 0)
+		ctx.rotate((Math.PI / 180) * 180)
+
+		lsys.final().then(() => {
+			ctx.restore()
+			console.log('then draw finished')
 		})
 
 
-
-		var productionsFields
-		var drawPromise
+	}
 
 
-
-		function addProductionField() {
-			var newProd = document.createElement('div')
-			var fromField = document.createElement('input')
-			var toField = document.createElement('input')
-
-			newProd.classList.add('production')
-			fromField.addEventListener('keyup', fieldsChanged)
-			toField.addEventListener('keyup', fieldsChanged)
-
-
-			newProd.appendChild(fromField)
-			newProd.appendChild(toField)
-			productionFields.appendChild(newProd)
+	function reset() {
+		console.log('reset iterations')
+		if (lsys) {
+			lsys.word = wordField.value
+			window.requestAnimationFrame(draw)
+			lsys.iterations = 0
 		}
-
-		addBtn.addEventListener('click', addProductionField)
-		iterateBtn.addEventListener('click', iterate)
-		restBtn.addEventListener('click', reset)
-
-
-
-
-		function fieldsChanged() {
-			// for convenience generate new L-System but create new viz at previous iteration
-			// so you can see the changes live... (for smaller complexity)
-
-			var prevIterations = 0
-			var prevFinals = []
-			if(lsys){
-				prevIterations = lsys.iterations
-				if(lsys.finals) prevFinals = lsys.finals
-			}
-
-			lsys = new LSystem({
-				word: wordField.value,
-				finals: prevFinals
-			})
-
-			var productions = document.querySelectorAll('.production')
-
-			// first aggregate key value fields and set to lsys' production
-			for (var i = 0; i < productions.length; i++) {
-				console.log(productions[i].children[0].value, ' => ', productions[i].children[1].value)
-
-				lsys.productions.set(
-					productions[i].children[0].value,
-					productions[i].children[1].value);
-			}
-
-			lsys.iterate(prevIterations)
-			draw()
-			console.log(lsys.word)
-		}
-
-		function iterate() {
-			lsys.next()
-			draw()
-			console.log('called draw');
-			//console.log(lsys.word)
-		}
-
-		function draw() {
-
-			ctx.clearRect(0, 0, canvas.width, canvas.height)
-			ctx.save()
-			ctx.translate(300, 300)
-			ctx.moveTo(0,0)
-			ctx.rotate((Math.PI/180) * 180)
-			console.log('draw started');
-			return lsys.final().then(ctx.restore())
-
-
-		}
-
-
-		function reset() {
-			console.log('reset iterations')
-			if(lsys) {
-				console.log('bla');
-				lsys.word = wordField.value
-				lsys.iterations = 0
-				lsys.next()
-				draw()
-			}
-		}
-
-	</script>
+	}
+</script>
 
 </html>

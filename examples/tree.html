@@ -48,7 +48,7 @@
 			document.addEventListener('click', function (e) {
 				console.log(tree.iterations);
 				console.log(tree.word);
-				
+
 
 
 				ctx.restore()
@@ -58,8 +58,8 @@
 				ctx.translate(700, 1000)
 				ctx.moveTo(0,0)
 				ctx.rotate((Math.PI/180) * 180)
-				tree.final()
-				tree.next()
+				tree.iterate().then(tree.final())
+
 
 			});
 
