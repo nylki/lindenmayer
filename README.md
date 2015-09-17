@@ -8,9 +8,9 @@ I will remove this warning when I consider this library stable. I hope to get it
 
 ## Usage
 
-initialize new L-System with initiator word and productions. Here the [Koch curve](https://en.wikipedia.org/wiki/Koch_snowflake) is shown:
-
 ### initializing
+
+initialize new L-System with initiator word and productions. Here the [Koch curve](https://en.wikipedia.org/wiki/Koch_snowflake) is shown:
 
 ```.js
 // init the Koch curve L-System
