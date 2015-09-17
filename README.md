@@ -124,15 +124,14 @@ var koch = new LSystem({
   word: 'F++F++F',
 	productions: [['F', 'F-F++F-F']],
 	finals: [
+		['+', () => { ctx.rotate((Math.PI/180) * 60) }],
+		['-', () => { ctx.rotate((Math.PI/180) * -60) }],
 		['F', () => {
 			ctx.beginPath()
 			ctx.moveTo(0,0)
 			ctx.lineTo(0, 50/(koch.iterations + 1))
 			ctx.stroke()
-			ctx.translate(0, 50/(koch.iterations + 1))}],
-			
-		['+', () => {ctx.rotate((Math.PI/180) * 60)}],
-		['-', () => { ctx.rotate((Math.PI/180) * -60)}]
+			ctx.translate(0, 50/(koch.iterations + 1))}]
 		]
 	})
 	
