@@ -66,7 +66,7 @@ describe('Correct behavior of L-Systems', function() {
 
   it('Final functions must be functions. Should throw an error on any other type.', function() {
     var vizsys = new lsys.LSystem({
-      word:'A',
+      word: 'A',
       productions: [['A', 'Z']],
       finals: [
         ['Z', 'A_STRING']
@@ -88,7 +88,7 @@ describe('Correct behavior of L-Systems', function() {
     // var rotation = 5
     // expect(function () {
     //   vizsys.finals.set('Z', () => {rotation *= 2})
-    //   vizsys.final()
+    //   vizsys.final(),
     // }).toNotThrow(/not a function/)
     //
     // expect(rotation).to.equal(10)

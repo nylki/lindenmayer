@@ -1,6 +1,11 @@
+
 # L-Systems in JS (WIP!) [![Build Status](https://travis-ci.org/nylki/lindenmayer.svg?branch=master)](https://travis-ci.org/nylki/lindenmayer)
-Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus
-on a concise syntax. stay tuned :)
+
+
+
+Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base Class, that can handle most use-cases by simply allowing functions as productions.
+In addition to that I want to have a feature-complete subclass that uses those features but comes with all the productions defined *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`).
+As I said before, those can be easily implemented by using the basic class. But for historic reasons and compatibility with many already existing examples this classic Class should be a le to handle those.
 
 Regarding ES6:
 - generators might come in handy
@@ -10,7 +15,7 @@ Regarding ES6:
 
 
 - [ ] allow Symbols(and generally objects maybe?) in addition to single chars
-      this would allow stuff like: 
+      this would allow stuff like:
 
 ```.js
 let buildingsys = new LSystem({
