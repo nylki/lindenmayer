@@ -3,7 +3,9 @@
 
 
 
-Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base Class, that can handle most use-cases by simply allowing functions as productions.
+Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base class, that can handle most use-cases by simply allowing anonymous functions as productions.
+`myLSys.setProduction('B', () => 'F+B-F'` 
+
 In addition to that I want to have a feature-complete subclass that uses those features but comes with all the productions defined *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`).
 As I said before, those can be easily implemented by using the basic class. But for historic reasons and compatibility with many already existing examples this classic Class should be a le to handle those.
 
