@@ -1,8 +1,8 @@
 var chai = require("chai")
 var chaiAsPromised = require("chai-as-promised")
-var expect = chai.expect
 var should = chai.should
 chai.use(chaiAsPromised)
+chai.use(should)
 
 var lsys = require('../lindenmayer')
 
@@ -14,7 +14,7 @@ describe('Correct behavior of L-Systems', function() {
       word:'⚣⚤●',
       productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
-    expect(test.next().value).to.equal('♂♂♀♂○◐◑')
+    return (test.iterate()).should.eventually.equal('♂♂♀♂○◐◑')
   })
 
 
@@ -28,15 +28,8 @@ describe('Correct behavior of L-Systems', function() {
       ]
     })
 
-    expect(koch.next().value).to.equal('F-F++F-F++F-F++F-F++F-F++F-F')
+    return (koch.iterate(3)).should.eventually.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
 
-    expect(koch.next().value).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
-
-    expect(koch.next().value).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
-
-
-    var wordFromGenerator = koch.next().value
-    expect(wordFromGenerator).to.equal(koch.word)
   })
 
 
@@ -59,12 +52,13 @@ describe('Correct behavior of L-Systems', function() {
 
     vizsys.output = ''
 
-    vizsys.iterate(2)
-    vizsys.final()
-    expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
+    return vizsys.iterate(2).then(vizsys.final()).then(() => vizsys.output).should.eventually.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
+
+
   })
 
-  it('Final functions must be functions. Should throw an error on any other type.', function() {
+
+  it('Final functions must be functions. Should throw an error on any other type. Test for String here.', function() {
     var vizsys = new lsys.LSystem({
       word: 'A',
       productions: [['A', 'Z']],
@@ -73,28 +67,7 @@ describe('Correct behavior of L-Systems', function() {
       ]
     })
 
-    vizsys.next()
-    return vizsys.final().should.eventually.be.rejected
-
-
-    // vizsys.finals.set('Z', 7)
-    // vizsys.final().should.equal.rejected
-    //
-    // vizsys.finals.set('Z', new Date())
-    // vizsys.final().should.equal.rejected
-
-
-
-    // var rotation = 5
-    // expect(function () {
-    //   vizsys.finals.set('Z', () => {rotation *= 2})
-    //   vizsys.final(),
-    // }).toNotThrow(/not a function/)
-    //
-    // expect(rotation).to.equal(10)
-    //
-    //
-
+    return vizsys.iterate().then(() => vizsys.final()).should.eventually.be.rejected
   })
 
 
@@ -103,7 +76,7 @@ describe('Correct behavior of L-Systems', function() {
       word:'AB',
       productions: [
         ['A', 'A+R'],
-        ['B', () => { return (Math.random() < 0.5) ? 'BB' : 'A'}],
+        ['B', () => { return 'BB'}],
         ['R', () => {
           if(funcprodsys.iterations > 2) {
             return 'R'
@@ -114,18 +87,7 @@ describe('Correct behavior of L-Systems', function() {
       ]
     })
 
-    funcprodsys.iterate(2)
-    expect(funcprodsys.word.length)
-      .to.equalLessThan(11)
-      .to.equalGreaterThan(7)
-
-    funcprodsys.next()
-    expect(funcprodsys.word.length)
-      .to.equalLessThan(17)
-      .to.equalGreaterThan(12)
-
-
-
+    return funcprodsys.iterate(3).should.eventually.equal('A+R+RB+RBBBBBBBBBBB')
   })
 
 

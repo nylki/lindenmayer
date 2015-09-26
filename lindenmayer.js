@@ -10,7 +10,7 @@ class LSystem {
 
 			if(finals) this.finals = new Map(finals)
 			this.iterations = 0
-			console.log(this)
+
 	}
 
 
@@ -44,7 +44,6 @@ class LSystem {
 						let result = literal
 
 						if(this.productions.has(literal)){
-
 							let p = this.productions.get(literal)
 
 							if(typeof p === 'function') {
@@ -95,8 +94,7 @@ final() {
 			if (this.finals.has(literal)) {
 				var finalFunction = this.finals.get(literal)
 				var typeOfFinalFunction = typeof finalFunction
-				if ((typeOfFinalFunction !== 'function')) {
-					console.log('reject', finalFunction );
+				if ((typeOfFinalFunction !== 'function')) {s
 					reject(Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!'))
 				}
 				// execute literals function
@@ -109,8 +107,47 @@ final() {
 		resolve('finished final functions..')
 	})
 }
+
+matchAfter(index, toMatch, ignoreSymbols, branchSymbolPairs=[]) {
+// ignore = [+, -, /, \]
+// ignoreBrackets = [
+// [ '\[', '\]' ], ['(', ')'3]]
+
+	let branchCount = new Array(branchSymbolPairs.length)
+
+	for (var i = 0; i < toMatch.length; i++) {
+		let literal = toMatch[i]
+		let branchIndex = 0
+
+		// branch symbol?
+		if(this.word[index + i] === branchSymbolPairs[0]){
+			branchCount++
+			for (branchIndex = 0; branchIndex < this.word.length; branchIndex++) {
+				let inBranchLiteral = this.word[i + branchIndex]
+				if(inBranchLiteral === branchSymbolPairs[0]) branchCount++
+				if(inBranchLiteral === branchSymbolPairs[1]) branchCount--
+
+				// if outer brackets closed, break loop and check on
+				if(branchCount === 0) break
+			}
+			// if loop ended without outer brackets closed, reset branch index
+			if (branchCount !== 0) branchIndex = 0
+		}
+
+		// if there was a branch/brackets, then the branchIndex is set to after the branch
+		let literalAfterBranchTesting = (this.word[index + i + branchIndex])
+		// return false, if literal doesnt match, even after branch testing
+		if((literalAfterBranchTesting !== literal) && (ignoreSymbols.includes(literalAfterBranchTesting) === false)) {
+			return false
+		}
+	}
+
+	return true
 }
 
+
+
+}
 
 class LSystem_classic extends LSystem {
 	/* create an LSystem with predefined productions that behaves like the original L-Systems in "Algorithmic Beauty of Plants" by Lindenmayer
@@ -130,13 +167,6 @@ class LSystem_classic extends LSystem {
 
 	}
 
-	matchContextSensitive (word) {
-		let match = []
-		for (char of word) {
-			if(char === '<')
-		}
-	}
-
 	setProduction (condition, result) {
 
 		let main = condition
@@ -148,24 +178,24 @@ class LSystem_classic extends LSystem {
 			return true
 		}
 		// context sensitive production syntax (from Algorithmic Beauty of Plants)
-		else if (condition.length >== 3) {
-			let match = matchContextSensitive(condition)
-			if(match === false) throw new Error(condition, 'is no valid condition to be used as a (context sensitive) production')
-
-
-			main = word in between < and >
-			let productionsForMain = this.productions.get(main)
-
-			// construct new function that deals with context sensitivity
-			// using class methods hasBefore hasAfter
-			let p = function(beforeMain, main, afterMain, index) {
-				if(this.hasBefore(index, beforeMain) &&
-						this.hasAfter(index, afterMain)) {
-
-						} else {
-							return false
-						}
-
+		else if (condition.length >= 3) {
+			// let match = matchContextSensitive(condition)
+			// if(match === false) throw new Error(condition, 'is no valid condition to be used as a (context sensitive) production')
+			//
+			//
+			// main = word in between < and >
+			// let productionsForMain = this.productions.get(main)
+			//
+			// // construct new function that deals with context sensitivity
+			// // using class methods hasBefore hasAfter
+			// let p = function(beforeMain, main, afterMain, index) {
+			// 	if(this.hasBefore(index, beforeMain) &&
+			// 			this.hasAfter(index, afterMain)) {
+			//
+			// 			} else {
+			// 				return false
+			// 			}
+			//
 
 			}
 
@@ -176,22 +206,10 @@ class LSystem_classic extends LSystem {
 			this.productions.set(main, productionsForMain)
 
 		}
-
-
-	}
-
-
-	static hasBefore(index, word) {
-
-	}
-
-	static hasAfter(index, word) {
-
 	}
 
 
 
-}
 
 
 
