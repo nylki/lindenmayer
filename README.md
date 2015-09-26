@@ -3,9 +3,26 @@
 
 
 
-Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base Class, that can handle most use-cases by simply allowing functions as productions.
-In addition to that I want to have a feature-complete subclass that uses those features but comes with all the productions defined *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`).
-As I said before, those can be easily implemented by using the basic class. But for historic reasons and compatibility with many already existing examples this classic Class should be a le to handle those.
+Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base class, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems:
+```.js
+
+let myLSys = new LSystem()
+
+// simple production, using ES6 arrow function
+myLSys.setProduction('B', () => 'F+F')
+
+// or same with just the String, both works
+myLSys.setProduction('B', 'F+F')
+
+// context sensitive production rule, replacing `B` with `F` if previous character is a B as well, otherwise `BA`
+myLSys.setProduction('B', (index, word) => (word[index-1] === 'B') ? 'F' : 'BA')
+
+// simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
+myLSys.setProduction('B', () => (Math.random() < 0.1) ? '+F' : 'FB+B')
+``` 
+
+In addition to that I want to have a feature-complete which comes with all the possible productions defined in the *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`) and uses the base class as a fundament.
+As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented by using the base class. But for historic reasons and compatibility with many already existing examples this classic Class should be able to handle those.
 
 Right now it's under heavy development, so features and names are subject to change.
 I will remove this warning when I consider this library stable. I hope to get it **stable by November 2015**.
