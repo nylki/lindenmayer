@@ -1,8 +1,8 @@
 var chai = require("chai")
 var chaiAsPromised = require("chai-as-promised")
+var expect = chai.expect
 var should = chai.should
 chai.use(chaiAsPromised)
-chai.use(should)
 
 var lsys = require('../lindenmayer')
 
@@ -14,7 +14,7 @@ describe('Correct behavior of L-Systems', function() {
       word:'⚣⚤●',
       productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
-    return (test.iterate()).should.eventually.equal('♂♂♀♂○◐◑')
+    expect(test.iterate()).to.equal('♂♂♀♂○◐◑')
   })
 
 
@@ -28,8 +28,15 @@ describe('Correct behavior of L-Systems', function() {
       ]
     })
 
-    return (koch.iterate(3)).should.eventually.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+    expect(koch.iterate()).to.equal('F-F++F-F++F-F++F-F++F-F++F-F')
 
+    expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+
+    expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+
+
+    var wordFromGenerator = koch.iterate()
+    expect(wordFromGenerator).to.equal(koch.word)
   })
 
 
@@ -52,46 +59,77 @@ describe('Correct behavior of L-Systems', function() {
 
     vizsys.output = ''
 
-    return vizsys.iterate(2).then(vizsys.final()).then(() => vizsys.output).should.eventually.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
-
-
+    vizsys.iterate(2)
+    vizsys.final()
+    expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
   })
 
-
-  it('Final functions must be functions. Should throw an error on any other type. Test for String here.', function() {
+  it('Final functions must be functions. Should throw an error on any other type.', function() {
     var vizsys = new lsys.LSystem({
-      word: 'A',
+      word:'A',
       productions: [['A', 'Z']],
       finals: [
         ['Z', 'A_STRING']
       ]
     })
 
-    return vizsys.iterate().then(() => vizsys.final()).should.eventually.be.rejected
+    expect(function () {
+      vizsys.iterate()
+      vizsys.final()
+    }).to.throw(/not a function/)
+
+    expect(function () {
+      vizsys.finals.set('Z', 7)
+      vizsys.final()
+    }).to.throw(/not a function/)
+
+    expect(function () {
+      vizsys.finals.set('Z', new Date())
+      vizsys.final()
+    }).to.throw(/not a function/)
+
+
+    var rotation = 5
+    expect(function () {
+      vizsys.finals.set('Z', () => {rotation *= 2})
+      vizsys.final()
+    }).to.not.throw(/not a function/)
+
+    expect(rotation).to.equal(10)
+
+
+
   })
 
 
-  it('functions and strings should be usable as production.', function() {
-    var funcprodsys = new lsys.LSystem({
-      word:'AB',
+  it('Helper functions for context sensitive productions should work properly. Especially with branches.', function() {
+
+    var cs_lsys = new lsys.LSystem({
+      word: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: [
-        ['A', 'A+R'],
-        ['B', () => { return 'BB'}],
-        ['R', () => {
-          if(funcprodsys.iterations > 2) {
-            return 'R'
-          } else {
-            return 'RB'
-          }
-        }]
+        ['C', (index, word) => (lsys.matchRight(word, 'DEF',['+', '-', '/'], index)) ? 'Z' : 'C']
+      ]
+    })
+    expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G')
+
+
+
+
+  })
+
+  it('Context sensitive L-System should allow work inside explicitly wanted branches', function() {
+    // should
+    var cs_lsys3 = new lsys.LSystem({
+      word: 'ABC[DE][FG[HI[JK]L]MNO]',
+      productions: [
+        ['F', (index, word) => (lsys.matchRight(word, 'G[H]M',['+', '-', '/'], index)) ? 'Z' : 'F']
       ]
     })
 
-    return funcprodsys.iterate(3).should.eventually.equal('A+R+RB+RBBBBBBBBBBB')
+    expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+
+    cs_lsys3.productions.set('H', (index, word) =>  (lsys.matchRight(word, 'IL',['+', '-', '/'], index)) ? 'Z' : 'H')
+    expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[ZI[JK]L]MNO]')
+
   })
-
-
-
-
-
 });

@@ -1,33 +1,73 @@
-
 'use strict'
 
-var runningCount = 0
+function matchRight(word, match, ignoreList,  wordIndex_) {
+
+	let matchIndex = 0
+	let ignoredBranchCount = 0
+	let explicitBranchCount = 0
+
+	for (var wordIndex = wordIndex_ + 1; wordIndex < word.length; wordIndex++) {
+		let wordLiteral = word[wordIndex]
+		let matchLiteral = match[matchIndex]
+
+		// compare current literal of word with current literal of match
+		if (wordLiteral === matchLiteral) {
+
+			if(ignoredBranchCount === 0 || explicitBranchCount > 0) {
+				// if its a match and NOT inside branch (ignoredBranchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
+				matchIndex++
+			}
+
+			// if a bracket was explicitly stated in match word
+			if(wordLiteral === '['){
+				 explicitBranchCount++
+			 } else if (wordLiteral === ']') {
+			 	explicitBranchCount--
+			}
+
+		} else if (wordLiteral === '[') {
+			ignoredBranchCount++
+		} else if(wordLiteral === ']') {
+			ignoredBranchCount--
+			if(ignoredBranchCount < 0) return false
+		} else if(ignoredBranchCount === 0 && explicitBranchCount === 0 && ignoreList.includes(wordLiteral) === false) {
+			// not in brackets/branch? and literal not in ignorelist ? then false
+			return false
+		}
+
+		// reached end of match word? return true
+		if(matchIndex === match.length) return true
+	}
+
+}
 
 class LSystem {
-	constructor({word, productions, finals}) {
-			this.word = word
-			this.productions = new Map(productions)
+	constructor({
+		word, productions, finals
+	}) {
+		this.word = word
+		this.productions = new Map(productions)
 
-			if(finals) this.finals = new Map(finals)
-			this.iterations = 0
+		if (finals) this.finals = new Map(finals)
+		this.iterations = 0
 
 	}
 
 
 	// keep old objects but add new ones
-	update({word, productions, finals}) {
+	update({
+		word, productions, finals
+	}) {
 
 	}
 
 	// iterate n times - executes this.generate.next() n-1 times
-	iterate(n=1) {
+	iterate(n = 1) {
 
-		if (typeof n !== 'number') throw(new Error('wrong argument for iterate().Needs Number. Instead: ', n))
-		if(n === 0) n = 1
+		if (typeof n !== 'number') throw (new Error('wrong argument for iterate().Needs Number. Instead: ', n))
+		if (n === 0) n = 1
 
-
-		return new Promise((resolve, reject) => {
-			let newWord
+				let newWord
 
 				for (let iteration = 0; iteration < n; iteration++, this.iterations++) {
 					// set word to the newly generated newWord to be used in next iteration
@@ -35,7 +75,7 @@ class LSystem {
 					let word = (iteration === 0) ? this.word : newWord
 
 					// … and reset newWord for next iteration
-					 newWord = ''
+					newWord = ''
 
 					let index = 0
 					for (let literal of word) {
@@ -43,32 +83,32 @@ class LSystem {
 						// default production result is just the original literal itself
 						let result = literal
 
-						if(this.productions.has(literal)){
+						if (this.productions.has(literal)) {
 							let p = this.productions.get(literal)
 
-							if(typeof p === 'function') {
+							if (typeof p === 'function') {
 								// if p is a function, execute function and append return value
 								result = p(index, word)
 
 							} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
-						/*	if p is a list/iterable: go through the list and use
-								the first valid production in that list.
+								/*	if p is a list/iterable: go through the list and use
+										the first valid production in that list.
 
-								this can be useful for traditional context sensitive and stochastic
-								productions as seen in Algorithmic Beauty of Plants,
-								when you don't want to use a single function to handle those cases.
-								*/
+										this can be useful for traditional context sensitive and stochastic
+										productions as seen in Algorithmic Beauty of Plants,
+										when you don't want to use a single function to handle those cases.
+										*/
 
 								for (_p of p) {
 									let _result = (typeof _p === 'function') ? _p(index, word) : p
-									if(res !== false){
+									if (res !== false) {
 										result = _result
 										break
 									}
 								}
 
 							} else if (typeof p === 'string' || p instanceof String) {
-								 // if p is no function and no iterable, it should be a string
+								// if p is no function and no iterable, it should be a string
 								result = p
 							}
 						}
@@ -82,20 +122,16 @@ class LSystem {
 				this.word = newWord
 
 				// and also resolve with newWord for convenience
-				resolve(newWord)
-		})
+				return newWord
 	}
 
-
-final() {
-	return new Promise((resolve, reject) => {
-
+	final() {
 		for (let literal of this.word) {
 			if (this.finals.has(literal)) {
 				var finalFunction = this.finals.get(literal)
 				var typeOfFinalFunction = typeof finalFunction
-				if ((typeOfFinalFunction !== 'function')) {s
-					reject(Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!'))
+				if ((typeOfFinalFunction !== 'function')) {
+					throw Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
 				}
 				// execute literals function
 				finalFunction()
@@ -104,46 +140,7 @@ final() {
 				// literal has no final function
 			}
 		}
-		resolve('finished final functions..')
-	})
-}
-
-matchAfter(index, toMatch, ignoreSymbols, branchSymbolPairs=[]) {
-// ignore = [+, -, /, \]
-// ignoreBrackets = [
-// [ '\[', '\]' ], ['(', ')'3]]
-
-	let branchCount = new Array(branchSymbolPairs.length)
-
-	for (var i = 0; i < toMatch.length; i++) {
-		let literal = toMatch[i]
-		let branchIndex = 0
-
-		// branch symbol?
-		if(this.word[index + i] === branchSymbolPairs[0]){
-			branchCount++
-			for (branchIndex = 0; branchIndex < this.word.length; branchIndex++) {
-				let inBranchLiteral = this.word[i + branchIndex]
-				if(inBranchLiteral === branchSymbolPairs[0]) branchCount++
-				if(inBranchLiteral === branchSymbolPairs[1]) branchCount--
-
-				// if outer brackets closed, break loop and check on
-				if(branchCount === 0) break
-			}
-			// if loop ended without outer brackets closed, reset branch index
-			if (branchCount !== 0) branchIndex = 0
-		}
-
-		// if there was a branch/brackets, then the branchIndex is set to after the branch
-		let literalAfterBranchTesting = (this.word[index + i + branchIndex])
-		// return false, if literal doesnt match, even after branch testing
-		if((literalAfterBranchTesting !== literal) && (ignoreSymbols.includes(literalAfterBranchTesting) === false)) {
-			return false
-		}
 	}
-
-	return true
-}
 
 
 
@@ -162,18 +159,22 @@ class LSystem_classic extends LSystem {
 
 	*/
 
-	constructor ({word, productions, finals}) {
-		super({word, productions, finals})
+	constructor({
+		word, productions, finals
+	}) {
+		super({
+			word, productions, finals
+		})
 
 	}
 
-	setProduction (condition, result) {
+	setProduction(condition, result) {
 
 		let main = condition
 
 		// if regular contextfree production should overwrite existing  cf-productions
 		// as it doesnt make sense to have multiple contextfree productions
-		if(condition.length === 1) {
+		if (condition.length === 1) {
 			this.productions.set(condition, result)
 			return true
 		}
@@ -197,16 +198,16 @@ class LSystem_classic extends LSystem {
 			// 			}
 			//
 
-			}
-
-			// push new production to the local copy
-			productionsForMain.push(productionsForMain)
-
-			// then reset the production for main with the modified copy
-			this.productions.set(main, productionsForMain)
-
 		}
+
+		// push new production to the local copy
+		productionsForMain.push(productionsForMain)
+
+		// then reset the production for main with the modified copy
+		this.productions.set(main, productionsForMain)
+
 	}
+}
 
 
 
@@ -224,8 +225,8 @@ class LSystem_Regex extends LSystem {
 
 // if in node export LSystem, otherwise don't attempt to
 try {
-    exports.LSystem = LSystem
-}
-catch(err) {
+	exports.LSystem = LSystem
+	exports.matchRight = matchRight
+} catch (err) {
 
 }

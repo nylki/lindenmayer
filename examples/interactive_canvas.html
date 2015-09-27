@@ -13,7 +13,7 @@
 		<input id="word" name="word" type="text" value="F">
 
 		<label for="angle">rotation angle (δ):</label>
-		<input id="angleSlider" name="angle" type="range" min="-180" max="180" value="90">
+		<input id="angleSlider" name="angle" type="range" min="-180.0" max="180.0" value="90.1">
 		<input id="angleField" name="angle" type="text" min="-180" max="180" value="90">
 
 
@@ -33,6 +33,7 @@
 <!-- <script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script> -->
 <script src="lindenmayer_ES5.js" charset="utf-8"></script>
 <script type="text/javascript">
+	var drawTimer
 	var canvas = document.getElementById('canvas')
 	var ctx = canvas.getContext("2d")
 
@@ -49,6 +50,7 @@
 
 
 	var angle
+	var change = true
 
 
 
@@ -84,18 +86,32 @@
 		}
 
 	angleSlider.addEventListener('input', () => {
-		updateAngle(angleSlider.value)
-		window.requestAnimationFrame(draw)
+		window.clearTimeout(drawTimer)
+		drawTimer = window.setTimeout(function () {
+			updateAngle(angleSlider.value)
+			change = true
+			//	window.requestAnimationFrame(draw)
+		}, 10);
 	})
 
+
 	angleField.addEventListener('input', () => {
-		updateAngle(angleField.value)
-		window.requestAnimationFrame(draw)
+		window.clearTimeout(drawTimer)
+		drawTimer = window.setTimeout(function () {
+			updateAngle(angleSlider.value)
+			change = true
+			//window.requestAnimationFrame(draw)
+		}, 10);
 	})
 
 	wordField.addEventListener('keyup', () => {
-		lsys.word = wordField.value
-		fieldsChanged()
+		window.clearTimeout(drawTimer)
+		drawTimer = window.setTimeout(function () {
+			lsys.word = wordField.value
+			change = true
+			fieldsChanged()
+		}, 10);
+
 	})
 
 
@@ -108,8 +124,18 @@
 		var toField = document.createElement('input')
 
 		newProd.classList.add('production')
-		fromField.addEventListener('keyup', fieldsChanged)
-		toField.addEventListener('keyup', fieldsChanged)
+		fromField.addEventListener('keyup', (arguments) => {
+			window.setTimeout(function () {
+				fieldsChanged()
+				change = true
+			}, 100);
+		})
+		toField.addEventListener('keyup', (arguments) => {
+			window.setTimeout(function () {
+				fieldsChanged()
+				change = true
+			}, 100);
+		})
 
 
 		newProd.appendChild(fromField)
@@ -118,7 +144,11 @@
 	}
 
 	addBtn.addEventListener('click', addProductionField)
-	iterateBtn.addEventListener('click', () => {iterate()})
+	iterateBtn.addEventListener('click', () => {
+		window.setTimeout(function () {
+			iterate()
+		}, 100);
+	})
 	restBtn.addEventListener('click', reset)
 
 
@@ -151,35 +181,41 @@
 				productions[i].children[1].value);
 		}
 
-		lsys.iterate(prevIterations).then(window.requestAnimationFrame(draw))
+		lsys.iterate(prevIterations)
+		//(window.requestAnimationFrame(draw))
 
 	}
 
 	function iterate(n=1) {
-		return lsys.iterate(n).then( (res) => {
-			console.log(res)
-			window.requestAnimationFrame(draw)
-		})
-
+		lsys.iterate(n)
+		//	window.requestAnimationFrame(draw)
 	}
 
 
 
 
-	function draw() {
-		console.log('draw');
+	function draw(timestamp) {
+		if (change === true){
+		change = false
+		console.log('change! so draw');
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 		ctx.translate(300, 300)
 		ctx.moveTo(0, 0)
 		ctx.rotate((Math.PI / 180) * 180)
 
-		lsys.final().then(() => {
+		lsys.final()
 
-		})
+	}
+
+		window.requestAnimationFrame(draw);
+
+
 
 
 	}
+
+	window.requestAnimationFrame(draw)
 
 
 	function reset() {
