@@ -112,24 +112,38 @@ describe('Correct behavior of L-Systems', function() {
     })
     expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G')
 
-
-
-
   })
 
   it('Context sensitive L-System should allow work inside explicitly wanted branches', function() {
-    // should
     var cs_lsys3 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
         ['F', (index, word) => (lsys.matchRight(word, 'G[H]M',['+', '-', '/'], index)) ? 'Z' : 'F']
       ]
     })
-
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
 
-    cs_lsys3.productions.set('H', (index, word) =>  (lsys.matchRight(word, 'IL',['+', '-', '/'], index)) ? 'Z' : 'H')
-    expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[ZI[JK]L]MNO]')
+
+    var cs_lsys4 = new lsys.LSystem({
+      word: 'ABC[DE][FG[HI[JK]L]MNO]',
+      productions: [
+        ['H', (index, word) =>  ( lsys.matchRight(word, 'I[K]L',['+', '-', '/'], index)) ? 'Z' : 'H']
+      ]
+
+    })
+    // I[J]L should not apply not I[K]L
+    expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]')
+
+
+    var cs_lsys5 = new lsys.LSystem({
+      word: 'S][ED]CBA',
+      productions: [
+        ['S', (index, word) =>  ( lsys.matchRight(word, 'CB',['+', '-', '/'], index)) ? 'Z' : 'S']
+      ]
+
+    })
+    // as required by ABOP S. 32 (reversed string)
+    expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA')
 
   })
 });
