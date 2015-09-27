@@ -19,7 +19,7 @@ myLSys.setProduction('B', (index, word) => (word[index-1] === 'B') ? 'F' : 'BA')
 
 // simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? '+F' : 'FB+B')
-``` 
+```
 
 In addition to that I want to have a feature-complete which comes with all the possible productions defined in the *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`) and uses the base class as a fundament.
 As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented by using the base class. But for historic reasons and compatibility with many already existing examples this classic Class should be able to handle those.
@@ -99,19 +99,11 @@ Iterate the L-System and get resulting word:
 
 ```.js
 // iterate once, log result to console
-lsys.iterate().then(result => console.log(result))
+let result = lsys.iterate()
+console.log(result))
 
 // iterate multiple times, then log result
-lsys.iterate(5).then(result => console.log(result))
-
-// or get the L-Systems word or iteration count
-function postProcessing(word, iterationCount, …){
-      if(iterationCount < 6) doSomethingWith(word)
-}
-postProcessing(lsys.word, lsys.iterations)
-
-
-
+console.log(lsys.iterate(5))
 ```
 
 
@@ -157,6 +149,6 @@ var koch = new LSystem({
 		]
 	})
 
-koch.iterate(3).then(koch.final())
-
+koch.iterate(3)
+koch.final()
 ```
