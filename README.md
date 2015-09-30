@@ -1,5 +1,5 @@
 
-# L-Systems in JS (WIP!) [![Build Status](https://travis-ci.org/nylki/lindenmayer.svg?branch=master)](https://travis-ci.org/nylki/lindenmayer)
+# L-Systems in JS (WIP! ETA: Nov. 2015) [![Build Status](https://travis-ci.org/nylki/lindenmayer.svg?branch=master)](https://travis-ci.org/nylki/lindenmayer)
 
 
 
