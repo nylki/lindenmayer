@@ -14,7 +14,7 @@ myLSys.setProduction('B', () => 'F+F')
 // or same with just the String, both works
 myLSys.setProduction('B', 'F+F')
 
-// context sensitive production rule, replacing `B` with `F` if previous character is a B as well, otherwise `BA`
+// simple context sensitive production rule, replacing `B` with `F` if previous character is a B as well, otherwise `BA`
 myLSys.setProduction('B', (index, word) => (word[index-1] === 'B') ? 'F' : 'BA')
 
 // simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
