@@ -105,6 +105,27 @@ class LSystem {
 	}
 
 
+/*
+	how to use match():
+ 	-----------------------
+
+	index is the index of a production using `match`
+	eg. in a classic L-System
+
+	LSYS = ABCDE
+	B<C>DE -> 'Z'
+
+	the index of the `B<C>D -> 'Z'` production would be the index of C (which is 2) when the
+	production would perform match(). so (if not using the ClassicLSystem class) you'd construction your context-sensitive production from C to Z like so:
+
+	LSYS.setProduction('C', (index, word) => {
+		(LSYS.match({index, match: 'B', direction: 'left'}) &&
+		 LSYS.match({index, match: 'DE', direction: 'right'}) ? 'Z' : 'C')
+	})
+
+	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
+	*/
+
 	match({word, match, ignoreSymbols, branchSymbols, index, direction}) {
 		let branchCount = 0
 		let explicitBranchCount = 0
