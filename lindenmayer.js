@@ -3,12 +3,12 @@
 
 class LSystem {
 	constructor({
-		word, productions, finals, branchSymbols=[], ignoreSymbols=[]
+		word, productions, finals, branchSymbols=[], ignoredSymbols=[]
 	}) {
 		this.word = word
 		this.productions = new Map(productions)
 		this.branchSymbols = branchSymbols
-		this.ignoreSymbols = ignoreSymbols
+		this.ignoredSymbols = ignoredSymbols
 
 		if (finals) this.finals = new Map(finals)
 		this.iterations = 0
@@ -126,12 +126,12 @@ class LSystem {
 	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
 	*/
 
-	match({word, match, ignoreSymbols, branchSymbols, index, direction}) {
+	match({word, match, ignoredSymbols, branchSymbols, index, direction}) {
 		let branchCount = 0
 		let explicitBranchCount = 0
 		word = word || this.word
 		if(branchSymbols === undefined) branchSymbols = (this.branchSymbols !== undefined) ? this.branchSymbols : []
-		if(ignoreSymbols === undefined) ignoreSymbols = (this.ignoreSymbols !== undefined) ? this.ignoreSymbols : []
+		if(ignoredSymbols === undefined) ignoredSymbols = (this.ignoredSymbols !== undefined) ? this.ignoredSymbols : []
 
 		let branchStart, branchEnd, wordIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow
 		// set some variables depending on the direction to match
@@ -197,9 +197,9 @@ class LSystem {
 				branchCount = Math.max(0, branchCount-1)
 				if(explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount-1)
 
-			} else if((branchCount === 0 || (explicitBranchCount > 0 && matchLiteral !== branchEnd)) && ignoreSymbols.includes(wordLiteral) === false) {
+			} else if((branchCount === 0 || (explicitBranchCount > 0 && matchLiteral !== branchEnd)) && ignoredSymbols.includes(wordLiteral) === false) {
 				// not in branchSymbols/branch? or if in explicit branch, and not at the very end of
-				// condition (at the ]), and literal not in ignoreSymbols ? then false
+				// condition (at the ]), and literal not in ignoredSymbols ? then false
 				return false
 			}
 		}

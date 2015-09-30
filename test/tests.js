@@ -110,7 +110,7 @@ describe('Correct behavior of L-Systems', function() {
         ['C', (index, word) => (cs_lsys.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C']
       ],
       branchSymbols: '[]',
-      ignoreSymbols: '+-/'
+      ignoredSymbols: '+-/'
     })
 
     expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G')
@@ -156,4 +156,14 @@ describe('Correct behavior of L-Systems', function() {
     expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA')
 
   })
+
+    it('Context sensitive L-System helper function match() should work in L-Systems that don\'t use branches/brackets.', function() {
+      var cs_lsys6 = new lsys.LSystem({
+        word: 'A+++C-DE-+F&GH++-',
+        productions: [
+          ['C', (index, word) =>  ( cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C']
+        ]
+      })
+      expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-')
+    })
 });
