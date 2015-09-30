@@ -1,6 +1,6 @@
 'use strict';
 
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -8,13 +8,77 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var runningCount = 0;
+function matchRight(_ref) {
+	var word = _ref.word;
+	var match = _ref.match;
+	var _ref$ignoreList = _ref.ignoreList;
+	var ignoreList = _ref$ignoreList === undefined ? [] : _ref$ignoreList;
+	var _ref$branchSymbols = _ref.branchSymbols;
+	var branchSymbols = _ref$branchSymbols === undefined ? [] : _ref$branchSymbols;
+	var index = _ref.index;
+
+	console.log('ignoreList', ignoreList);
+	console.log('branchSymbols', branchSymbols);
+	console.log('word', word);
+	console.log('match', match);
+	var matchIndex = 0;
+	var branchCount = 0;
+	var explicitBranchCount = 0;
+
+	for (var wordIndex = index + 1; wordIndex < word.length; wordIndex++) {
+		var wordLiteral = word[wordIndex];
+		var matchLiteral = match[matchIndex];
+
+		// compare current literal of word with current literal of match
+		if (wordLiteral === matchLiteral) {
+
+			if (branchCount === 0 || explicitBranchCount > 0) {
+				// if its a match and previously NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
+
+				// if a bracket was explicitly stated in match word
+				if (wordLiteral === branchSymbols[0]) {
+					explicitBranchCount++;
+					branchCount++, matchIndex++;
+				} else if (wordLiteral === branchSymbols[1]) {
+					explicitBranchCount = Math.max(0, explicitBranchCount - 1);
+					branchCount = Math.max(0, branchCount - 1);
+					// only increase match if we are out of explicit branch
+
+					if (explicitBranchCount === 0) {
+						matchIndex++;
+					}
+				} else {
+					matchIndex++;
+				}
+			}
+
+			// reached end of match word? return true
+			if (matchIndex === match.length) return true;
+		} else if (wordLiteral === branchSymbols[0]) {
+			console.log('increase branch count');
+			branchCount++;
+			if (explicitBranchCount) explicitBranchCount++;
+		} else if (wordLiteral === branchSymbols[1]) {
+			branchCount = Math.max(0, branchCount - 1);
+			if (explicitBranchCount) explicitBranchCount = Math.max(0, explicitBranchCount - 1);
+		} else if ((branchCount === 0 || explicitBranchCount > 0 && matchLiteral !== branchSymbols[1]) && ignoreList.includes(wordLiteral) === false) {
+
+			// not in branchSymbols/branch? or if in explicit branch, and not at the very end of
+			// condition (at the ]), and literal not in ignoreList ? then false
+			console.log('fail on ', wordLiteral, matchLiteral, wordIndex, matchIndex);
+			console.log('fail: branchCount', branchCount);
+			console.log('fail: explicitBranchCount', explicitBranchCount);
+
+			return false;
+		}
+	}
+}
 
 var LSystem = (function () {
-	function LSystem(_ref) {
-		var word = _ref.word;
-		var productions = _ref.productions;
-		var finals = _ref.finals;
+	function LSystem(_ref2) {
+		var word = _ref2.word;
+		var productions = _ref2.productions;
+		var finals = _ref2.finals;
 
 		_classCallCheck(this, LSystem);
 
@@ -29,10 +93,10 @@ var LSystem = (function () {
 
 	_createClass(LSystem, [{
 		key: 'update',
-		value: function update(_ref2) {
-			var word = _ref2.word;
-			var productions = _ref2.productions;
-			var finals = _ref2.finals;
+		value: function update(_ref3) {
+			var word = _ref3.word;
+			var productions = _ref3.productions;
+			var finals = _ref3.finals;
 		}
 
 		// iterate n times - executes this.generate.next() n-1 times
@@ -177,46 +241,6 @@ var LSystem = (function () {
 				}
 			}
 		}
-	}, {
-		key: 'matchAfter',
-		value: function matchAfter(index, toMatch, ignoreSymbols) {
-			var branchSymbolPairs = arguments.length <= 3 || arguments[3] === undefined ? [] : arguments[3];
-
-			// ignore = [+, -, /, \]
-			// ignoreBrackets = [
-			// [ '\[', '\]' ], ['(', ')'3]]
-
-			var branchCount = new Array(branchSymbolPairs.length);
-
-			for (var i = 0; i < toMatch.length; i++) {
-				var literal = toMatch[i];
-				var branchIndex = 0;
-
-				// branch symbol?
-				if (this.word[index + i] === branchSymbolPairs[0]) {
-					branchCount++;
-					for (branchIndex = 0; branchIndex < this.word.length; branchIndex++) {
-						var inBranchLiteral = this.word[i + branchIndex];
-						if (inBranchLiteral === branchSymbolPairs[0]) branchCount++;
-						if (inBranchLiteral === branchSymbolPairs[1]) branchCount--;
-
-						// if outer brackets closed, break loop and check on
-						if (branchCount === 0) break;
-					}
-					// if loop ended without outer brackets closed, reset branch index
-					if (branchCount !== 0) branchIndex = 0;
-				}
-
-				// if there was a branch/brackets, then the branchIndex is set to after the branch
-				var literalAfterBranchTesting = this.word[index + i + branchIndex];
-				// return false, if literal doesnt match, even after branch testing
-				if (literalAfterBranchTesting !== literal && ignoreSymbols.includes(literalAfterBranchTesting) === false) {
-					return false;
-				}
-			}
-
-			return true;
-		}
 	}]);
 
 	return LSystem;
@@ -234,10 +258,10 @@ var LSystem_classic = (function (_LSystem) {
  // IDEA: use lsys.setProduction('F', FOO)
  	*/
 
-	function LSystem_classic(_ref3) {
-		var word = _ref3.word;
-		var productions = _ref3.productions;
-		var finals = _ref3.finals;
+	function LSystem_classic(_ref4) {
+		var word = _ref4.word;
+		var productions = _ref4.productions;
+		var finals = _ref4.finals;
 
 		_classCallCheck(this, LSystem_classic);
 
@@ -307,4 +331,5 @@ var LSystem_Regex = (function (_LSystem2) {
 // if in node export LSystem, otherwise don't attempt to
 try {
 	exports.LSystem = LSystem;
+	exports.matchRight = matchRight;
 } catch (err) {}

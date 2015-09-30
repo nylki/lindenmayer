@@ -1,75 +1,14 @@
 'use strict'
 
-function matchRight(word, match, ignoreList,  wordIndex_) {
-
-	let matchIndex = 0
-	let branchCount = 0
-	let explicitBranchCount = 0
-
-	for (var wordIndex = wordIndex_ + 1; wordIndex < word.length; wordIndex++) {
-		let wordLiteral = word[wordIndex]
-		let matchLiteral = match[matchIndex]
-
-		// compare current literal of word with current literal of match
-		if (wordLiteral === matchLiteral) {
-
-			if(branchCount === 0 || explicitBranchCount > 0) {
-				// if its a match and NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
-
-				// if a bracket was explicitly stated in match word
-				if(wordLiteral === '['){
-					 explicitBranchCount++
-					 branchCount++
-					 matchIndex++
-
-				 } else if (wordLiteral === ']') {
-					explicitBranchCount = Math.max(0, explicitBranchCount-1)
-					branchCount = Math.max(0, branchCount-1)
-					// only increase match if we are out of explicit branch
-
-					if(explicitBranchCount === 0){
-						 matchIndex++
-					 }
-
-				} else {
-					matchIndex++
-				}
-			}
-
-			// reached end of match word? return true
-			if(matchIndex === match.length) return true
-
-		} else if (wordLiteral === '[') {
-			console.log('increase branch count');
-			branchCount++
-			if(explicitBranchCount) explicitBranchCount++
-
-		} else if(wordLiteral === ']') {
-			branchCount = Math.max(0, branchCount-1)
-			if(explicitBranchCount) {
-				explicitBranchCount = Math.max(0, explicitBranchCount-1)
-				}
-
-
-		} else if((branchCount === 0 || (explicitBranchCount > 0 && matchLiteral !== ']')) && ignoreList.includes(wordLiteral) === false) {
-
-			// not in brackets/branch? or if in explicit branch, and not at the very end of
-			// condition (at the ]), and literal not in ignorelist ? then false
-			console.log('fail on ', wordLiteral, matchLiteral, wordIndex, matchIndex)
-			console.log('fail: branchCount', branchCount)
-			console.log('fail: explicitBranchCount', explicitBranchCount)
-
-			return false
-		}
-	}
-}
 
 class LSystem {
 	constructor({
-		word, productions, finals
+		word, productions, finals, branchSymbols=[], ignoreSymbols=[]
 	}) {
 		this.word = word
 		this.productions = new Map(productions)
+		this.branchSymbols = branchSymbols
+		this.ignoreSymbols = ignoreSymbols
 
 		if (finals) this.finals = new Map(finals)
 		this.iterations = 0
@@ -161,6 +100,64 @@ class LSystem {
 
 			} else {
 				// literal has no final function
+			}
+		}
+	}
+
+
+	matchRight({word, match, ignoreSymbols, branchSymbols, index}) {
+		let matchIndex = 0
+		let branchCount = 0
+		let explicitBranchCount = 0
+		if(branchSymbols === undefined) branchSymbols = (this.branchSymbols !== undefined) ? this.branchSymbols : []
+		if(ignoreSymbols === undefined) ignoreSymbols = (this.ignoreSymbols !== undefined) ? this.ignoreSymbols : []
+
+		for (var wordIndex = index + 1; wordIndex < word.length; wordIndex++) {
+			let wordLiteral = word[wordIndex]
+			let matchLiteral = match[matchIndex]
+
+			// compare current literal of word with current literal of match
+			if (wordLiteral === matchLiteral) {
+
+				if(branchCount === 0 || explicitBranchCount > 0) {
+					// if its a match and previously NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
+
+					// if a bracket was explicitly stated in match word
+					if(wordLiteral === branchSymbols[0]){
+						 explicitBranchCount++
+						 branchCount++,
+						 matchIndex++
+
+					 } else if (wordLiteral === branchSymbols[1]) {
+						explicitBranchCount = Math.max(0, explicitBranchCount-1)
+						branchCount = Math.max(0, branchCount-1)
+						// only increase match if we are out of explicit branch
+
+						if(explicitBranchCount === 0){
+							 matchIndex++
+						 }
+
+					} else {
+						matchIndex++
+					}
+
+				}
+
+				// reached end of match word? return true
+				if(matchIndex === match.length) return true
+
+			} else if (wordLiteral === branchSymbols[0]) {
+				branchCount++
+				if(explicitBranchCount > 0) explicitBranchCount++
+
+			} else if(wordLiteral === branchSymbols[1]) {
+				branchCount = Math.max(0, branchCount-1)
+				if(explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount-1)
+
+			} else if((branchCount === 0 || (explicitBranchCount > 0 && matchLiteral !== branchSymbols[1])) && ignoreSymbols.includes(wordLiteral) === false) {
+				// not in branchSymbols/branch? or if in explicit branch, and not at the very end of
+				// condition (at the ]), and literal not in ignoreSymbols ? then false
+				return false
 			}
 		}
 	}

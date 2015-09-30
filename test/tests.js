@@ -107,18 +107,21 @@ describe('Correct behavior of L-Systems', function() {
     var cs_lsys = new lsys.LSystem({
       word: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: [
-        ['C', (index, word) => (lsys.matchRight(word, 'DEF',['+', '-', '/'], index)) ? 'Z' : 'C']
-      ]
+        ['C', (index, word) => (cs_lsys.matchRight({word: word, match: 'DEF', index: index})) ? 'Z' : 'C']
+      ],
+      branchSymbols: '[]',
+      ignoreSymbols: '+-/'
     })
+
     expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G')
 
   })
 
-  it('Context sensitive L-System should allow work inside explicitly wanted branches', function() {
+  it('Context sensitive L-System should work inside explicitly wanted branches', function() {
     var cs_lsys3 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
-        ['F', (index, word) => (lsys.matchRight(word, 'G[H]M',['+', '-', '/'], index)) ? 'Z' : 'F']
+        ['F', (index, word) => (cs_lsys3.matchRight({word: word, match: 'G[H]M', index: index, branchSymbols: ['[', ']']})) ? 'Z' : 'F']
       ]
     })
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
@@ -127,18 +130,20 @@ describe('Correct behavior of L-Systems', function() {
     var cs_lsys4 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
-        ['H', (index, word) =>  ( lsys.matchRight(word, 'I[K]L',['+', '-', '/'], index)) ? 'Z' : 'H']
+        ['H', (index, word) =>  (
+          cs_lsys4.matchRight({word: word, match: 'I[K]L', index: index, branchSymbols: '[]'}))
+          ? 'Z' : 'H']
       ]
 
     })
-    // I[J]L should not apply not I[K]L
+    // I[K]L should not apply to I[JK]L
     expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]')
 
 
     var cs_lsys5 = new lsys.LSystem({
       word: 'S][ED]CBA',
       productions: [
-        ['S', (index, word) =>  ( lsys.matchRight(word, 'CB',['+', '-', '/'], index)) ? 'Z' : 'S']
+        ['S', (index, word) =>  ( cs_lsys5.matchRight({word: word, match: 'CB', index: index, branchSymbols: '[]'})) ? 'Z' : 'S']
       ]
 
     })
