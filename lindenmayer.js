@@ -106,21 +106,23 @@ class LSystem {
 
 
 	match({word, match, ignoreSymbols, branchSymbols, index, direction}) {
-		let matchIndex = 0
 		let branchCount = 0
 		let explicitBranchCount = 0
 		word = word || this.word
 		if(branchSymbols === undefined) branchSymbols = (this.branchSymbols !== undefined) ? this.branchSymbols : []
 		if(ignoreSymbols === undefined) ignoreSymbols = (this.ignoreSymbols !== undefined) ? this.ignoreSymbols : []
 
-		let branchStart, branchEnd, wordIndex, loopIndexChange
+		let branchStart, branchEnd, wordIndex, loopIndexChange, matchIndex, matchIndexChange
+		// set some variables depending on the direction to match
 			if (direction === 'right') {
-				loopIndexChange = +1
+				loopIndexChange = matchIndexChange = +1
 				wordIndex = index + 1
+				matchIndex = 0
 				if (branchSymbols.length > 0) [branchStart, branchEnd] = branchSymbols
 			} else if (direction === 'left') {
-				loopIndexChange = -1
+				loopIndexChange = matchIndexChange = -1
 				wordIndex = index - 1
+				matchIndex = match.length - 1
 				if (branchSymbols.length > 0) [branchEnd, branchStart] = branchSymbols
 			} else {
 				throw Error(direction, 'is not a valid direction for matching.')
@@ -141,21 +143,20 @@ class LSystem {
 					if(wordLiteral === branchStart){
 						 explicitBranchCount++
 						 branchCount++,
-						 matchIndex++
+						 matchIndex+= matchIndexChange
 
-					 } else if (wordLiteral === branchEnd) {
+					} else if (wordLiteral === branchEnd) {
 						explicitBranchCount = Math.max(0, explicitBranchCount-1)
 						branchCount = Math.max(0, branchCount-1)
 						// only increase match if we are out of explicit branch
 
 						if(explicitBranchCount === 0){
-							 matchIndex++
+							 matchIndex+= matchIndexChange
 						 }
 
 					} else {
-						matchIndex++
+						matchIndex+= matchIndexChange
 					}
-
 				}
 
 				// reached end of match word? return true
