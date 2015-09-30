@@ -118,11 +118,15 @@ describe('Correct behavior of L-Systems', function() {
   })
 
   it('Context sensitive L-System should work inside explicitly wanted branches', function() {
-
+    // this example is taken from ABOP S. 32
     var cs_lsys3 = new lsys.LSystem({
-      word: 'ABC[DE][FG[HI[JK]L]MNO]',
+      word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: [
-        ['F', (index, word) => (cs_lsys3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']})) ? 'Z' : 'F']
+        ['S', (index, word) =>
+          (
+            cs_lsys3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}) &&
+            cs_lsys3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
+          ) ? 'Z' : 'S']
       ]
     })
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')

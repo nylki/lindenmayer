@@ -133,24 +133,26 @@ class LSystem {
 		if(branchSymbols === undefined) branchSymbols = (this.branchSymbols !== undefined) ? this.branchSymbols : []
 		if(ignoreSymbols === undefined) ignoreSymbols = (this.ignoreSymbols !== undefined) ? this.ignoreSymbols : []
 
-		let branchStart, branchEnd, wordIndex, loopIndexChange, matchIndex, matchIndexChange
+		let branchStart, branchEnd, wordIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow
 		// set some variables depending on the direction to match
 			if (direction === 'right') {
 				loopIndexChange = matchIndexChange = +1
 				wordIndex = index + 1
 				matchIndex = 0
+				matchIndexOverflow = match.length
 				if (branchSymbols.length > 0) [branchStart, branchEnd] = branchSymbols
 			} else if (direction === 'left') {
 				loopIndexChange = matchIndexChange = -1
 				wordIndex = index - 1
 				matchIndex = match.length - 1
+				matchIndexOverflow = -1
 				if (branchSymbols.length > 0) [branchEnd, branchStart] = branchSymbols
 			} else {
 				throw Error(direction, 'is not a valid direction for matching.')
 			}
 
 
-		for (;wordIndex < word.length; wordIndex += loopIndexChange) {
+		for (;wordIndex < word.length && wordIndex >= 0; wordIndex += loopIndexChange) {
 			let wordLiteral = word[wordIndex]
 			let matchLiteral = match[matchIndex]
 
@@ -180,8 +182,12 @@ class LSystem {
 					}
 				}
 
-				// reached end of match word? return true
-				if(matchIndex === match.length) return true
+				// overflowing matchIndices (matchIndex + 1 for right match, matchIndexEnd for left match )?
+				// -> no more matches to do. return with true, as everything matched until here
+				// *yay*
+				if(matchIndex === matchIndexOverflow){
+					return true
+				}
 
 			} else if (wordLiteral === branchStart) {
 				branchCount++
