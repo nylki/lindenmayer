@@ -49,7 +49,7 @@ This will be transformed to a [Map](https://developer.mozilla.org/en-US/docs/Web
 ---
 
 
-It's also possible to use function as productions. This can be useful if you want to create **stochastic L-Systems**, like so:
+It's also possible to use functions as productions. This can be useful if you want to create **stochastic L-Systems**, like so:
 ```.js
 let lsys = new LSystem({
       word: 'F++F++F',
@@ -57,7 +57,7 @@ let lsys = new LSystem({
 })
 ```
 
-You can later change the *initiator word* or *productions*:
+You can later change the *productions*:
 
 ```.js
 lsys.productions.set('F', 'FF-F')
