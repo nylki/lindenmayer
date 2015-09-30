@@ -107,7 +107,7 @@ describe('Correct behavior of L-Systems', function() {
     var cs_lsys = new lsys.LSystem({
       word: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: [
-        ['C', (index, word) => (cs_lsys.matchRight({word: word, match: 'DEF', index: index})) ? 'Z' : 'C']
+        ['C', (index, word) => (cs_lsys.match({direction: 'right', word: word, match: 'DEF', index: index})) ? 'Z' : 'C']
       ],
       branchSymbols: '[]',
       ignoreSymbols: '+-/'
@@ -121,7 +121,7 @@ describe('Correct behavior of L-Systems', function() {
     var cs_lsys3 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
-        ['F', (index, word) => (cs_lsys3.matchRight({word: word, match: 'G[H]M', index: index, branchSymbols: ['[', ']']})) ? 'Z' : 'F']
+        ['F', (index, word) => (cs_lsys3.match({direction: 'right', word: word, match: 'G[H]M', index: index, branchSymbols: ['[', ']']})) ? 'Z' : 'F']
       ]
     })
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
@@ -131,7 +131,7 @@ describe('Correct behavior of L-Systems', function() {
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
         ['H', (index, word) =>  (
-          cs_lsys4.matchRight({word: word, match: 'I[K]L', index: index, branchSymbols: '[]'}))
+          cs_lsys4.match({direction: 'right', word: word, match: 'I[K]L', index: index, branchSymbols: '[]'}))
           ? 'Z' : 'H']
       ]
 
@@ -143,7 +143,7 @@ describe('Correct behavior of L-Systems', function() {
     var cs_lsys5 = new lsys.LSystem({
       word: 'S][ED]CBA',
       productions: [
-        ['S', (index, word) =>  ( cs_lsys5.matchRight({word: word, match: 'CB', index: index, branchSymbols: '[]'})) ? 'Z' : 'S']
+        ['S', (index, word) =>  ( cs_lsys5.match({direction: 'right', word: word, match: 'CB', index: index, branchSymbols: '[]'})) ? 'Z' : 'S']
       ]
 
     })
