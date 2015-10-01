@@ -40,7 +40,12 @@ class LSystem {
 					newWord = ''
 
 					let index = 0
-					for (let literal of word) {
+					for (let part of word) {
+
+						// if we have objects for each literal, (when using parametric L-Systems)
+						// get actual identifiable literal character
+						let literal = part
+						if(typeof part === 'object' && part.literal) literal = part.literal
 
 						// default production result is just the original literal itself
 						let result = literal
@@ -50,7 +55,7 @@ class LSystem {
 
 							if (typeof p === 'function') {
 								// if p is a function, execute function and append return value
-								result = p(index, word)
+								result = p(index, word, part)
 
 							} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
 								/*	if p is a list/iterable: go through the list and use
@@ -88,7 +93,13 @@ class LSystem {
 	}
 
 	final() {
-		for (let literal of this.word) {
+		for (let part of this.word) {
+
+			// if we have objects for each literal, (when using parametric L-Systems)
+			// get actual identifiable literal character
+			let literal = part
+			if(typeof part === 'object' && part.literal) literal = part.literal
+
 			if (this.finals.has(literal)) {
 				var finalFunction = this.finals.get(literal)
 				var typeOfFinalFunction = typeof finalFunction
@@ -222,12 +233,9 @@ class LSystem_classic extends LSystem {
 
 	*/
 
-	constructor({
-		word, productions, finals
-	}) {
-		super({
-			word, productions, finals
-		})
+	constructor({word, productions, finals}) {
+		super({word, productions, finals})
+
 
 	}
 
