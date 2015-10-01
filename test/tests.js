@@ -166,4 +166,17 @@ describe('Correct behavior of L-Systems', function() {
       })
       expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-')
     })
+
+    it('Very simple parametric L-Systems should work.', function() {
+      var para_lsys1 = new lsys.LSystem({
+        word: [{literal: 'A'},{literal: 'B'},{literal: 'C'},{literal: 'D'},{literal: 'E'},{literal: 'F'},{literal: 'G'}],
+        productions: [
+          ['C', {literal: 'Z'}]
+        ]
+      })
+
+      para_lsys1.iterate()
+      expect(para_lsys1.getWordAsString({onlyLiterals: true})).to.equal('ABZDEFG')
+    })
+
 });

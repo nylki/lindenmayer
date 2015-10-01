@@ -15,13 +15,18 @@ class LSystem {
 
 	}
 
+	// if using objects in words, as used in parametric L-Systems
+	getWordAsString({onlyLiterals = false}) {
+		if(typeof this.word === 'string') return this.word
 
-	// keep old objects but add new ones
-	update({
-		word, productions, finals
-	}) {
-
+		if(onlyLiterals === true) {
+		 	return this.word.reduce((prev, current) => prev + current.literal, '')
+		} else {
+			return JSON.stringify(this.word)
+		}
 	}
+
+
 
 	// iterate n times - executes this.generate.next() n-1 times
 	iterate(n = 1) {
@@ -37,7 +42,7 @@ class LSystem {
 					let word = (iteration === 0) ? this.word : newWord
 
 					// … and reset newWord for next iteration
-					newWord = ''
+					newWord = (typeof this.word === 'string') ? '' : []
 
 					let index = 0
 					for (let part of word) {
@@ -48,7 +53,7 @@ class LSystem {
 						if(typeof part === 'object' && part.literal) literal = part.literal
 
 						// default production result is just the original literal itself
-						let result = literal
+						let result = part
 
 						if (this.productions.has(literal)) {
 							let p = this.productions.get(literal)
@@ -74,13 +79,19 @@ class LSystem {
 									}
 								}
 
-							} else if (typeof p === 'string' || p instanceof String) {
-								// if p is no function and no iterable, it should be a string
+							} else if (typeof p === 'string' || p instanceof String || typeof p === 'object') {
+								// if p is no function and no iterable, it should be a string (regular) or object (parametric L-Systems)
 								result = p
 							}
 						}
 
-						newWord += result
+						// finally add result to new word
+						if(typeof newWord === 'string') {
+							newWord += result
+						} else {
+							newWord.push(result)
+						}
+
 						index++
 					}
 				}
