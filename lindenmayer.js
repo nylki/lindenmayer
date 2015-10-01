@@ -11,7 +11,7 @@ class LSystem {
 		this.ignoredSymbols = ignoredSymbols
 
 		if (finals) this.finals = new Map(finals)
-		this.iterations = 0
+		this.iterationCount = 0
 
 	}
 
@@ -28,79 +28,77 @@ class LSystem {
 
 
 
-	// iterate n times - executes this.generate.next() n-1 times
-	iterate(n = 1) {
+	applyProductions() {
+		let newWord = (typeof this.word === 'string') ? '' : []
+		let index = 0
+		for (let part of this.word) {
 
-		if (typeof n !== 'number') throw (new Error('wrong argument for iterate().Needs Number. Instead: ', n))
-		if (n === 0) n = 1
+			// if we have objects for each literal, (when using parametric L-Systems)
+			// get actual identifiable literal character
+			let literal = part
+			if(typeof part === 'object' && part.literal) literal = part.literal
 
-				let newWord
+			// default production result is just the original literal itself
+			let result = part
 
-				for (let iteration = 0; iteration < n; iteration++, this.iterations++) {
-					// set word to the newly generated newWord to be used in next iteration
-					// unless it's the first or only iteration, then init with this.word
-					let word = (iteration === 0) ? this.word : newWord
+			// if a production for current literal exists
+			if (this.productions.has(literal)) {
+				let p = this.productions.get(literal)
 
-					// … and reset newWord for next iteration
-					newWord = (typeof this.word === 'string') ? '' : []
+				// if p is a function, execute function and append return value
+				if (typeof p === 'function') {
+					// TODO: use argument object instead of single arguments
+					// p({index, word: this.word, part, contextSensitiveParts: })
+					// TODO this, we need to buffer the match context sensitive parts
+					// and also decide wether to use the identical style used in ABOP
+					// or slightly different
+					result = p(index, this.word, part)
 
-					let index = 0
-					for (let part of word) {
+				// if p is no function and no iterable
+				// it should be a string (regular) or object (parametric L-Systems) and use it
+				}  else if (typeof p === 'string' || p instanceof String || typeof p === 'object') {
+					result = p
 
-						// if we have objects for each literal, (when using parametric L-Systems)
-						// get actual identifiable literal character
-						let literal = part
-						if(typeof part === 'object' && part.literal) literal = part.literal
-
-						// default production result is just the original literal itself
-						let result = part
-
-						if (this.productions.has(literal)) {
-							let p = this.productions.get(literal)
-
-							if (typeof p === 'function') {
-								// if p is a function, execute function and append return value
-								result = p(index, word, part)
-
-							} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
-								/*	if p is a list/iterable: go through the list and use
-										the first valid production in that list.
-
-										this can be useful for traditional context sensitive and stochastic
-										productions as seen in Algorithmic Beauty of Plants,
-										when you don't want to use a single function to handle those cases.
-										*/
-
-								for (_p of p) {
-									let _result = (typeof _p === 'function') ? _p(index, word) : p
-									if (res !== false) {
-										result = _result
-										break
-									}
-								}
-
-							} else if (typeof p === 'string' || p instanceof String || typeof p === 'object') {
-								// if p is no function and no iterable, it should be a string (regular) or object (parametric L-Systems)
-								result = p
-							}
+					// if p is a list/iterable
+				} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
+					/*	: go through the list and use
+							the first valid production in that list. (that returns true)
+					*/
+					for (_p of p) {
+						let _result = (typeof _p === 'function') ? _p(index, this.word, part) : p
+						if (res !== false) {
+							result = _result
+							break
 						}
-
-						// finally add result to new word
-						if(typeof newWord === 'string') {
-							newWord += result
-						} else {
-							newWord.push(result)
-						}
-
-						index++
 					}
 				}
 
-				// finally set this.word to newWord
-				this.word = newWord
+			}
 
-				// and also resolve with newWord for convenience
-				return newWord
+			// finally add result to new word
+			if(typeof newWord === 'string') {
+				newWord += result
+			} else {
+				newWord.push(result)
+			}
+
+			index++
+		}
+
+		// after the loop, set this.word to newWord
+		this.word = newWord
+
+		// and also return with newWord for convenience
+		return newWord
+	}
+
+	// iterate n times
+	iterate(n = 1) {
+		let lastIteration
+		for (let iteration = 0; iteration < n; iteration++, this.iterationCount++) {
+			lastIteration = this.applyProductions()
+		}
+		return lastIteration
 	}
 
 	final() {

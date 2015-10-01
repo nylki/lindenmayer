@@ -27,11 +27,12 @@
 				word: 'X',
 				productions: [
 					['X', 'F-[[X]+X]+F[+FX]-X'],
-					['F','FF']
+					['F', 'FF']
 
 				],
 				finals: [
 					['F', () => {
+						console.log('final F')
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 30/(tree.iterations + 1))
@@ -46,11 +47,6 @@
 			})
 
 			document.addEventListener('click', function (e) {
-				console.log(tree.iterations);
-				console.log(tree.word);
-
-
-
 				ctx.restore()
 				ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -58,8 +54,10 @@
 				ctx.translate(700, 1000)
 				ctx.moveTo(0,0)
 				ctx.rotate((Math.PI/180) * 180)
-				tree.iterate().then(tree.final())
 
+				tree.iterate()
+				console.log(tree.word)
+				tree.final()
 
 			});
 
