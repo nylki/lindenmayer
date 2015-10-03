@@ -33,9 +33,9 @@
 					['F', function() {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
-						ctx.lineTo(0, 30/(koch.iterations + 1))
+						ctx.lineTo(0, 30/(koch.iterationCount + 1))
 						ctx.stroke()
-						ctx.translate(0, 30/(koch.iterations + 1))
+						ctx.translate(0, 30/(koch.iterationCount + 1))
 					}],
 					['+', function() {
 						ctx.rotate((Math.PI/180) * 90)

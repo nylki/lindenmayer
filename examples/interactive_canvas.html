@@ -60,9 +60,9 @@
 			['F', () => {
 				ctx.beginPath()
 				ctx.moveTo(0, 0)
-				ctx.lineTo(0, 30 / (lsys.iterations + 1))
+				ctx.lineTo(0, 30 / (lsys.iterationCount + 1))
 				ctx.stroke()
-				ctx.translate(0, 30 / (lsys.iterations + 1))
+				ctx.translate(0, 30 / (lsys.iterationCount + 1))
 			}],
 			['+', () => {
 				ctx.rotate((Math.PI / 180) * angle)

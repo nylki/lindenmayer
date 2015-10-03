@@ -7,11 +7,7 @@
 </head>
 
 <body>
-	<canvas id="canvas" width="1000" height="1000"></canvas>
-
-
-
-
+	<canvas id="canvas" width="1000" height="1000"></canvas
 
 
 	<script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script>
@@ -33,9 +29,9 @@
 					['F', function() {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
-						ctx.lineTo(0, 50/(koch.iterations + 1))
+						ctx.lineTo(0, 15/(koch.iterationCount + 1))
 						ctx.stroke()
-						ctx.translate(0, 50/(koch.iterations + 1))
+						ctx.translate(0, 15/(koch.iterationCount + 1))
 					}],
 					['+', function() {
 						ctx.rotate((Math.PI/180) * 60)
