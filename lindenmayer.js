@@ -38,7 +38,7 @@ class LSystem {
 			let literal = part
 			if(typeof part === 'object' && part.literal) literal = part.literal
 
-			// default production result is just the original literal itself
+			// default production result is just the original part itself
 			let result = part
 
 			// if a production for current literal exists
@@ -56,7 +56,7 @@ class LSystem {
 
 				// if p is no function and no iterable
 				// it should be a string (regular) or object (parametric L-Systems) and use it
-				}  else if (typeof p === 'string' || p instanceof String || typeof p === 'object') {
+			}  else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
 					result = p
 
 					// if p is a list/iterable
@@ -64,9 +64,9 @@ class LSystem {
 					/*	: go through the list and use
 							the first valid production in that list. (that returns true)
 					*/
-					for (_p of p) {
-						let _result = (typeof _p === 'function') ? _p(index, this.word, part) : p
-						if (res !== false) {
+					for (let _p of p) {
+						let _result = (typeof _p === 'function') ? _p(index, this.word, part) : _p
+						if (_result !== undefined && _result !== false) {
 							result = _result
 							break
 						}

@@ -67,7 +67,7 @@ var LSystem = (function () {
 					var literal = part;
 					if (typeof part === 'object' && part.literal) literal = part.literal;
 
-					// default production result is just the original literal itself
+					// default production result is just the original part itself
 					var result = part;
 
 					// if a production for current literal exists
@@ -85,7 +85,7 @@ var LSystem = (function () {
 
 							// if p is no function and no iterable
 							// it should be a string (regular) or object (parametric L-Systems) and use it
-						} else if (typeof p === 'string' || p instanceof String || typeof p === 'object') {
+						} else if (typeof p === 'string' || p instanceof String || typeof p === 'object' && p[Symbol.iterator] === undefined) {
 								result = p;
 
 								// if p is a list/iterable
@@ -99,10 +99,10 @@ var LSystem = (function () {
 
 									try {
 										for (var _iterator2 = p[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-											_p = _step2.value;
+											var _p = _step2.value;
 
-											var _result = typeof _p === 'function' ? _p(index, this.word, part) : p;
-											if (res !== false) {
+											var _result = typeof _p === 'function' ? _p(index, this.word, part) : _p;
+											if (_result !== undefined && _result !== false) {
 												result = _result;
 												break;
 											}
