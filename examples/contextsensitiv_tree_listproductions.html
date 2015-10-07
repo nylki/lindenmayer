@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+
+<body>
+	<canvas id="canvas" width="1600" height="1200"></canvas>
+
+	<script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script>
+	<script src="lindenmayer_ES5.js" charset="utf-8"></script>
+	<script>
+
+	function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+
+		window.onload = function() {
+
+			var canvas = document.getElementById('canvas')
+			var ctx = canvas.getContext("2d")
+
+			var tree = new LSystem({
+				word: 'F0F1F1',
+				productions: [
+					['0', [
+						(index, word, part) => { if(tree.match({index, match: '0', direction: 'left'})) {
+								if(tree.match({index, match: '0', direction: 'right'})) return '1'
+								if(tree.match({index, match: '1', direction: 'right'})) return '0'
+						}
+					},
+						(index, word, part) => { if (tree.match({index, match: '1', direction: 'left'})) {
+							if(tree.match({index, match: '0', direction: 'right'})) return '1'
+							if(tree.match({index, match: '1', direction: 'right'})) return '1[+F1F1]'
+						}
+					}
+				]
+			],
+					['1', (index, word, part) => {
+						if(tree.match({index, match: '0', direction: 'left'})) {
+							if(tree.match({index, match: '0', direction: 'right'})) return '0'
+							if(tree.match({index, match: '1', direction: 'right'})) return '1F1'
+
+						} else if (tree.match({index, match: '1', direction: 'left'})) {
+							if(tree.match({index, match: '0', direction: 'right'})) return '1'
+							if(tree.match({index, match: '1', direction: 'right'})) return '0'
+						}
+						return '1'
+					}],
+					['+', (index, word, part) => (word[index-1] !== undefined && word[index+1] !== undefined) ? '-' : '+'],
+					['-', (index, word, part) => (word[index-1] !== undefined && word[index+1] !== undefined) ? '+' : '-']
+				],
+				ignoredSymbols: '+-F',
+				branchSymbols: '[]',
+				finals: [
+					['F', () => {
+						ctx.beginPath()
+						ctx.moveTo(0,0)
+						ctx.lineTo(0, 100/(tree.iterationCount + 1))
+						ctx.stroke()
+						ctx.translate(0, 100/(tree.iterationCount + 1))
+					}],
+					['+', () => { ctx.rotate((Math.PI/180) * -25.75) } ],
+					['-', () => { ctx.rotate((Math.PI/180) * 25.75) }],
+					['[', () => { ctx.save() }],
+					[']', () => { ctx.restore() }]
+				]
+			})
+
+			document.addEventListener('click', function (e) {
+
+				ctx.restore()
+				ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+				ctx.save()
+				ctx.translate(700, 1000)
+				ctx.moveTo(0,0)
+				ctx.rotate((Math.PI/180) * 180)
+				tree.iterate(24)
+				tree.final()
+				console.log(tree.word)
+
+
+			});
+
+			// 	// let test = bla.iterate(3)
+		}
+	</script>
+</body>
+
+</html>
