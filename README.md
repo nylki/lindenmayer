@@ -18,7 +18,7 @@ myLSys.setProduction('B', 'F+F')
 myLSys.setProduction('B', (index, word) => (word[index-1] === 'B') ? 'F' : 'BA')
 
 // or if you prefer the *classic* syntax for context sensitive productions:
-let myLSys.setProduction('A<B>C', 'Z')
+myLSys.setProduction('A<B>C', 'Z')
 
 
 
