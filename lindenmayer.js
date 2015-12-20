@@ -1,22 +1,21 @@
 'use strict'
 
 
-class LSystem {
-	constructor({
-		word, productions, finals, branchSymbols=[], ignoredSymbols=[]
-	}) {
-		this.word = word
-		this.productions = new Map(productions)
-		this.branchSymbols = branchSymbols
-		this.ignoredSymbols = ignoredSymbols
+function LSystem({
+	word, productions, finals, branchSymbols=[], ignoredSymbols=[]
+}) {
 
-		if (finals) this.finals = new Map(finals)
-		this.iterationCount = 0
+	this.word = word
+	this.productions = new Map(productions)
+	this.branchSymbols = branchSymbols
+	this.ignoredSymbols = ignoredSymbols
 
-	}
+	if (finals) this.finals = new Map(finals)
+	this.iterationCount = 0
+
 
 	// if using objects in words, as used in parametric L-Systems
-	getWordAsString({onlyLiterals = false}) {
+	this.getWordAsString = function({onlyLiterals = false}) {
 		if(typeof this.word === 'string') return this.word
 
 		if(onlyLiterals === true) {
@@ -28,7 +27,7 @@ class LSystem {
 
 
 
-	applyProductions() {
+	this.applyProductions = function() {
 		let newWord = (typeof this.word === 'string') ? '' : []
 		let index = 0
 		for (let part of this.word) {
@@ -93,7 +92,7 @@ class LSystem {
 	}
 
 	// iterate n times
-	iterate(n = 1) {
+	this.iterate = function(n = 1) {
 		let lastIteration
 		for (let iteration = 0; iteration < n; iteration++, this.iterationCount++) {
 			lastIteration = this.applyProductions()
@@ -101,7 +100,7 @@ class LSystem {
 		return lastIteration
 	}
 
-	final() {
+	this.final = function() {
 		for (let part of this.word) {
 
 			// if we have objects for each literal, (when using parametric L-Systems)
@@ -146,7 +145,7 @@ class LSystem {
 	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
 	*/
 
-	match({word, match, ignoredSymbols, branchSymbols, index, direction}) {
+	this.match = function({word, match, ignoredSymbols, branchSymbols, index, direction}) {
 		let branchCount = 0
 		let explicitBranchCount = 0
 		word = word || this.word
@@ -226,82 +225,8 @@ class LSystem {
 	}
 
 
-
 }
 
-class LSystem_classic extends LSystem {
-	/* create an LSystem with predefined productions that behaves like the original L-Systems in "Algorithmic Beauty of Plants" by Lindenmayer
-	that means specifically: support for context sensitive production syntax using'<' and '>' (eg.: X<F>XX … if F is preceded by one X and succeded by two X)
-	this requires a new way to set productions, because we will have to evaluate wether
-
-
-
-	// the thing is, we need to allow multiple productions
-	// because functions are not really part of the implementation of classic L-Systems
-	// IDEA: use lsys.setProduction('F', FOO)
-
-	*/
-
-	constructor({word, productions, finals}) {
-		super({word, productions, finals})
-
-
-	}
-
-	setProduction(condition, result) {
-
-		let main = condition
-
-		// if regular contextfree production should overwrite existing  cf-productions
-		// as it doesnt make sense to have multiple contextfree productions
-		if (condition.length === 1) {
-			this.productions.set(condition, result)
-			return true
-		}
-		// context sensitive production syntax (from Algorithmic Beauty of Plants)
-		else if (condition.length >= 3) {
-			// let match = matchContextSensitive(condition)
-			// if(match === false) throw new Error(condition, 'is no valid condition to be used as a (context sensitive) production')
-			//
-			//
-			// main = word in between < and >
-			// let productionsForMain = this.productions.get(main)
-			//
-			// // construct new function that deals with context sensitivity
-			// // using class methods hasBefore hasAfter
-			// let p = function(beforeMain, main, afterMain, index) {
-			// 	if(this.hasBefore(index, beforeMain) &&
-			// 			this.hasAfter(index, afterMain)) {
-			//
-			// 			} else {
-			// 				return false
-			// 			}
-			//
-
-		}
-
-		// push new production to the local copy
-		productionsForMain.push(productionsForMain)
-
-		// then reset the production for main with the modified copy
-		this.productions.set(main, productionsForMain)
-
-	}
-}
-
-
-
-
-
-
-
-
-class LSystem_Regex extends LSystem {
-
-	// newWord = new Array(word.length)
-	// think about this
-
-}
 
 // if in node export LSystem, otherwise don't attempt to
 try {

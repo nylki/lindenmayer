@@ -1,12 +1,12 @@
 {
-  "dependencies": {
-    "babel": "^5.8.23",
-    "chai": "^3.2.0",
-    "chai-as-promised": "^5.1.0",
-    "expect": "^1.10.0",
-    "mocha": "^2.3.2"
-  },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha"
+  },
+  "devDependencies": {
+    "babel": "^5.8.34",
+    "chai": "^3.4.1",
+    "chai-as-promised": "^5.2.0",
+    "expect": "^1.13.4",
+    "mocha": "^2.3.4"
   }
 }
