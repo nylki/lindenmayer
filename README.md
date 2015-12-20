@@ -16,7 +16,7 @@ myLSys.setProduction('B', 'F+F')
 
 // simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
 myLSys.setProduction('B',
-  (index, word) => (word[index-1] === 'A') && (word[index+1 === 'C']) ? 'Z' : 'B'
+  (index, word) => (word[index-1] === 'A') && (word[index+1] === 'C') ? 'Z' : 'B'
 )
 
 // or if you prefer the concise *classic* syntax for context sensitive productions:
