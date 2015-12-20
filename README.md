@@ -17,6 +17,11 @@ myLSys.setProduction('B', 'F+F')
 // simple context sensitive production rule, replacing `B` with `F` if previous character is a B as well, otherwise `BA`
 myLSys.setProduction('B', (index, word) => (word[index-1] === 'B') ? 'F' : 'BA')
 
+// or if you prefer the *classic* syntax for context sensitive productions:
+let myLSys.setProduction('A<B>C', 'Z')
+
+
+
 // simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? '+F' : 'FB+B')
 ```
@@ -75,7 +80,7 @@ lsys.productions.set('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
 
 You could even start with an empty L-System
 ```.js
-let lsys_b = new LSystem()
+let lsys = new LSystem()
 ```
 
 and set all the necessary parameters later. This can be useful

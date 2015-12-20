@@ -2,16 +2,8 @@
 
 
 function LSystem({
-	word, productions, finals, branchSymbols=[], ignoredSymbols=[]
+	word='', productions, finals, branchSymbols=[], ignoredSymbols=[]
 }) {
-
-	this.word = word
-	this.productions = new Map(productions)
-	this.branchSymbols = branchSymbols
-	this.ignoredSymbols = ignoredSymbols
-
-	if (finals) this.finals = new Map(finals)
-	this.iterationCount = 0
 
 
 	// if using objects in words, as used in parametric L-Systems
@@ -19,11 +11,81 @@ function LSystem({
 		if(typeof this.word === 'string') return this.word
 
 		if(onlyLiterals === true) {
-		 	return this.word.reduce((prev, current) => prev + current.literal, '')
+			return this.word.reduce( (prev, current) => prev + current.literal, '')
 		} else {
 			return JSON.stringify(this.word)
 		}
 	}
+
+
+
+	this.setProduction = function (A, B) {
+		let newProduction = [A, B]
+		if(newProduction === undefined) throw	new Error('no production specified.')
+
+		if(this.parameters.allowClassicSyntax === true) {
+			let transformedProduction = this.transformClassicProduction.bind(this)(newProduction)
+			this.productions.set(transformedProduction[0], transformedProduction[1])
+		} else {
+			this.productions.set(newProduction[0], newProduction[1])
+		}
+	}
+
+	this.setProductions = function (newProductions) {
+		if(newProductions === undefined) throw	new Error('no production specified.')
+
+		if(this.parameters.allowClassicSyntax === true) {
+			let transformedProductions = newProductions.map(this.transformClassicProduction.bind(this))
+			this.productions = new Map(transformedProductions)
+		} else {
+			this.productions = new Map(newProductions)
+		}
+
+	}
+
+
+
+	this.transformClassicProduction = function (p) {
+
+		// example: p = ['A<B>C', 'Z']
+
+		// left should be ['A', 'B']
+		let left = p[0].match(/(\w+)<(\w)/)
+
+		// right should be ['B', 'C']
+		let right = p[0].match(/(\w)>(\w+)/)
+
+		// if no '<' or '>' return original p, as there is no classic classic cs production
+		if(left === null && right === null) {
+			console.log('bla');
+			console.log(p);
+			return p
+		}
+
+
+		// indexLiteral should be 'B'
+		let indexLiteral = (left !== null) ? left[2] : right[1]
+
+		// check that the right and left match got the same indexLiteral
+		if(left !== null && right !== null && left[2] !== right[1]) {
+			throw	new Error('index literal differs in context sensitive production from left to right check.',
+			left[2], '!==', right[1])
+		}
+
+		// console.log('captured: \n' + '\tleft:' + left + ' \n\tright:' + right + ' \n\tindexLiteral' + indexLiteral)
+
+			let transformedFunction = (_index, _word) => {
+				let leftMatch = (left !== null) ? this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'}) : true
+				let rightMatch = (right !== null) ? this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'}) : true
+				return (leftMatch && rightMatch) ? p[1] : indexLiteral
+			}
+
+			let transformedProduction = [indexLiteral, transformedFunction]
+
+			return transformedProduction
+
+	}
+
 
 
 
@@ -55,7 +117,7 @@ function LSystem({
 
 				// if p is no function and no iterable
 				// it should be a string (regular) or object (parametric L-Systems) and use it
-			}  else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
+			} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
 					result = p
 
 					// if p is a list/iterable
@@ -145,10 +207,11 @@ function LSystem({
 	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
 	*/
 
-	this.match = function({word, match, ignoredSymbols, branchSymbols, index, direction}) {
+	this.match = function({word_, match, ignoredSymbols, branchSymbols, index, direction}) {
+
 		let branchCount = 0
 		let explicitBranchCount = 0
-		word = word || this.word
+		word_ = word || this.word
 		if(branchSymbols === undefined) branchSymbols = (this.branchSymbols !== undefined) ? this.branchSymbols : []
 		if(ignoredSymbols === undefined) ignoredSymbols = (this.ignoredSymbols !== undefined) ? this.ignoredSymbols : []
 
@@ -171,8 +234,8 @@ function LSystem({
 			}
 
 
-		for (;wordIndex < word.length && wordIndex >= 0; wordIndex += loopIndexChange) {
-			let wordLiteral = word[wordIndex]
+		for (;wordIndex < word_.length && wordIndex >= 0; wordIndex += loopIndexChange) {
+			let wordLiteral = word_[wordIndex]
 			let matchLiteral = match[matchIndex]
 
 			// compare current literal of word with current literal of match
@@ -183,21 +246,21 @@ function LSystem({
 
 					// if a bracket was explicitly stated in match word
 					if(wordLiteral === branchStart){
-						 explicitBranchCount++
-						 branchCount++,
-						 matchIndex+= matchIndexChange
+						explicitBranchCount++
+						branchCount++
+						matchIndex += matchIndexChange
 
 					} else if (wordLiteral === branchEnd) {
-						explicitBranchCount = Math.max(0, explicitBranchCount-1)
-						branchCount = Math.max(0, branchCount-1)
+						explicitBranchCount = Math.max(0, explicitBranchCount - 1)
+						branchCount = Math.max(0, branchCount - 1)
 						// only increase match if we are out of explicit branch
 
 						if(explicitBranchCount === 0){
-							 matchIndex+= matchIndexChange
-						 }
+							matchIndex += matchIndexChange
+						}
 
 					} else {
-						matchIndex+= matchIndexChange
+						matchIndex += matchIndexChange
 					}
 				}
 
@@ -223,6 +286,23 @@ function LSystem({
 			}
 		}
 	}
+
+
+
+
+	// finally init stuff
+	this.parameters = {
+			allowClassicSyntax: true
+		}
+
+		this.word = word
+		this.productions = new Map()
+		this.setProductions(productions)
+		this.branchSymbols = branchSymbols
+		this.ignoredSymbols = ignoredSymbols
+
+		if (finals) this.finals = new Map(finals)
+		this.iterationCount = 0
 
 
 }

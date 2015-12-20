@@ -157,19 +157,52 @@ describe('Correct behavior of L-Systems', function() {
 
   })
 
+
+
+
     it('Context sensitive L-System helper function match() should work in L-Systems that don\'t use branches/brackets.', function() {
       var cs_lsys6 = new lsys.LSystem({
         word: 'A+++C-DE-+F&GH++-',
         productions: [
-          ['C', (index, word) =>  ( cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C']
+          ['C', (index, word) =>
+            (cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
+          ]
         ]
       })
       expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-')
     })
 
+
+
+
+    it('Classic context sensitive syntax should work.', function() {
+      var cs_lsys7 = new lsys.LSystem({
+        word: 'A[X]BC',
+        productions:
+        [
+          ['A<B>C', 'Z']
+        ]
+      })
+      cs_lsys7.setProduction('B<C', 'Y')
+      console.log(cs_lsys7.productions);
+
+      expect(cs_lsys7.iterate()).to.equal('A[X]ZY')
+    })
+
+
+
+
     it('Very simple parametric L-Systems should work.', function() {
       var para_lsys1 = new lsys.LSystem({
-        word: [{literal: 'A'},{literal: 'B'},{literal: 'C'},{literal: 'D'},{literal: 'E'},{literal: 'F'},{literal: 'G'}],
+        word: [
+          {literal: 'A'},
+          {literal: 'B'},
+          {literal: 'C'},
+          {literal: 'D'},
+          {literal: 'E'},
+          {literal: 'F'},
+          {literal: 'G'}
+        ],
         productions: [
           ['C', {literal: 'Z'}]
         ]
