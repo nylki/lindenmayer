@@ -89,14 +89,15 @@ and set all the necessary parameters later. This can be useful
 if you want to assign the productions from inside a loop, like so:
 ```.js
 
-
+let lsys = new LSystem()
+lsys.setWord(document.querySelector(#initiatorField).value)
 let productionList = document.querySelectorAll('.productions')
+
 for (let i=0; i <= productionList.length; i++) {
       let curTextFields = productionList[i].querySelectorAll('input')
-      lsys_b.productions.set(curTextFields[0].value, curTextFields[1].value)
+      lsys.setProduction(curTextFields[0].value, curTextFields[1].value)
 }
 
-lsys_b.setWord(document.querySelector(#initiatorField).value)
 
 ```
 
