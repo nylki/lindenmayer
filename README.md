@@ -32,7 +32,7 @@ In addition to that I want to have a feature-complete which comes with all the p
 As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented by using the base class. But for historic reasons and compatibility with many already existing examples this classic Class should be able to handle those.
 
 Right now it's under heavy development, so features and names are subject to change.
-I will remove this warning when I consider this library stable. I hope to get it **stable by November 2015**.
+I will remove this warning when I consider this library stable. I hope to get it **stable by March 2016**.
 
 
 ## Usage
