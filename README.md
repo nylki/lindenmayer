@@ -67,8 +67,8 @@ let lsys = new LSystem({
 You can later change the *productions*:
 
 ```.js
-lsys.productions.set('F', 'FF-F')
-lsys.productions.set('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
+lsys.setProduction('F', 'FF-F')
+lsys.setProduction('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
 ```
 
 
