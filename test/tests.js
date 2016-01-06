@@ -1,15 +1,15 @@
-var chai = require("chai")
-var chaiAsPromised = require("chai-as-promised")
-var expect = chai.expect
+let chai = require("chai")
+let chaiAsPromised = require("chai-as-promised")
+let expect = chai.expect
 chai.use(chaiAsPromised)
 
-var lsys = require('../lindenmayer')
+let lsys = require('../lindenmayer')
 
 describe('Correct behavior of L-Systems', function() {
 
 
   it('should handle UTF8', function() {
-    var test = new lsys.LSystem({
+    let test = new lsys.LSystem({
       word:'⚣⚤●',
       productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
@@ -20,7 +20,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
   it('should generate the string for the Koch-curve', function() {
-    var koch = new lsys.LSystem({
+    let koch = new lsys.LSystem({
       word: 'F++F++F',
       productions: [
         ['F', 'F-F++F-F']
@@ -34,13 +34,13 @@ describe('Correct behavior of L-Systems', function() {
     expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
 
 
-    var wordFromGenerator = koch.iterate()
+    let wordFromGenerator = koch.iterate()
     expect(wordFromGenerator).to.equal(koch.word)
   })
 
 
   it('should execute final functions to draw eg. visualizations.', function() {
-    var vizsys = new lsys.LSystem({
+    let vizsys = new lsys.LSystem({
     	word:'A---',
     	productions: [
         ['A', 'AARA-BB-B'],
@@ -64,7 +64,7 @@ describe('Correct behavior of L-Systems', function() {
   })
 
   it('Final functions must be functions. Should throw an error on any other type.', function() {
-    var vizsys = new lsys.LSystem({
+    let vizsys = new lsys.LSystem({
       word:'A',
       productions: [['A', 'Z']],
       finals: [
@@ -88,7 +88,7 @@ describe('Correct behavior of L-Systems', function() {
     }).to.throw(/not a function/)
 
 
-    var rotation = 5
+    let rotation = 5
     expect(function () {
       vizsys.finals.set('Z', () => {rotation *= 2})
       vizsys.final()
@@ -103,7 +103,7 @@ describe('Correct behavior of L-Systems', function() {
 
   it('Helper functions for context sensitive productions should work properly. Especially with branches.', function() {
 
-    var cs_lsys = new lsys.LSystem({
+    let cs_lsys = new lsys.LSystem({
       word: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: [
         ['C', (index, word) => (cs_lsys.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C']
@@ -118,7 +118,7 @@ describe('Correct behavior of L-Systems', function() {
 
   it('Context sensitive L-System should work inside explicitly wanted branches', function() {
     // this example is taken from ABOP S. 32
-    var cs_lsys3 = new lsys.LSystem({
+    let cs_lsys3 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: [
         ['S', (index, word) =>
@@ -131,7 +131,7 @@ describe('Correct behavior of L-Systems', function() {
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
 
 
-    var cs_lsys4 = new lsys.LSystem({
+    let cs_lsys4 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
         ['H', (index, word) =>  (
@@ -144,7 +144,7 @@ describe('Correct behavior of L-Systems', function() {
     expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]')
 
 
-    var cs_lsys5 = new lsys.LSystem({
+    let cs_lsys5 = new lsys.LSystem({
       word: 'S][ED]CBA',
       productions: [
         ['S', (index, word) =>  ( cs_lsys5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S']
@@ -160,7 +160,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
     it('Context sensitive L-System helper function match() should work in L-Systems that don\'t use branches/brackets.', function() {
-      var cs_lsys6 = new lsys.LSystem({
+      let cs_lsys6 = new lsys.LSystem({
         word: 'A+++C-DE-+F&GH++-',
         productions: [
           ['C', (index, word) =>
@@ -175,7 +175,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
     it('Classic context sensitive syntax should work.', function() {
-      var cs_lsys7 = new lsys.LSystem({
+      let cs_lsys7 = new lsys.LSystem({
         word: 'A[X]BC',
         productions:
         [
@@ -192,7 +192,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
     it('Very simple parametric L-Systems should work.', function() {
-      var para_lsys1 = new lsys.LSystem({
+      let para_lsys1 = new lsys.LSystem({
         word: [
           {literal: 'A'},
           {literal: 'B'},
