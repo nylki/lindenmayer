@@ -18,24 +18,26 @@ function LSystem({
 	}
 
 
-
+	// set a new production from A -> B
 	this.setProduction = function (A, B) {
 		let newProduction = [A, B]
 		if(newProduction === undefined) throw	new Error('no production specified.')
 
 		if(this.parameters.allowClassicSyntax === true) {
-			let transformedProduction = this.transformClassicProduction.bind(this)(newProduction)
+			let transformedProduction = this.transformClassicCSProduction.bind(this)(newProduction)
 			this.productions.set(transformedProduction[0], transformedProduction[1])
 		} else {
 			this.productions.set(newProduction[0], newProduction[1])
 		}
 	}
 
+	// set a list of production
 	this.setProductions = function (newProductions) {
 		if(newProductions === undefined) throw	new Error('no production specified.')
 
 		if(this.parameters.allowClassicSyntax === true) {
-			let transformedProductions = newProductions.map(this.transformClassicProduction.bind(this))
+			let transformedProductions = newProductions.map(this.transformClassicCSProduction.bind(this))
+			// FIXME:  now this overwrites existing productions, make it map/iterate this.setProduction instead to preserve existing ones
 			this.productions = new Map(transformedProductions)
 		} else {
 			this.productions = new Map(newProductions)
@@ -44,9 +46,15 @@ function LSystem({
 	}
 
 
+	// TODO: implement it!
+	this.transformClassicParametricProduction = function (p) {
+		return p
+	}
 
-	this.transformClassicProduction = function (p) {
+	// transform a classic syntax production into valid JS production
+	this.transformClassicCSProduction = function (p) {
 
+		// before continuing, check if classic syntax actually there
 		// example: p = ['A<B>C', 'Z']
 
 		// left should be ['A', 'B']
@@ -55,28 +63,31 @@ function LSystem({
 		// right should be ['B', 'C']
 		let right = p[0].match(/(\w)>(\w+)/)
 
-		// if no '<' or '>' return original p, as there is no classic classic cs production
+		// if neither '<' nor '>': return original p, as there is no classic classic cs production
 		if(left === null && right === null) {
-			console.log('bla');
-			console.log(p);
 			return p
 		}
 
 
 		// indexLiteral should be 'B'
+		// get it either from left side or right side if left is nonexistent
 		let indexLiteral = (left !== null) ? left[2] : right[1]
 
-		// check that the right and left match got the same indexLiteral
+		// double check: make sure that the right and left match got the same indexLiteral (B)
 		if(left !== null && right !== null && left[2] !== right[1]) {
 			throw	new Error('index literal differs in context sensitive production from left to right check.',
 			left[2], '!==', right[1])
 		}
 
-		// console.log('captured: \n' + '\tleft:' + left + ' \n\tright:' + right + ' \n\tindexLiteral' + indexLiteral)
-
+			// finally build the new (valid JS) production
+			// (that is being executed instead of the classic syntax,
+			//  which can't be interpreted by the JS engine)
 			let transformedFunction = (_index, _word) => {
+
 				let leftMatch = (left !== null) ? this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'}) : true
+
 				let rightMatch = (right !== null) ? this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'}) : true
+
 				return (leftMatch && rightMatch) ? p[1] : indexLiteral
 			}
 
@@ -90,12 +101,15 @@ function LSystem({
 
 
 	this.applyProductions = function() {
+		// a word can be a string or an array of objects that contain the key/value 'literal'
 		let newWord = (typeof this.word === 'string') ? '' : []
 		let index = 0
+
+		// iterate all literals/characters of the word and lookup according productions
 		for (let part of this.word) {
 
-			// if we have objects for each literal, (when using parametric L-Systems)
-			// get actual identifiable literal character
+			// if we have objects for each literal eg. {literal:'B'}, (when using parametric L-Systems)
+			// then get the actual identifiable literal character
 			let literal = part
 			if(typeof part === 'object' && part.literal) literal = part.literal
 
@@ -110,20 +124,22 @@ function LSystem({
 				if (typeof p === 'function') {
 					// TODO: use argument object instead of single arguments
 					// p({index, word: this.word, part, contextSensitiveParts: })
-					// TODO this, we need to buffer the match context sensitive parts
-					// and also decide wether to use the identical style used in ABOP
-					// or slightly different
+					// apply literals production, with current index and the part of the word
+					// that triggered the production
 					result = p(index, this.word, part)
 
-				// if p is no function and no iterable
-				// it should be a string (regular) or object (parametric L-Systems) and use it
+				// if p is no function and no iterable, then
+				// it should be a string (regular) or object (parametric L-Systems (native impl.))
+				// directly return it then as result
 			} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
+
 					result = p
 
 					// if p is a list/iterable
 				} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
 					/*	: go through the list and use
 							the first valid production in that list. (that returns true)
+							This assumes, it's a list of functions
 					*/
 					for (let _p of p) {
 						let _result = (typeof _p === 'function') ? _p(index, this.word, part) : _p
@@ -189,6 +205,10 @@ function LSystem({
 /*
 	how to use match():
  	-----------------------
+	It is mainly a helper function for context sensitive productions.
+	If you use the classic syntax, it will by default be automatically transformed to proper
+	JS-Syntax.
+	Howerver, you can use the match helper function in your on productions:
 
 	index is the index of a production using `match`
 	eg. in a classic L-System
