@@ -1,5 +1,5 @@
 
-# L-Systems in JS (WIP! ETA: Nov. 2015) [![Build Status](https://travis-ci.org/nylki/lindenmayer.svg?branch=master)](https://travis-ci.org/nylki/lindenmayer)
+# L-Systems in JS (WIP! ETA: March. 2016) [![Build Status](https://travis-ci.org/nylki/lindenmayer.svg?branch=master)](https://travis-ci.org/nylki/lindenmayer)
 
 
 
@@ -14,8 +14,15 @@ myLSys.setProduction('B', () => 'F+F')
 // or same with just the String, both works
 myLSys.setProduction('B', 'F+F')
 
-// simple context sensitive production rule, replacing `B` with `F` if previous character is a B as well, otherwise `BA`
-myLSys.setProduction('B', (index, word) => (word[index-1] === 'B') ? 'F' : 'BA')
+// simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
+myLSys.setProduction('B',
+  (index, word) => (word[index-1] === 'A') && (word[index+1] === 'C') ? 'Z' : 'B'
+)
+
+// or if you prefer the concise *classic* syntax for context sensitive productions:
+myLSys.setProduction('A<B>C', 'Z')
+
+
 
 // simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? '+F' : 'FB+B')
@@ -25,7 +32,7 @@ In addition to that I want to have a feature-complete which comes with all the p
 As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented by using the base class. But for historic reasons and compatibility with many already existing examples this classic Class should be able to handle those.
 
 Right now it's under heavy development, so features and names are subject to change.
-I will remove this warning when I consider this library stable. I hope to get it **stable by November 2015**.
+I will remove this warning when I consider this library stable. I hope to get it **stable by March 2016**.
 
 
 ## Usage
@@ -60,8 +67,8 @@ let lsys = new LSystem({
 You can later change the *productions*:
 
 ```.js
-lsys.productions.set('F', 'FF-F')
-lsys.productions.set('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
+lsys.setProduction('F', 'FF-F')
+lsys.setProduction('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
 ```
 
 
@@ -75,21 +82,22 @@ lsys.productions.set('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
 
 You could even start with an empty L-System
 ```.js
-let lsys_b = new LSystem()
+let lsys = new LSystem()
 ```
 
 and set all the necessary parameters later. This can be useful
 if you want to assign the productions from inside a loop, like so:
 ```.js
 
-
+let lsys = new LSystem()
+lsys.setWord(document.querySelector(#initiatorField).value)
 let productionList = document.querySelectorAll('.productions')
+
 for (let i=0; i <= productionList.length; i++) {
       let curTextFields = productionList[i].querySelectorAll('input')
-      lsys_b.productions.set(curTextFields[0].value, curTextFields[1].value)
+      lsys.setProduction(curTextFields[0].value, curTextFields[1].value)
 }
 
-lsys_b.setWord(document.querySelector(#initiatorField).value)
 
 ```
 
