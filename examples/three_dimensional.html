@@ -26,7 +26,7 @@
 			var X = new THREE.Vector3(1, 0, 0)
 			var Y = new THREE.Vector3(0, 1, 0)
 			var Z = new THREE.Vector3(0, 0, 1)
-			var lineLength = 1
+			var lineLength = 16
 
 			var pushSegment = function() {
 				console.log('push');
@@ -90,6 +90,7 @@
 					color: 0x00ff00,
 					wireframe: false
 				})
+				var stack = []
 				currentModel = new THREE.Mesh(geometry, material)
 				currentModel.geometry.translate( -(lineLength/2), 0, 0 )
 
@@ -138,19 +139,35 @@
 							'\\', function() {
 								currentModel.rotation.x += ((Math.PI / 180) * angle)
 							}
+						],[
+							'<', function() {
+								currentModel.rotation.x += ((Math.PI / 180) * angle)
+							}
 						], [
 							'/', function() {
+								currentModel.rotation.x += ((Math.PI / 180) * -angle)
+							}
+						], [
+							'>', function() {
 								currentModel.rotation.x += ((Math.PI / 180) * -angle)
 							}
 						], [
 							'|', function() {
 								currentModel.rotation.y += ((Math.PI / 180) * 180)
 							}
+						], [
+							'[', function() {
+								stack.push(currentModel.copy())
+							}
+						], [
+							']', function() {
+								currentModel = stack.pop()
+							}
 						]
 					]
 				})
 
-				hilbertCurve.iterate(4)
+				hilbertCurve.iterate(3)
 				console.log(hilbertCurve.word)
 				hilbertCurve.final()
 			}
