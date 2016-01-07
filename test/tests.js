@@ -182,12 +182,31 @@ describe('Correct behavior of L-Systems', function() {
           ['A<B>C', 'Z']
         ]
       })
-      cs_lsys7.setProduction('B<C', 'Y')
-      console.log(cs_lsys7.productions);
 
-      expect(cs_lsys7.iterate()).to.equal('A[X]ZY')
+      expect(cs_lsys7.iterate()).to.equal('A[X]ZC')
     })
 
+    it('Left side, classic CS should work.', function() {
+      let cs_lsys8 = new lsys.LSystem({
+        word: 'ABC[DE][SG[HI[JK]L]MNO]',
+        productions:
+        [
+          ['BC<S', 'Z']
+        ]
+      })
+      expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+    })
+
+    it('right side, classic CS should work.', function() {
+      let cs_lsys8 = new lsys.LSystem({
+        word: 'ABC[DE][SG[HI[JK]L]MNO]',
+        productions:
+        [
+          ['S>G[H]M', 'Z']
+        ]
+      })
+      expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+    })
 
 
 

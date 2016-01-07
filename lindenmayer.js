@@ -84,9 +84,21 @@ function LSystem({
 			//  which can't be interpreted by the JS engine)
 			let transformedFunction = (_index, _word) => {
 
-				let leftMatch = (left !== null) ? this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'}) : true
+				let leftMatch = true
+				let rightMatch = true
 
-				let rightMatch = (right !== null) ? this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'}) : true
+				if(left !== null){
+					leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'})
+				}
+
+				// don't match with right side if left already false or no right match necessary
+				if(leftMatch === false || (leftMatch === true && right === null))
+					return leftMatch ? p[1] : indexLiteral
+
+
+				if(right !== null) {
+					rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'})
+				}
 
 				return (leftMatch && rightMatch) ? p[1] : indexLiteral
 			}
@@ -122,24 +134,25 @@ function LSystem({
 
 				// if p is a function, execute function and append return value
 				if (typeof p === 'function') {
-					// TODO: use argument object instead of single arguments
-					// p({index, word: this.word, part, contextSensitiveParts: })
-					// apply literals production, with current index and the part of the word
-					// that triggered the production
+					/* TODO: use argument object instead of single arguments
+					p({index, word: this.word, part, contextSensitiveParts: })
+					apply literals production, with current index and the part of the word
+					that triggered the production */
 					result = p(index, this.word, part)
 
-				// if p is no function and no iterable, then
-				// it should be a string (regular) or object (parametric L-Systems (native impl.))
-				// directly return it then as result
-			} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
+					/* if p is no function and no iterable, then
+					it should be a string (regular) or object (parametric L-Systems (native impl.))
+					directly return it then as result */
+				} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
 
 					result = p
 
 					// if p is a list/iterable
 				} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
-					/*	: go through the list and use
-							the first valid production in that list. (that returns true)
-							This assumes, it's a list of functions
+					/*
+					go through the list and use
+					the first valid production in that list. (that returns true)
+					This assumes, it's a list of functions.
 					*/
 					for (let _p of p) {
 						let _result = (typeof _p === 'function') ? _p(index, this.word, part) : _p
