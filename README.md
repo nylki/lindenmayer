@@ -28,11 +28,13 @@ myLSys.setProduction('A<B>C', 'Z')
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? '+F' : 'FB+B')
 ```
 
-In addition to that I want to have a feature-complete which comes with all the possible productions defined in the *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`) and uses the base class as a fundament.
-As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented by using the base class. But for historic reasons and compatibility with many already existing examples this classic Class should be able to handle those.
+In addition to that target to have feature-completion with the syntax described *Algorithmic Beauty of Plants* (ABOP), like branches: `[]`, context sensitive productions: `<>`, parametric L-Systems, etc.
+
+As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented an anonymous function as production. But for historic reasons, compatibility with many already existing examples and sometimes readability I'd like to have some magic, that parses the classic syntax and transforms it under the hood. At this time this works with *context sensitive L-Systems* (eg. `A<B>C`) as seen above. The next one is going to be parametric L-Systems (again, they can be accomplished already, but not via the syntax defined in ABOP
 
 Right now it's under heavy development, so features and names are subject to change.
 I will remove this warning when I consider this library stable. I hope to get it **stable by March 2016**.
+
 
 
 ## Usage
