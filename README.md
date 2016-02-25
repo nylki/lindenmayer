@@ -35,7 +35,9 @@ As shown before, those (context sensitivity, stochastic production, etc.) can be
 Right now it's under heavy development, so features and names are subject to change.
 I will remove this warning when I consider this library stable. I hope to get it **stable by March 2016**.
 
-
+##Todo
+- [ ] add more examples
+- [ ] implement *classic* parametric L-System (parsing)
 
 ## Usage
 
