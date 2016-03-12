@@ -51,8 +51,6 @@ lsys.setProduction('A<B>C', 'Z')
 
 ### initializing
 
-initialize new L-System with initiator word and productions. Here the [Koch curve](https://en.wikipedia.org/wiki/Koch_snowflake) is shown:
-
 You can init a L-System in one go:
 
 ```.js
@@ -60,8 +58,8 @@ You can init a L-System in one go:
 let kochcurve = new LSystem({
       word: 'F++F++F',
       productions: [['F', 'F-F++F-F']]
-let result = kochcurve.iterate(2)
 })
+let result = kochcurve.iterate(2)
 
 // Initialize L-System with multiple productions
 let mylsys = new LSystem({
