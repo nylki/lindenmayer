@@ -7,18 +7,6 @@ let lsys = require('../lindenmayer')
 
 describe('Correct behavior of L-Systems', function() {
 
-
-  it('should handle UTF8', function() {
-    let test = new lsys.LSystem({
-      word:'⚣⚤●',
-      productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
-    })
-    expect(test.iterate()).to.equal('♂♂♀♂○◐◑')
-  })
-
-
-
-
   it('should generate the string for the Koch-curve', function() {
     let koch = new lsys.LSystem({
       word: 'F++F++F',
@@ -41,13 +29,13 @@ describe('Correct behavior of L-Systems', function() {
 
   it('should execute final functions to draw eg. visualizations.', function() {
     let vizsys = new lsys.LSystem({
-    	word:'A---',
-    	productions: [
+      word:'A---',
+      productions: [
         ['A', 'AARA-BB-B'],
         ['B', 'ABBA-+--B+-'],
         ['R', 'RA-']
       ],
-    	finals: [
+      finals: [
         ['A', () => {vizsys.output += '/'}],
         ['B', () => {vizsys.output += '#'}],
         ['R', () => {vizsys.output += '~'}],
@@ -87,7 +75,6 @@ describe('Correct behavior of L-Systems', function() {
       vizsys.final()
     }).to.throw(/not a function/)
 
-
     let rotation = 5
     expect(function () {
       vizsys.finals.set('Z', () => {rotation *= 2})
@@ -95,9 +82,6 @@ describe('Correct behavior of L-Systems', function() {
     }).to.not.throw(/not a function/)
 
     expect(rotation).to.equal(10)
-
-
-
   })
 
 
@@ -106,7 +90,7 @@ describe('Correct behavior of L-Systems', function() {
     let cs_lsys = new lsys.LSystem({
       word: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: [
-        ['C', (index, word) => (cs_lsys.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C']
+        ['C', ({index, word}) => (cs_lsys.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C']
       ],
       branchSymbols: '[]',
       ignoredSymbols: '+-/'
@@ -121,11 +105,11 @@ describe('Correct behavior of L-Systems', function() {
     let cs_lsys3 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: [
-        ['S', (index, word) =>
-          (
-            cs_lsys3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}) &&
-            cs_lsys3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
-          ) ? 'Z' : 'S']
+        ['S', ({index, word}) =>
+        (
+          cs_lsys3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}) &&
+          cs_lsys3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
+        ) ? 'Z' : 'S']
       ]
     })
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
@@ -134,27 +118,27 @@ describe('Correct behavior of L-Systems', function() {
     let cs_lsys4 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: [
-        ['H', (index, word) =>  (
+        ['H', ({index, word}) =>  (
           cs_lsys4.match({direction: 'right', match: 'I[K]L', index, branchSymbols: '[]'}))
           ? 'Z' : 'H']
-      ]
+        ]
+
+      })
+      // I[K]L should not apply to I[JK]L
+      expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]')
+
+
+      let cs_lsys5 = new lsys.LSystem({
+        word: 'S][ED]CBA',
+        productions: [
+          ['S', ({index}) =>  ( cs_lsys5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S']
+        ]
+
+      })
+      // as required by ABOP S. 32 (reversed string)
+      expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA')
 
     })
-    // I[K]L should not apply to I[JK]L
-    expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]')
-
-
-    let cs_lsys5 = new lsys.LSystem({
-      word: 'S][ED]CBA',
-      productions: [
-        ['S', (index, word) =>  ( cs_lsys5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S']
-      ]
-
-    })
-    // as required by ABOP S. 32 (reversed string)
-    expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA')
-
-  })
 
 
 
@@ -163,71 +147,152 @@ describe('Correct behavior of L-Systems', function() {
       let cs_lsys6 = new lsys.LSystem({
         word: 'A+++C-DE-+F&GH++-',
         productions: [
-          ['C', (index, word) =>
-            (cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
-          ]
+          ['C', ({index}) =>
+          (cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
         ]
-      })
-      expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-')
+      ]
+    })
+    expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-')
+  })
+
+
+
+
+  it('Classic context sensitive syntax should work.', function() {
+    let cs_lsys7 = new lsys.LSystem({
+      word: 'A[X]BC',
+      productions:
+      [
+        ['A<B>C', 'Z']
+      ]
     })
 
+    expect(cs_lsys7.iterate()).to.equal('A[X]ZC')
+  })
+
+  it('Left side, classic CS should work.', function() {
+    let cs_lsys8 = new lsys.LSystem({
+      word: 'ABC[DE][SG[HI[JK]L]MNO]',
+      productions:
+      [
+        ['BC<S', 'Z']
+      ]
+    })
+    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+  })
+
+  it('right side, classic CS should work.', function() {
+    let cs_lsys8 = new lsys.LSystem({
+      word: 'ABC[DE][SG[HI[JK]L]MNO]',
+      productions:
+      [
+        ['S>G[H]M', 'Z']
+      ]
+    })
+    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+  })
 
 
-
-    it('Classic context sensitive syntax should work.', function() {
-      let cs_lsys7 = new lsys.LSystem({
-        word: 'A[X]BC',
-        productions:
-        [
-          ['A<B>C', 'Z']
-        ]
-      })
-
-      expect(cs_lsys7.iterate()).to.equal('A[X]ZC')
+  it('Custom parametric L-Systems (that dont use `params`) should work.', function() {
+    let custom_para_lsys1 = new lsys.LSystem({
+      word: [
+        {letter: 'A', x:1, y:0.5},
+        {letter: 'B', x:0, y:5},
+        {letter: 'C', x:0, y:2, foo: 'bar'},
+        {letter: 'C', x:0, y:2, foo: 'notbar'}
+      ],
+      productions: [
+        ['A', ({part}) => (part.x===1) ? {letter: 'Z', x: 42} : part],
+        ['B', ({part}) => (part.y===5) ? {letter: 'Z', x: 42} : part],
+        ['C', ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part]
+      ]
     })
 
-    it('Left side, classic CS should work.', function() {
-      let cs_lsys8 = new lsys.LSystem({
-        word: 'ABC[DE][SG[HI[JK]L]MNO]',
-        productions:
-        [
-          ['BC<S', 'Z']
-        ]
-      })
-      expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+    custom_para_lsys1.iterate()
+    expect(custom_para_lsys1.getString()).to.equal('ZZZC')
+  })
+
+  it('Basic (normalized) parametric L-System structure should ge parsed.', function() {
+    let para_lsys1 = new lsys.LSystem({
+      word: [
+        {letter: 'A'},
+        {letter: 'B'},
+        {letter: 'C', params: [3]},
+        {letter: 'D', params: [23, 42, 5]},
+        {letter: 'E'},
+        {letter: 'F'},
+        {letter: 'G', mehh:'foo'}
+      ],
+      productions: [
+        ['C', ({index, word, params:[x]}) => (x===3) ? {letter: 'Z'} : {letter: 'C'}],
+        ['D', ({index, word, params:[x, y, z]}) => (y===42) ? {letter: 'Z'} : {letter: 'D'}]
+      ]
     })
 
-    it('right side, classic CS should work.', function() {
-      let cs_lsys8 = new lsys.LSystem({
-        word: 'ABC[DE][SG[HI[JK]L]MNO]',
-        productions:
-        [
-          ['S>G[H]M', 'Z']
-        ]
-      })
-      expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+    console.log(para_lsys1.word);
+    console.log(para_lsys1.getString());
+    para_lsys1.iterate()
+    expect(para_lsys1.getString()).to.equal('ABZZEFG')
+  })
+
+  it('Parametric L-Systems should work. (ABOP, p.42)', function() {
+    let para_lsys2 = new lsys.LSystem({
+      word: [
+        {letter: 'B', params: [2]},
+        {letter: 'A', params: [4, 4]}
+      ],
+      productions: [
+        ['A', ([x, y]) => y<=3 ? {letter: 'A', params: [x*2, x+y]} : 'A'],
+        ['A', ([x, y]) => y>3 ?
+          [{letter: 'B', params: [x]},
+           {letter: 'A', params: [x/y, 0]}]: 'A'],
+        ['B', ([x]) => x<1 ? {letter: 'C'} : 'B'],
+        ['B', ([x]) => x>=1 ? {letter: 'B', params: [x-1]} : 'B']
+      ]
     })
 
+    para_lsys2.iterate()
+    expect(para_lsys2.getString()).to.equal('BBA')
+  })
 
+  // it('Parametric L-Systems should work.', function() {
+  //   let para_lsys1 = new lsys.LSystem({
+  //     word: [
+  //       {letter: 'A'},
+  //       {letter: 'B'},
+  //       {letter: 'C'},
+  //       {letter: 'D'},
+  //       {letter: 'E'},
+  //       {letter: 'F'},
+  //       {letter: 'G'}
+  //     ],
+  //     productions: [
+  //       ['C', {letter: 'Z'}]
+  //     ]
+  //   })
+  //
+  //   para_lsys1.iterate()
+  //   expect(para_lsys1.getString()).to.equal('ABZDEFG')
+  // })
+  //
+  // it('Classic parametric L-Systems should work.', function() {
+  //   let para_lsys3 = new lsys.LSystem({
+  //     word: "",
+  //     productions: [
+  //       ['C', {letter: 'Z'}]
+  //     ]
+  //   })
+  //
+  //   para_lsys1.iterate()
+  //   expect(para_lsys1.getString()).to.equal('ABZDEFG')
+  // })
 
-    it('Very simple parametric L-Systems should work.', function() {
-      let para_lsys1 = new lsys.LSystem({
-        word: [
-          {literal: 'A'},
-          {literal: 'B'},
-          {literal: 'C'},
-          {literal: 'D'},
-          {literal: 'E'},
-          {literal: 'F'},
-          {literal: 'G'}
-        ],
-        productions: [
-          ['C', {literal: 'Z'}]
-        ]
-      })
-
-      para_lsys1.iterate()
-      expect(para_lsys1.getWordAsString({onlyLiterals: true})).to.equal('ABZDEFG')
+  it('should handle UTF8', function() {
+    let test = new lsys.LSystem({
+      word:'⚣⚤●',
+      productions: [['⚣', '♂♂'], ['⚤', '♀♂'], ['●', '○◐◑']]
     })
+    expect(test.iterate()).to.equal('♂♂♀♂○◐◑')
+  })
 
 });

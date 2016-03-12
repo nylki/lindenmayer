@@ -7,11 +7,11 @@ function LSystem({
 
 
 	// if using objects in words, as used in parametric L-Systems
-	this.getWordAsString = function({onlyLiterals = false}) {
+	this.getString = function(onlyLetters = true) {
 		if(typeof this.word === 'string') return this.word
 
-		if(onlyLiterals === true) {
-			return this.word.reduce( (prev, current) => prev + current.literal, '')
+		if(onlyLetters === true) {
+			return this.word.reduce( (prev, current) => prev + current.letter, '')
 		} else {
 			return JSON.stringify(this.word)
 		}
@@ -69,20 +69,20 @@ function LSystem({
 		}
 
 
-		// indexLiteral should be 'B'
+		// indexLetter should be 'B'
 		// get it either from left side or right side if left is nonexistent
-		let indexLiteral = (left !== null) ? left[2] : right[1]
+		let indexLetter = (left !== null) ? left[2] : right[1]
 
-		// double check: make sure that the right and left match got the same indexLiteral (B)
+		// double check: make sure that the right and left match got the same indexLetter (B)
 		if(left !== null && right !== null && left[2] !== right[1]) {
-			throw	new Error('index literal differs in context sensitive production from left to right check.',
+			throw	new Error('index letter differs in context sensitive production from left to right check.',
 			left[2], '!==', right[1])
 		}
 
 			// finally build the new (valid JS) production
 			// (that is being executed instead of the classic syntax,
 			//  which can't be interpreted by the JS engine)
-			let transformedFunction = (_index, _word) => {
+			let transformedFunction = ({index: _index, part: _part, word: _word, params: _params}) => {
 
 				let leftMatch = true
 				let rightMatch = true
@@ -93,17 +93,17 @@ function LSystem({
 
 				// don't match with right side if left already false or no right match necessary
 				if(leftMatch === false || (leftMatch === true && right === null))
-					return leftMatch ? p[1] : indexLiteral
+					return leftMatch ? p[1] : indexLetter
 
 
 				if(right !== null) {
 					rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'})
 				}
 
-				return (leftMatch && rightMatch) ? p[1] : indexLiteral
+				return (leftMatch && rightMatch) ? p[1] : indexLetter
 			}
 
-			let transformedProduction = [indexLiteral, transformedFunction]
+			let transformedProduction = [indexLetter, transformedFunction]
 
 			return transformedProduction
 
@@ -113,35 +113,33 @@ function LSystem({
 
 
 	this.applyProductions = function() {
-		// a word can be a string or an array of objects that contain the key/value 'literal'
+		// a word can be a string or an array of objects that contain the key/value 'letter'
 		let newWord = (typeof this.word === 'string') ? '' : []
 		let index = 0
 
-		// iterate all literals/characters of the word and lookup according productions
+		// iterate all letters/characters of the word and lookup according productions
 		for (let part of this.word) {
+			let letter = part
 
-			// if we have objects for each literal eg. {literal:'B'}, (when using parametric L-Systems)
-			// then get the actual identifiable literal character
-			let literal = part
-			if(typeof part === 'object' && part.literal) literal = part.literal
+			// Stuff for classic parametric L-Systems: get actual letter and possible parameters
+			// params will be given the production function, if applicable.
+			let params = []
+			if(typeof part === 'object' && part.letter) letter = part.letter
+			if(typeof part === 'object' && part.params) params = part.params
+
 
 			// default production result is just the original part itself
 			let result = part
 
-			// if a production for current literal exists
-			if (this.productions.has(literal)) {
-				let p = this.productions.get(literal)
+			if (this.productions.has(letter)) {
+				let p = this.productions.get(letter)
 
 				// if p is a function, execute function and append return value
 				if (typeof p === 'function') {
-					/* TODO: use argument object instead of single arguments
-					p({index, word: this.word, part, contextSensitiveParts: })
-					apply literals production, with current index and the part of the word
-					that triggered the production */
-					result = p(index, this.word, part)
+					result = p({index, word: this.word, part, params})
 
 					/* if p is no function and no iterable, then
-					it should be a string (regular) or object (parametric L-Systems (native impl.))
+					it should be a string (regular) or object
 					directly return it then as result */
 				} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
 
@@ -155,30 +153,25 @@ function LSystem({
 					This assumes, it's a list of functions.
 					*/
 					for (let _p of p) {
-						let _result = (typeof _p === 'function') ? _p(index, this.word, part) : _p
+						let _result = (typeof _p === 'function') ? _p({index, word: this.word, part, params}) : _p
 						if (_result !== undefined && _result !== false) {
 							result = _result
 							break
 						}
 					}
 				}
-
 			}
-
 			// finally add result to new word
 			if(typeof newWord === 'string') {
 				newWord += result
 			} else {
 				newWord.push(result)
 			}
-
 			index++
 		}
 
-		// after the loop, set this.word to newWord
+		// finally set new word and also return for convenience
 		this.word = newWord
-
-		// and also return with newWord for convenience
 		return newWord
 	}
 
@@ -194,22 +187,22 @@ function LSystem({
 	this.final = function() {
 		for (let part of this.word) {
 
-			// if we have objects for each literal, (when using parametric L-Systems)
-			// get actual identifiable literal character
-			let literal = part
-			if(typeof part === 'object' && part.literal) literal = part.literal
+			// if we have objects for each letter, (when using parametric L-Systems)
+			// get actual identifiable letter character
+			let letter = part
+			if(typeof part === 'object' && part.letter) letter = part.letter
 
-			if (this.finals.has(literal)) {
-				var finalFunction = this.finals.get(literal)
+			if (this.finals.has(letter)) {
+				var finalFunction = this.finals.get(letter)
 				var typeOfFinalFunction = typeof finalFunction
 				if ((typeOfFinalFunction !== 'function')) {
-					throw Error('\'' + literal + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
+					throw Error('\'' + letter + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
 				}
-				// execute literals function
+				// execute letters function
 				finalFunction()
 
 			} else {
-				// literal has no final function
+				// letter has no final function
 			}
 		}
 	}
@@ -268,22 +261,22 @@ function LSystem({
 
 
 		for (;wordIndex < word_.length && wordIndex >= 0; wordIndex += loopIndexChange) {
-			let wordLiteral = word_[wordIndex]
-			let matchLiteral = match[matchIndex]
+			let wordLetter = word_[wordIndex]
+			let matchLetter = match[matchIndex]
 
-			// compare current literal of word with current literal of match
-			if (wordLiteral === matchLiteral) {
+			// compare current letter of word with current letter of match
+			if (wordLetter === matchLetter) {
 
 				if(branchCount === 0 || explicitBranchCount > 0) {
 					// if its a match and previously NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
 
 					// if a bracket was explicitly stated in match word
-					if(wordLiteral === branchStart){
+					if(wordLetter === branchStart){
 						explicitBranchCount++
 						branchCount++
 						matchIndex += matchIndexChange
 
-					} else if (wordLiteral === branchEnd) {
+					} else if (wordLetter === branchEnd) {
 						explicitBranchCount = Math.max(0, explicitBranchCount - 1)
 						branchCount = Math.max(0, branchCount - 1)
 						// only increase match if we are out of explicit branch
@@ -304,17 +297,17 @@ function LSystem({
 					return true
 				}
 
-			} else if (wordLiteral === branchStart) {
+			} else if (wordLetter === branchStart) {
 				branchCount++
 				if(explicitBranchCount > 0) explicitBranchCount++
 
-			} else if(wordLiteral === branchEnd) {
+			} else if(wordLetter === branchEnd) {
 				branchCount = Math.max(0, branchCount-1)
 				if(explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount-1)
 
-			} else if((branchCount === 0 || (explicitBranchCount > 0 && matchLiteral !== branchEnd)) && ignoredSymbols.includes(wordLiteral) === false) {
+			} else if((branchCount === 0 || (explicitBranchCount > 0 && matchLetter !== branchEnd)) && ignoredSymbols.includes(wordLetter) === false) {
 				// not in branchSymbols/branch? or if in explicit branch, and not at the very end of
-				// condition (at the ]), and literal not in ignoredSymbols ? then false
+				// condition (at the ]), and letter not in ignoredSymbols ? then false
 				return false
 			}
 		}
@@ -325,19 +318,17 @@ function LSystem({
 
 	// finally init stuff
 	this.parameters = {
-			allowClassicSyntax: true
-		}
+		allowClassicSyntax: true
+	}
 
-		this.word = word
-		this.productions = new Map()
-		this.setProductions(productions)
-		this.branchSymbols = branchSymbols
-		this.ignoredSymbols = ignoredSymbols
+	this.word = word
+	this.productions = new Map()
+	this.setProductions(productions)
+	this.branchSymbols = branchSymbols
+	this.ignoredSymbols = ignoredSymbols
 
-		if (finals) this.finals = new Map(finals)
-		this.iterationCount = 0
-
-
+	if (finals) this.finals = new Map(finals)
+	this.iterationCount = 0
 }
 
 

@@ -3,37 +3,50 @@
 
 
 
-Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base class, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems:
-```.js
+Hopefully going to be a basic L-System library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base class, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.
 
-let myLSys = new LSystem()
-
-// simple production, using ES6 arrow function
-myLSys.setProduction('B', () => 'F+F')
-
-// or same with just the String, both works
-myLSys.setProduction('B', 'F+F')
-
-// simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
-myLSys.setProduction('B',
-  (index, word) => (word[index-1] === 'A') && (word[index+1] === 'C') ? 'Z' : 'B'
-)
-
-// or if you prefer the concise *classic* syntax for context sensitive productions:
-myLSys.setProduction('A<B>C', 'Z')
-
-
-
-// simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
-myLSys.setProduction('B', () => (Math.random() < 0.1) ? '+F' : 'FB+B')
-```
-
-In addition to that I want to have a feature-complete which comes with all the possible productions defined in the *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`) and uses the base class as a fundament.
-As shown before, those (context sensitivity, stochastic production, etc.) can be easily implemented by using the base class. But for historic reasons and compatibility with many already existing examples this classic Class should be able to handle those.
+In addition to that I want to be feature-complete with all the possible productions defined in the *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`).
+implmented:
+- [x] Context Sensitive L-Systems: done
+- [ ] Parametric L-Systems: no classic syntax parsing. works with JS functions though! (see documentation.md)
 
 Right now it's under heavy development, so features and names are subject to change.
 I will remove this warning when I consider this library stable. I hope to get it **stable by March 2016**.
 
+Basic usage:
+
+```.js
+// Initializing a L-System that produces the Koch-curve.
+let kochcurve = new LSystem({
+      word: 'F++F++F',
+      productions: [['F', 'F-F++F-F']]
+})
+let result = kochcurve.iterate(2)
+```
+
+There are multiple way to set productions, including javascript functions:
+
+```.js
+let lsys = new LSystem()
+lsys.setWord('ABC')
+
+// simple production, using ES6 arrow function
+lsys.setProduction('B', () => 'F+F')
+
+// or same with just the String, both works
+lsys.setProduction('B', 'F+F')
+
+// simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
+myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
+
+// simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
+lsys.setProduction('B',
+  ({index, word}) => (word[index-1] === 'A') && (word[index+1] === 'C') ? 'Z' : 'B'
+)
+
+// or if you prefer the concise *classic* syntax for context sensitive productions:
+lsys.setProduction('A<B>C', 'Z')
+```
 
 ## Usage
 
@@ -41,70 +54,53 @@ I will remove this warning when I consider this library stable. I hope to get it
 
 initialize new L-System with initiator word and productions. Here the [Koch curve](https://en.wikipedia.org/wiki/Koch_snowflake) is shown:
 
+You can init a L-System in one go:
+
 ```.js
-// init the Koch curve L-System
-let lsys = new LSystem({
+// Initializing a L-System that produces the Koch curve.
+let kochcurve = new LSystem({
       word: 'F++F++F',
       productions: [['F', 'F-F++F-F']]
+let result = kochcurve.iterate(2)
 })
+
+// Initialize L-System with multiple productions
+let mylsys = new LSystem({
+      word: 'ABC',
+      productions: [
+        ['A', 'A+'],
+        ['B', 'BA'],
+        ['C', 'ABC']
+      ]
+})
+
 ```
 
-The constructor of `LSystem` expects an Array of tuples. Where the tuples are in the form of `[from, to]`.
-This will be transformed to a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) by the `LSystem` constructor.
-
-
----
-
-
 It's also possible to use functions as productions. This can be useful if you want to create **stochastic L-Systems**, like so:
+
 ```.js
 let lsys = new LSystem({
       word: 'F++F++F',
       productions: [['F', () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F']]
 })
+
+//You can later change the *productions*:
+lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-You can later change the *productions*:
+You could also start with an empty L-System, and set all necessary parameters later on.
 
-```.js
-lsys.setProduction('F', 'FF-F')
-lsys.setProduction('Z', () => (Math.random() > 0.75) ? 'Z-Z' : 'F-FF')
-```
-
-
-
-
-
----
-
-
-
-
-You could even start with an empty L-System
 ```.js
 let lsys = new LSystem()
+lsys.setWord('ABC')
+lsys.setProduction('A', 'AAB')
+lsys.setProduction('B', 'CB')
 ```
 
-and set all the necessary parameters later. This can be useful
-if you want to assign the productions from inside a loop, like so:
-```.js
-
-let lsys = new LSystem()
-lsys.setWord(document.querySelector(#initiatorField).value)
-let productionList = document.querySelectorAll('.productions')
-
-for (let i=0; i <= productionList.length; i++) {
-      let curTextFields = productionList[i].querySelectorAll('input')
-      lsys.setProduction(curTextFields[0].value, curTextFields[1].value)
-}
-
-
-```
+This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
 ### iterating
-Now that we have set up our L-System we want to generate interesting structures with it.
-Iterate the L-System and get resulting word:
-
+Now that we have set up our L-System set, we want to generate new words:
 ```.js
 // iterate once, log result to console
 let result = lsys.iterate()
