@@ -81,7 +81,7 @@ let lsys = new LSystem({
       productions: [['F', () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F']]
 })
 
-//You can later change the *productions*:
+//Productions can be changed later:
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
