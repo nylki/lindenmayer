@@ -235,25 +235,25 @@ describe('Correct behavior of L-Systems', function() {
     expect(para_lsys1.getString()).to.equal('ABZZEFG')
   })
 
-  it('Parametric L-Systems should work. (ABOP, p.42)', function() {
-    let para_lsys2 = new lsys.LSystem({
-      word: [
-        {letter: 'B', params: [2]},
-        {letter: 'A', params: [4, 4]}
-      ],
-      productions: [
-        ['A', ([x, y]) => y<=3 ? {letter: 'A', params: [x*2, x+y]} : 'A'],
-        ['A', ([x, y]) => y>3 ?
-          [{letter: 'B', params: [x]},
-           {letter: 'A', params: [x/y, 0]}]: 'A'],
-        ['B', ([x]) => x<1 ? {letter: 'C'} : 'B'],
-        ['B', ([x]) => x>=1 ? {letter: 'B', params: [x-1]} : 'B']
-      ]
-    })
-
-    para_lsys2.iterate()
-    expect(para_lsys2.getString()).to.equal('BBA')
-  })
+  // it('Parametric L-Systems should work. (ABOP, p.42)', function() {
+  //   let para_lsys2 = new lsys.LSystem({
+  //     word: [
+  //       {letter: 'B', params: [2]},
+  //       {letter: 'A', params: [4, 4]}
+  //     ],
+  //     productions: [
+  //       ['A', ([x, y]) => y<=3 ? {letter: 'A', params: [x*2, x+y]} : 'A'],
+  //       ['A', ([x, y]) => y>3 ?
+  //         [{letter: 'B', params: [x]},
+  //          {letter: 'A', params: [x/y, 0]}]: 'A'],
+  //       ['B', ([x]) => x<1 ? {letter: 'C'} : 'B'],
+  //       ['B', ([x]) => x>=1 ? {letter: 'B', params: [x-1]} : 'B']
+  //     ]
+  //   })
+  //
+  //   para_lsys2.iterate()
+  //   expect(para_lsys2.getString()).to.equal('BBA')
+  // })
 
   // it('Parametric L-Systems should work.', function() {
   //   let para_lsys1 = new lsys.LSystem({
