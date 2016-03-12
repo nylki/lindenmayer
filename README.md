@@ -20,6 +20,7 @@ let kochcurve = new LSystem({
       productions: [['F', 'F-F++F-F']]
 })
 let result = kochcurve.iterate(2)
+// result === 'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
 ```
 
 There are multiple way to set productions, including javascript functions:
