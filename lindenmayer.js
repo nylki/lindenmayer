@@ -86,7 +86,8 @@ function LSystem({
 
 				let leftMatch = true
 				let rightMatch = true
-
+				
+				// this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
 				if(left !== null){
 					leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'})
 				}
@@ -95,7 +96,9 @@ function LSystem({
 				if(leftMatch === false || (leftMatch === true && right === null))
 					return leftMatch ? p[1] : indexLetter
 
-
+				// see left!== null. could be optimized. Creating 3 variations of function
+				// so left/right are not checked here, which improves speed, as left/right
+				// are in a scope above.
 				if(right !== null) {
 					rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'})
 				}
