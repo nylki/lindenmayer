@@ -1,10 +1,10 @@
 'use strict'
 
+function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 
-function LSystem({
-	word='', productions, finals, branchSymbols=[], ignoredSymbols=[]
-}) {
-
+	word = word || ''
+	branchSymbols = branchSymbols || []
+	ignoredSymbols = ignoredSymbols || []
 
 	// if using objects in words, as used in parametric L-Systems
 	this.getString = function(onlyLetters = true) {
@@ -17,8 +17,6 @@ function LSystem({
 		}
 	}
 
-
-	// set a new production from A -> B
 	this.setProduction = function (A, B) {
 		let newProduction = [A, B]
 		if(newProduction === undefined) throw	new Error('no production specified.')
@@ -33,7 +31,7 @@ function LSystem({
 
 	// set a list of production
 	this.setProductions = function (newProductions) {
-		if(newProductions === undefined) throw	new Error('no production specified.')
+		if(newProductions === undefined) throw new Error('no production specified.')
 
 		if(this.parameters.allowClassicSyntax === true) {
 			let transformedProductions = newProductions.map(this.transformClassicCSProduction.bind(this))
@@ -52,7 +50,10 @@ function LSystem({
 	}
 
 	// transform a classic syntax production into valid JS production
+	// TODO: Only work on first part pf production P[0]
+	// -> this.transformClassicCSCondition
 	this.transformClassicCSProduction = function (p) {
+
 
 		// before continuing, check if classic syntax actually there
 		// example: p = ['A<B>C', 'Z']
@@ -63,13 +64,13 @@ function LSystem({
 		// right should be ['B', 'C']
 		let right = p[0].match(/(\w)>(\w+)/)
 
-		// if neither '<' nor '>': return original p, as there is no classic classic cs production
+		// Not a CS-Production (no '<' or '>'),
+		//return original production.
 		if(left === null && right === null) {
 			return p
 		}
 
-
-		// indexLetter should be 'B'
+		// indexLetter should be 'B' in A<B>C
 		// get it either from left side or right side if left is nonexistent
 		let indexLetter = (left !== null) ? left[2] : right[1]
 
@@ -86,7 +87,7 @@ function LSystem({
 
 				let leftMatch = true
 				let rightMatch = true
-				
+
 				// this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
 				if(left !== null){
 					leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'})
@@ -264,6 +265,7 @@ function LSystem({
 
 
 		for (;wordIndex < word_.length && wordIndex >= 0; wordIndex += loopIndexChange) {
+			// FIXME: what about objects with .letter
 			let wordLetter = word_[wordIndex]
 			let matchLetter = match[matchIndex]
 

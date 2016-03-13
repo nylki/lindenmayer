@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "babel": "babel lindenmayer.js -o examples/lindenmayer_ES5.js"
   },
   "devDependencies": {
+    "aframe": "github:mozvr/aframe#dev",
     "babel": "^5.8.34",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.2.0",

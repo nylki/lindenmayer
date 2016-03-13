@@ -81,7 +81,7 @@ let lsys = new LSystem({
       productions: [['F', () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F']]
 })
 
-//Productions can be changed later:
+// Productions can be changed later:
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
@@ -99,7 +99,7 @@ This can be useful if you want to dynamically generate and edit L-Systems. For e
 ### iterating
 Now that we have set up our L-System set, we want to generate new words:
 ```.js
-// iterate once, log result to console
+// iterate once, log result to console:
 let result = lsys.iterate()
 console.log(result))
 
