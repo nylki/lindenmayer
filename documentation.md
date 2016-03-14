@@ -57,11 +57,11 @@ let lsys = new lsys.LSystem({
 		{letter: 'C', x:0, y:2, foo: 'bar'},
 		{letter: 'C', x:0, y:2, foo: 'notbar'}
 	],
-	productions: [
-		['A', ({part}) => (part.x===1) ? {letter: 'Z'} : part],
-		['B', ({part}) => (part.y===5) ? {letter: 'Z'} : part],
-		['C', ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part]
-	]
+	productions: {
+		'A': ({part}) => (part.x===1) ? {letter: 'Z'} : part,
+		'B': ({part}) => (part.y===5) ? {letter: 'Z'} : part,
+		'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
+	}
 
 	let result = lsys.iterate()
 	/* result === [

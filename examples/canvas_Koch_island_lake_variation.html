@@ -21,24 +21,24 @@
 
 			var koch = new LSystem({
 				word: 'F-F-F-F',
-				productions: [
-					['F', 'FF-F-F-F-FF']
-				],
-				finals: [
-					['F', function() {
+				productions: {
+					'F': 'FF-F-F-F-FF'
+				},
+				finals: {
+					'F': function() {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 30/(koch.iterationCount + 1))
 						ctx.stroke()
 						ctx.translate(0, 30/(koch.iterationCount + 1))
-					}],
-					['+', function() {
+					},
+					'+': function() {
 						ctx.rotate((Math.PI/180) * 90)
-					}],
-					['-', function() {
+					},
+					'-': function() {
 						ctx.rotate((Math.PI/180) * -90)
-					}]
-				]
+					}
+				}
 			})
 
 
@@ -54,15 +54,8 @@
 				ctx.rotate((Math.PI/180) * 60)
 				koch.iterate()
 				koch.final()
-
-
-
-
-
-
 			});
 
-			// 	// let test = bla.iterate(3)
 		}
 	</script>
 </body>

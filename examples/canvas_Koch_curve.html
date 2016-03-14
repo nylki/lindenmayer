@@ -8,12 +8,9 @@
 
 <body>
 	<canvas id="canvas" width="1000" height="1000"></canvas
-
-
 	<script src="../node_modules/babel/node_modules/babel-core/browser-polyfill.min.js" charset="utf-8"></script>
 	<script src="lindenmayer_ES5.js" charset="utf-8"></script>
 	<script>
-
 
 		window.onload = function() {
 
@@ -22,24 +19,22 @@
 
 			var koch = new LSystem({
 				word: 'F++F++F',
-				productions: [
-					['F', 'F-F++F-F']
-				],
-				finals: [
-					['F', function() {
+				productions: {'F': 'F-F++F-F'},
+				finals: {
+					'F': function() {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 15/(koch.iterationCount + 1))
 						ctx.stroke()
 						ctx.translate(0, 15/(koch.iterationCount + 1))
-					}],
-					['+', function() {
+					},
+					'+': function() {
 						ctx.rotate((Math.PI/180) * 60)
-					}],
-					['-', function() {
+					},
+					'-': function() {
 						ctx.rotate((Math.PI/180) * -60)
-					}]
-				]
+					}
+				}
 			})
 
 
@@ -58,7 +53,7 @@
 
 				koch.iterate()
 				koch.final()
-				console.log(koch.word) 
+				console.log(koch.word)
 
 
 

@@ -25,8 +25,8 @@
 
 			var tree = new LSystem({
 				word: 'F0F1F1',
-				productions: [
-					['0', [
+				productions: {
+					'0':[
 						(index, word, part) => { if(tree.match({index, match: '0', direction: 'left'})) {
 								if(tree.match({index, match: '0', direction: 'right'})) return '1'
 								if(tree.match({index, match: '1', direction: 'right'})) return '0'
@@ -38,8 +38,8 @@
 						}
 					}
 				]
-			],
-					['1', (index, word, part) => {
+			,
+					'1': (index, word, part) => {
 						if(tree.match({index, match: '0', direction: 'left'})) {
 							if(tree.match({index, match: '0', direction: 'right'})) return '0'
 							if(tree.match({index, match: '1', direction: 'right'})) return '1F1'
@@ -49,25 +49,25 @@
 							if(tree.match({index, match: '1', direction: 'right'})) return '0'
 						}
 						return '1'
-					}],
-					['+', (index, word, part) => (word[index-1] !== undefined && word[index+1] !== undefined) ? '-' : '+'],
-					['-', (index, word, part) => (word[index-1] !== undefined && word[index+1] !== undefined) ? '+' : '-']
-				],
+					},
+					'+': (index, word, part) => (word[index-1] !== undefined && word[index+1] !== undefined) ? '-' : '+',
+					'-': (index, word, part) => (word[index-1] !== undefined && word[index+1] !== undefined) ? '+' : '-'
+				},
 				ignoredSymbols: '+-F',
 				branchSymbols: '[]',
-				finals: [
-					['F', () => {
+				finals: {
+					'F': () => {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 100/(tree.iterationCount + 1))
 						ctx.stroke()
 						ctx.translate(0, 100/(tree.iterationCount + 1))
-					}],
-					['+', () => { ctx.rotate((Math.PI/180) * -25.75) } ],
-					['-', () => { ctx.rotate((Math.PI/180) * 25.75) }],
-					['[', () => { ctx.save() }],
-					[']', () => { ctx.restore() }]
-				]
+					},
+					'+': () => { ctx.rotate((Math.PI/180) * -25.75) } ],
+					'-': () => { ctx.rotate((Math.PI/180) * 25.75) },
+					'[': () => { ctx.save() },
+					']': () => { ctx.restore() }
+				}
 			})
 
 			document.addEventListener('click', function (e) {

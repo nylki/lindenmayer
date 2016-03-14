@@ -29,18 +29,36 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 		}
 	}
 
-	// set a list of production
+	// set multiple productions from name:value Object
 	this.setProductions = function (newProductions) {
 		if(newProductions === undefined) throw new Error('no production specified.')
+		this.productions = new Map()
 
-		if(this.parameters.allowClassicSyntax === true) {
-			let transformedProductions = newProductions.map(this.transformClassicCSProduction.bind(this))
-			// FIXME:  now this overwrites existing productions, make it map/iterate this.setProduction instead to preserve existing ones
-			this.productions = new Map(transformedProductions)
-		} else {
-			this.productions = new Map(newProductions)
+			// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
+			for (let condition in newProductions) {
+			  if( newProductions.hasOwnProperty( condition ) ) {
+					this.setProduction(condition, newProductions[condition])
+			  }
+			}
+	}
+
+	this.setFinal = function (letter, final) {
+		let newFinal = [letter, final]
+		if(newFinal === undefined) {
+			throw	new Error('no final specified.')
 		}
+		this.finals.set(newFinal[0], newFinal[1])
+	}
 
+	// set multiple finals from name:value Object
+	this.setFinals = function (newFinals) {
+		if(newFinals === undefined) throw new Error('no finals specified.')
+		this.finals = new Map()
+			for (let letter in newFinals) {
+			  if( newFinals.hasOwnProperty( letter ) ) {
+					this.setFinal(letter, newFinals[letter])
+			  }
+			}
 	}
 
 
@@ -332,7 +350,9 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 	this.branchSymbols = branchSymbols
 	this.ignoredSymbols = ignoredSymbols
 
-	if (finals) this.finals = new Map(finals)
+	if (finals) {
+		this.setFinals(finals)
+	}
 	this.iterationCount = 0
 }
 

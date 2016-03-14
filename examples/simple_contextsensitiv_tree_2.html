@@ -22,35 +22,34 @@
 
 			var tree = new LSystem({
 				word: 'A[+A]A[-A]A[+A]B',
-				productions: [
-					['A', (index, word, part) =>
+				productions: {
+					'A': (index, word, part) =>
 						(tree.match({index, match: 'B', direction: 'right'})) ? 'B' : 'A'
-					]
-				],
+				},
 				ignoredSymbols: '+-',
 				branchSymbols: '[]',
-				finals: [
-					['A', () => {
+				finals: {
+					'A': () => {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 100)
 						ctx.lineWidth = 2
 						ctx.stroke()
 						ctx.translate(0, 100)
-					}],
-					['B', () => {
+					},
+					'B': () => {
 						ctx.beginPath()
 						ctx.moveTo(0,0)
 						ctx.lineTo(0, 100)
 						ctx.lineWidth = 5
 						ctx.stroke()
 						ctx.translate(0, 100)
-					}],
-					['+', () => { ctx.rotate((Math.PI/180) * -25.75) } ],
-					['-', () => { ctx.rotate((Math.PI/180) * 25.75) }],
-					['[', () => { ctx.save() }],
-					[']', () => { ctx.restore() }]
-				]
+					},
+					'+': () => { ctx.rotate((Math.PI/180) * -25.75) } ,
+					'-': () => { ctx.rotate((Math.PI/180) * 25.75) },
+					'[': () => { ctx.save() },
+					']': () => { ctx.restore() }
+				}
 			})
 
 			ctx.save()

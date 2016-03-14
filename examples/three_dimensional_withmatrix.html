@@ -93,57 +93,22 @@
 
 				hilbertCurve = new LSystem({
 					word: 'A',
-					productions: [
-						[
-							'A', 'B-F+CFC+F-D&F^D-F+&&CFC+F+B//'
-						], [
-							'B', 'A&F^CFB^F^D^^-F-D^|F^B|FC^F^A//'
-						], [
-							'C', '|D^|F^B-F+C^F^A&&FA&F^C+F+B^F^D//'
-						], [
-							'D', '|CFB-F+B|FA&F^A&&FB-F+B|FC//'
-						]
-					],
-					finals: [
-						[
-							'F', pushSegment
-						], [
-							'+', function() {
-								console.log('+')
-								currentModel.rotation.y += ((Math.PI / 180) * angle)
-							}
-						], [
-							'-', function() {
-								console.log('-')
-								currentModel.rotation.y += ((Math.PI / 180) * -angle)
-							}
-						], [
-							'&', function() {
-								console.log('&')
-								currentModel.rotation.x += ((Math.PI / 180) * angle)
-							}
-						], [
-							'^', function() {
-								console.log('^')
-								currentModel.rotation.x += ((Math.PI / 180) * -angle)
-							}
-						], [
-							'\\', function() {
-								console.log('\\')
-								currentModel.rotation.z += ((Math.PI / 180) * angle)
-							}
-						], [
-							'/', function() {
-								console.log('/')
-								currentModel.rotation.z += ((Math.PI / 180) * -angle)
-							}
-						], [
-							'|', function() {
-								console.log('|')
-								currentModel.rotation.y -= ((Math.PI / 180) * 180)
-							}
-						]
-					]
+					productions: {
+						'A': 'B-F+CFC+F-D&F^D-F+&&CFC+F+B//',
+						'B': 'A&F^CFB^F^D^^-F-D^|F^B|FC^F^A//',
+						'C': '|D^|F^B-F+C^F^A&&FA&F^C+F+B^F^D//',
+						'D': '|CFB-F+B|FA&F^A&&FB-F+B|FC//'
+					},
+					finals: {
+						'F', pushSegment,
+						'+', () => { currentModel.rotation.y += ((Math.PI / 180) * angle) },
+						'-', () => { currentModel.rotation.y += ((Math.PI / 180) * -angle) },
+						'&', () => { currentModel.rotation.x += ((Math.PI / 180) * angle) },
+						'^', () => { currentModel.rotation.x += ((Math.PI / 180) * -angle) },
+						'\\', () => { currentModel.rotation.z += ((Math.PI / 180) * angle) },
+						'/', () => { currentModel.rotation.z += ((Math.PI / 180) * -angle) },
+						'|': () => { currentModel.rotation.y -= ((Math.PI / 180) * 180) }
+					}
 				})
 
 				hilbertCurve.iterate(2)

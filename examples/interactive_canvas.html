@@ -56,27 +56,27 @@
 
 	lsys = new LSystem({
 		word: wordField.value,
-		finals: [
-			['F', () => {
+		finals: {
+			'F': () => {
 				ctx.beginPath()
 				ctx.moveTo(0, 0)
 				ctx.lineTo(0, 30 / (lsys.iterationCount + 1))
 				ctx.stroke()
 				ctx.translate(0, 30 / (lsys.iterationCount + 1))
-			}],
-			['+', () => {
+			},
+			'+': () => {
 				ctx.rotate((Math.PI / 180) * angle)
-			}],
-			['-', () => {
+			},
+			'-': () => {
 				ctx.rotate((Math.PI / 180) * -angle)
-			}],
-			['[', () => {
+			},
+			'[': () => {
 				ctx.save()
-			}],
-			[']', () => {
+			},
+			']': () => {
 				ctx.restore()
-			}]
-		]
+			}
+		}
 	})
 
 	function updateAngle(newAngle) {

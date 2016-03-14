@@ -17,7 +17,7 @@ Basic usage:
 // Initializing a L-System that produces the Koch-curve.
 let kochcurve = new LSystem({
       word: 'F++F++F',
-      productions: [['F', 'F-F++F-F']]
+      productions: {'F': 'F-F++F-F'}
 })
 let result = kochcurve.iterate(2)
 // result === 'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
@@ -57,18 +57,18 @@ You can init a L-System in one go:
 // Initializing a L-System that produces the Koch curve.
 let kochcurve = new LSystem({
       word: 'F++F++F',
-      productions: [['F', 'F-F++F-F']]
+      productions: {'F': 'F-F++F-F'}
 })
 let result = kochcurve.iterate(2)
 
 // Initialize L-System with multiple productions
 let mylsys = new LSystem({
       word: 'ABC',
-      productions: [
-        ['A', 'A+'],
-        ['B', 'BA'],
-        ['C', 'ABC']
-      ]
+      productions: {
+        'A': 'A+',
+        'B': 'BA',
+        'C': 'ABC'
+      }
 })
 
 ```
@@ -78,7 +78,7 @@ It's also possible to use functions as productions. This can be useful if you wa
 ```.js
 let lsys = new LSystem({
       word: 'F++F++F',
-      productions: [['F', () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F']]
+      productions: {'F': () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F'}
 })
 
 // Productions can be changed later:
