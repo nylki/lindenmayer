@@ -2,9 +2,10 @@
 
 function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 
-	word = word || ''
-	branchSymbols = branchSymbols || []
-	ignoredSymbols = ignoredSymbols || []
+	// faking default values until better support lands in all browser
+	word = typeof word !== 'undefined' ? word : ''
+	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : []
+	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : []
 
 	// if using objects in words, as used in parametric L-Systems
 	this.getString = function(onlyLetters = true) {
@@ -65,6 +66,22 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 	// TODO: implement it!
 	this.transformClassicParametricProduction = function (p) {
 		return p
+	}
+
+	// transforms things like 'A(1,2,5)B(2.5)' to
+	// [ {letter: 'A', params: [1,2,5]}, {letter: 'B', params:[25]} ]
+	// strips spaces
+	this.transformClassicParametricWord = function (word) {
+		// Replace whitespaces, then split between square brackets.
+		let splitWord = word.replace(/\s+/g, '').split(/[\(\)]/)
+		console.log('parts:', splitWord)
+		let newWord = []
+		// Construct new word by getting the params and letter.
+		for (let i = 0; i < splitWord.length-1; i+=2) {
+			let params = splitWord[i+1].split(',').map(Number)
+			newWord.push({letter: parts[i], params:params})
+		}
+		console.log('parsed word:', newWord)
 	}
 
 	// transform a classic syntax production into valid JS production
@@ -337,8 +354,6 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 	}
 
 
-
-
 	// finally init stuff
 	this.parameters = {
 		allowClassicSyntax: true
@@ -349,18 +364,17 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 	this.setProductions(productions)
 	this.branchSymbols = branchSymbols
 	this.ignoredSymbols = ignoredSymbols
+	if (finals) this.setFinals(finals)
 
-	if (finals) {
-		this.setFinals(finals)
-	}
 	this.iterationCount = 0
 }
 
 
-// if in node export LSystem, otherwise don't attempt to
+// Try to export to be used via require in NodeJS.
 try {
 	exports.LSystem = LSystem
 	exports.matchRight = matchRight
+	exports.matchLeft = matchLeft
 } catch (err) {
 
 }
