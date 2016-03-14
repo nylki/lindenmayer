@@ -79,7 +79,7 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 		// Construct new word by getting the params and letter.
 		for (let i = 0; i < splitWord.length-1; i+=2) {
 			let params = splitWord[i+1].split(',').map(Number)
-			newWord.push({letter: parts[i], params:params})
+			newWord.push({letter: splitWord[i], params:params})
 		}
 		console.log('parsed word:', newWord)
 	}
