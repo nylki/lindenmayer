@@ -5,10 +5,11 @@
   },
   "devDependencies": {
     "aframe": "github:mozvr/aframe#dev",
-    "babel": "^5.8.34",
-    "chai": "^3.4.1",
+    "babel": "^5.8.35",
+    "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
-    "expect": "^1.13.4",
-    "mocha": "^2.3.4"
-  }
+    "expect": "^1.15.2",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {}
 }

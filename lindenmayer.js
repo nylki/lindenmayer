@@ -1,11 +1,12 @@
 'use strict'
 
-function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
+function LSystem({word, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax}) {
 
 	// faking default values until better support lands in all browser
 	word = typeof word !== 'undefined' ? word : ''
 	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : []
 	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : []
+	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false'
 
 	// if using objects in words, as used in parametric L-Systems
 	this.getString = function(onlyLetters = true) {
@@ -68,10 +69,13 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 		return p
 	}
 
+	this.testClassicParametricSyntax = (word) => (/\(.+\)/).test(word)
+
 	// transforms things like 'A(1,2,5)B(2.5)' to
 	// [ {letter: 'A', params: [1,2,5]}, {letter: 'B', params:[25]} ]
 	// strips spaces
 	this.transformClassicParametricWord = function (word) {
+
 		// Replace whitespaces, then split between square brackets.
 		let splitWord = word.replace(/\s+/g, '').split(/[\(\)]/)
 		console.log('parts:', splitWord)
@@ -364,6 +368,7 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols}) {
 	this.setProductions(productions)
 	this.branchSymbols = branchSymbols
 	this.ignoredSymbols = ignoredSymbols
+	this.classicParametricSyntax = classicParametricSyntax
 	if (finals) this.setFinals(finals)
 
 	this.iterationCount = 0

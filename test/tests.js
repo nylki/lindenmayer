@@ -224,29 +224,24 @@ describe('Correct behavior of L-Systems', function() {
       }
     })
 
-    // console.log(para_lsys1.word);
-    // console.log(para_lsys1.getString());
     para_lsys1.iterate()
     expect(para_lsys1.getString()).to.equal('ABZZEFG')
   })
 
-  it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {
-
-    // testlsys.transformClassicParametricWord('A(1,2)  B(2, 3, 5)')
-    // let para_lsys1 = new lsys.LSystem({
-    //   word: 'A(1,2)  B(2, 3, 5)',
-    //   productions: {
-    //     'A(x,y)': (x,y) => `A(${x+1},${y})B(1,1,1)`,
-    //     'B(x,y,z)': (x,y,z) => `B(${x*y*z})B(0,1,1)`
-    //   }
-    // })
-
-
-    // console.log(para_lsys1.word);
-    // console.log(para_lsys1.getString());
-    // para_lsys1.iterate()
-    // expect(para_lsys1.getString()).to.equal('ABZZEFG')
-  })
+  // it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {
+  //
+  //   let classicParamLsys = new lsys.LSystem({
+  //     claasicParametricSyntax: true,
+  //     word: 'A(1,2)  B(2, 3, 5)',
+  //     productions: {
+  //       'A(x,y)': (x,y) => `A(${x+1},${y})B(1,1,1)`,
+  //       'B(x,y,z)': (x,y,z) => `B(${x*y*z},4,${x+y})B(0,1,1)`
+  //     }
+  //   })
+  //
+  //   classicParamLsys.iterate(1)
+  //   expect(classicParamLsys.getString()).to.equal('ABZZEFG')
+  // })
 
   // it('Parametric L-Systems should work. (ABOP, p.42)', function() {
   //   let para_lsys2 = new lsys.LSystem({
