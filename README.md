@@ -3,7 +3,7 @@
 
 Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.
 
-In addition to that I want to be feature-complete with all the possible productions defined in the *Algorithmic Beauty of Plants* (Branches: `[]`, context sensitive productions: `<>`).
+The library can also parse (to some extend) classic L-System syntax as defined in the Lindenmayers *Algorithmic Beauty of Plants* (eg: Branches: `[]`, context sensitive productions: `<>`).
 Most stuff should work. I am currently working on parametric L-System support.
 
 **Right now it's under heavy development, so features and names are subject to change.
