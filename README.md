@@ -136,7 +136,7 @@ ctx.translate(canvas.width/2, canvas/2)
 
 var koch = new LSystem({
   word: 'F++F++F',
-	productions: [['F', 'F-F++F-F']],
+	productions: {'F': 'F-F++F-F'},
 	finals: [
 		['+', () => { ctx.rotate((Math.PI/180) * 60) }],
 		['-', () => { ctx.rotate((Math.PI/180) * -60) }],
