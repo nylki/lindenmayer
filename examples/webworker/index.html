@@ -1,154 +1,152 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>Basic Interactive L-Systems with web worker threads</title>
+<head>
+	<meta charset="utf-8">
+	<title>Basic Interactive L-Systems with web worker threads</title>
+	
+	<style media="screen">
+	.label {
+		/*min-width: 100px;*/
+	}
+	body {
+		display: flex;
+		flex-direction: row;
+	}
+	
+	.inputcontaner {
+		display: flex;
+		flex-direction: column;
+	}
+	
+	</style>
+	
+</head>
+<body onkeyup="update()">
+	
+	<div class="inputcontainer">
 		
-		<style media="screen">
-			.label {
-				/*min-width: 100px;*/
-			}
-			body {
-				display: flex;
-				flex-direction: row;
-			}
-			
-			.inputcontaner {
-				display: flex;
-				flex-direction: column;
-			}
-			
-		</style>
+		<div class="label">initial word:</div>
+		<input id="word" type="text" name="name" value="F"> <br>
 		
-	</head>
-	<body onkeyup="update()">
 		
-		<div class="inputcontainer">
-			
-			<div class="label">initial word:</div>
-			<input id="word" type="text" name="name" value="F"> <br>
-			
-
-			<div class="label">iterations:</div>
-			<input id="iterations" type="range" min="1" max="12" name="name" value="1" oninput="update()"> <br>
-			
-			<div class="label">rotation:</div>
-			<input id="rotation" type="range" min="0" max="360" name="name" value="90" oninput="window.requestAnimationFrame(draw)"> <br>
-			
-			<div class="label">line length:</div>
-			<input id="linelength" type="range" min="1" max="100" name="name" value="25" oninput="window.requestAnimationFrame(draw)"> <br>
-			
-			<div id="productions"></div>
-			<button type="button" onclick="addProductionField()">add production</button>
-			
-		</div>
-		<canvas id="canvas" width="1000" height="1000"></canvas>
-
+		<div class="label">iterations:</div>
+		<input id="iterations" type="range" min="1" max="12" name="name" value="1" oninput="update()"> <br>
+		
+		<div class="label">rotation:</div>
+		<input id="rotation" type="range" min="0" max="360" name="name" value="90" oninput="window.requestAnimationFrame(draw)"> <br>
+		
+		<div class="label">line length:</div>
+		<input id="linelength" type="range" min="1" max="100" name="name" value="25" oninput="window.requestAnimationFrame(draw)"> <br>
+		
+		<div id="productions"></div>
+		<button type="button" onclick="addProductionField()">add production</button>
+		
+	</div>
+	<canvas id="canvas" width="1000" height="1000"></canvas>
+	
 	<script src="../../dist/lindenmayer.js"></script>
 	<script type="text/javascript">
-		var canvas = document.getElementById('canvas');
-		var ctx = canvas.getContext("2d");
-		var wordInput = document.getElementById('word');
-		var rotationInput = document.getElementById('rotation');
-		var iterationInput = document.getElementById('iterations');
-		var lineLengthInput = document.getElementById('linelength');
-		var productionList = document.getElementById('productions');
-		var lineLength, rotation;
-
+	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext("2d");
+	var wordInput = document.getElementById('word');
+	var rotationInput = document.getElementById('rotation');
+	var iterationInput = document.getElementById('iterations');
+	var lineLengthInput = document.getElementById('linelength');
+	var productionList = document.getElementById('productions');
+	var lineLength, rotation;
+	
+	
+	// Only define drawing function now. Productions get set by the user via UI.
+	var lsystem = new LSystem({
+		finals: {
+			'F': () => {
+				ctx.beginPath()
+				ctx.moveTo(0,0)
+				ctx.lineTo(0, lineLength)
+				ctx.stroke()
+				ctx.translate(0, lineLength)
+			},
+			'+': () => { ctx.rotate((Math.PI/180) * rotation) } ,
+			'-': () => { ctx.rotate((Math.PI/180) * -rotation) },
+			'[': () => { ctx.save() },
+			']': () => { ctx.restore() }
+		}
+	})
+	
+	initWorker();
+	
+	function addProductionField() {
+		var prodFrom = document.createElement('input');
+		var prodTo = document.createElement('input');
+		var prodRemove = document.createElement('button');
+		var prodContainer = document.createElement('div');
+		prodFrom.type = prodTo.type = 'text';
+		prodFrom.style.width = '2em';
+		prodRemove.type = 'button';
+		prodRemove.innerHTML = 'x';
+		prodRemove.style.width = '1em';
 		
-		var lsystem = new LSystem({
-			finals: {
-				'F': () => {
-					ctx.beginPath()
-					ctx.moveTo(0,0)
-					ctx.lineTo(0, lineLength)
-					ctx.stroke()
-					ctx.translate(0, lineLength)
-				},
-				'+': () => { ctx.rotate((Math.PI/180) * rotation) } ,
-				'-': () => { ctx.rotate((Math.PI/180) * -rotation) },
-				'[': () => { ctx.save() },
-				']': () => { ctx.restore() }
-			}
-		})
+		prodRemove.onclick = function() {
+			removeProductionField(prodContainer)
+		}
 		
+		prodContainer.appendChild(prodFrom);
+		prodContainer.appendChild(prodTo);
+		prodContainer.appendChild(prodRemove);
+		productionList.appendChild(prodContainer);
+	}
+	
+	function removeProductionField(production) {
+		productionList.removeChild(production);
+		update();
+	}
+	
+	function update() {
+		// gather info from text fields
+		var params = {
+			word: 		wordInput.value,
+			rotation: rotationInput.value,
+			productions: {},
+			iterations: iterationInput.value
+		}
+		for (var prod of productionList.childNodes)
+		params.productions[prod.childNodes[0].value] = prod.childNodes[1].value;
+		
+		if(Date.now() - worker.startTime > 1000 ) {
+			// if we got user input, but worker is running for over a second
+			// terminate old worker and start new one.
+			worker.terminate();
+			initWorker();
+		}
+		// post params to worker
+		worker.startTime = Date.now()
+		worker.postMessage(params)
+	}
+	
+	function draw() {
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.translate(500, 500);
+		ctx.moveTo(0, 0);
+		ctx.rotate(Math.PI);
+		lineLength = lineLengthInput.value;
+		rotation = rotationInput.value;
+		lsystem.final();
+	}
+	
+	function initWorker() {
 		worker = new Worker("worker.js");
 		worker.onmessage = onWorkerUpdate;
-		
+	}
 	
-		function addProductionField() {
-			var prodFrom = document.createElement('input');
-			var prodTo = document.createElement('input');
-			var prodRemove = document.createElement('button');
-			var prodContainer = document.createElement('div');
-			prodFrom.type = prodTo.type = 'text';
-			prodFrom.style.width = '2em';
-			prodRemove.type = 'button';
-			prodRemove.innerHTML = 'x';
-			prodRemove.style.width = '1em';
-			
-			prodRemove.onclick = function() {
-				removeProductionField(prodContainer)
-			}
-			
-			prodContainer.appendChild(prodFrom);
-			prodContainer.appendChild(prodTo);
-			prodContainer.appendChild(prodRemove);
-			productionList.appendChild(prodContainer);
-		}
-		
-		function removeProductionField(production) {
-			if (production && productionList.hasChildNodes() ) {
-  			productionList.removeChild( production );
-			}
-			update();
-		}
-		
-		function update() {
-			
-			// gather info from text fields
-			var params = {
-				word: 		wordInput.value,
-				rotation: rotationInput.value,
-				productions: {},
-				iterations: iterationInput.value
-			}
-			for (var prod of productionList.childNodes)
-				params.productions[prod.childNodes[0].value] = prod.childNodes[1].value;
-
-			
-			if(Date.now() - worker.startTime > 1000 ) {
-				// if we got user input, but worker is running for over a second
-				// terminate old worker and start new one.
-				worker.terminate();
-				worker = new Worker("worker.js");
-				worker.onmessage = onWorkerUpdate;
-			}
-			
-			// post params to worker
-			worker.startTime = Date.now()
-			worker.postMessage(params)
-		}
-		
-		function draw() {
-			ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.translate(500, 500);
-			ctx.moveTo(0, 0);
-			ctx.rotate(Math.PI);
-			lineLength = lineLengthInput.value;
-			rotation = rotationInput.value;
-			lsystem.final();
-		}
-		
-		function onWorkerUpdate(e) {
-			lsystem.setProductions(e.data.initial.productions)
-			lsystem.setWord(e.data.result);
-			window.requestAnimationFrame(draw)
-		}
-		
-		addProductionField()
-
+	function onWorkerUpdate(e) {
+		lsystem.setProductions(e.data.initial.productions)
+		lsystem.setWord(e.data.result);
+		window.requestAnimationFrame(draw)
+	}
+	
+	addProductionField()
+	
 	</script>
-	</body>
+</body>
 </html>
