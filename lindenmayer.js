@@ -18,6 +18,10 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols, clas
 			return JSON.stringify(this.word)
 		}
 	}
+	
+	this.setWord = function (word) {
+		this.word = word
+	}
 
 	this.setProduction = function (A, B) {
 		let newProduction = [A, B]
@@ -220,6 +224,7 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols, clas
 
 	// iterate n times
 	this.iterate = function(n = 1) {
+		this.iterations = n
 		let lastIteration
 		for (let iteration = 0; iteration < n; iteration++, this.iterationCount++) {
 			lastIteration = this.applyProductions()
@@ -363,9 +368,9 @@ function LSystem({word, productions, finals, branchSymbols, ignoredSymbols, clas
 		allowClassicSyntax: true
 	}
 
-	this.word = word
+	this.setWord(word)
 	this.productions = new Map()
-	this.setProductions(productions)
+	if(productions) this.setProductions(productions)
 	this.branchSymbols = branchSymbols
 	this.ignoredSymbols = ignoredSymbols
 	this.classicParametricSyntax = classicParametricSyntax
