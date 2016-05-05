@@ -106,9 +106,11 @@ console.log(lsys.iterate(5))
 ```
 
 
-### Visualization and other post processing
-This L-System implementation uses a method inside each L-System instance to be called after word generation/iterations.
-You can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
+### Final functions: Visualization and other post processing
+You possibly want to visualize your L-Systems in some way. :)
+Of course you could iterate and parse the resulting string yourself. But `lindemayer` has an API to define
+such postprocessing: `final` functions.
+With those you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
 The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [HTML Canvas element](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API):
 
 ```.html
