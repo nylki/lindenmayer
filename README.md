@@ -107,7 +107,7 @@ console.log(lsys.iterate(5))
 
 
 ### Final functions: Visualization and other post processing
-You possibly want to visualize your L-Systems in some way. :)
+You possibly want to visualize your L-Systems in some way.
 Of course you could iterate and parse the resulting string yourself. But `lindemayer` has an API to define
 such postprocessing: `final` functions.
 With those you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
