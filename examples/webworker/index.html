@@ -26,14 +26,14 @@
 	<div class="inputcontainer">
 		
 		<div class="label">initial word:</div>
-		<input id="word" type="text" name="name" value="F"> <br>
+		<input id="word" type="text" name="name"> <br>
 		
 		
 		<div class="label">iterations:</div>
 		<input id="iterations" type="range" min="1" max="12" name="name" value="1" oninput="update()"> <br>
 		
 		<div class="label">rotation:</div>
-		<input id="rotation" type="range" min="0" max="360" name="name" value="90" oninput="window.requestAnimationFrame(draw)"> <br>
+		<input id="rotation" type="range" min="0" max="360" name="name" value="45" oninput="window.requestAnimationFrame(draw)"> <br>
 		
 		<div class="label">line length:</div>
 		<input id="linelength" type="range" min="1" max="100" name="name" value="25" oninput="window.requestAnimationFrame(draw)"> <br>
@@ -140,12 +140,17 @@
 	}
 	
 	function onWorkerUpdate(e) {
-		lsystem.setProductions(e.data.initial.productions)
+		lsystem.setProductions(e.data.initial.productions);
 		lsystem.setWord(e.data.result);
-		window.requestAnimationFrame(draw)
+		window.requestAnimationFrame(draw);
 	}
 	
-	addProductionField()
+	// Initially add Koch-Flake/Curve for demonstration
+	addProductionField();
+	wordInput.value = 'F++F++F++F';
+	productionList.childNodes[0].childNodes[0].value = 'F';
+	productionList.childNodes[0].childNodes[1].value = 'F-F++F-F';
+	update();
 	
 	</script>
 </body>
