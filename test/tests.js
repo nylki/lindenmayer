@@ -1,10 +1,10 @@
-let chai = require('chai');
-let chaiAsPromised = require('chai-as-promised');
-let expect = chai.expect;
+var chai = require('chai');
+var chaiAsPromised = require('chai-as-promised');
+var expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let lsys = require('../dist/lindenmayer');
-let test = new lsys.LSystem({
+var lsys = require('../dist/lindenmayer');
+var test = new lsys.LSystem({
   word: 'F++F++F',
   productions: {
     'F': 'F-F++F-F'
@@ -14,7 +14,7 @@ test.transformClassicParametricWord('A (1, 2.5, 1234)  B(2, 3, 5)');
 describe('Correct behavior of L-Systems', function() {
 
   it('should generate the string for the Koch-curve', function() {
-    let koch = new lsys.LSystem({
+    var koch = new lsys.LSystem({
       word: 'F++F++F',
       productions: {
         'F': 'F-F++F-F'
@@ -28,13 +28,13 @@ describe('Correct behavior of L-Systems', function() {
     expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F');
 
 
-    let wordFromGenerator = koch.iterate();
+    var wordFromGenerator = koch.iterate();
     expect(wordFromGenerator).to.equal(koch.word);
   });
 
 
   it('should execute final functions to draw eg. visualizations.', function() {
-    let vizsys = new lsys.LSystem({
+    var vizsys = new lsys.LSystem({
       word: 'A---',
       productions: {
         'A': 'AARA-BB-B',
@@ -58,7 +58,7 @@ describe('Correct behavior of L-Systems', function() {
   });
 
   it('Final functions must be functions. Should throw an error on any other type.', function() {
-    let vizsys = new lsys.LSystem({
+    var vizsys = new lsys.LSystem({
       word:'A',
       productions: {'A': 'Z'},
       finals: {'Z': 'A_STRING'}
@@ -79,7 +79,7 @@ describe('Correct behavior of L-Systems', function() {
       vizsys.final()
     }).to.throw(/not a function/)
 
-    let rotation = 5
+    var rotation = 5
     expect(function () {
       vizsys.finals.set('Z', () => {rotation *= 2});
       vizsys.final();
@@ -91,7 +91,7 @@ describe('Correct behavior of L-Systems', function() {
 
   it('Helper functions for context sensitive productions should work properly. Especially with branches.', function() {
 
-    let cs_lsys = new lsys.LSystem({
+    var cs_lsys = new lsys.LSystem({
       word: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: {
         'C': ({index, word}) => (cs_lsys.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C'
@@ -106,7 +106,7 @@ describe('Correct behavior of L-Systems', function() {
 
   it('Context sensitive L-System should work inside explicitly wanted branches', function() {
     // this example is taken from ABOP S. 32
-    let cs_lsys3 = new lsys.LSystem({
+    var cs_lsys3 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {
         'S': ({index, word}) =>
@@ -119,7 +119,7 @@ describe('Correct behavior of L-Systems', function() {
     expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
 
 
-    let cs_lsys4 = new lsys.LSystem({
+    var cs_lsys4 = new lsys.LSystem({
       word: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: {
         'H': ({index, word}) =>  (
@@ -132,7 +132,7 @@ describe('Correct behavior of L-Systems', function() {
       expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]');
 
 
-      let cs_lsys5 = new lsys.LSystem({
+      var cs_lsys5 = new lsys.LSystem({
         word: 'S][ED]CBA',
         productions: {
           'S': ({index}) =>  ( cs_lsys5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S'
@@ -148,7 +148,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
     it('Context sensitive L-System helper function match() should work in L-Systems that don\'t use branches/brackets.', function() {
-      let cs_lsys6 = new lsys.LSystem({
+      var cs_lsys6 = new lsys.LSystem({
         word: 'A+++C-DE-+F&GH++-',
         productions: {
           'C': ({index}) =>
@@ -163,7 +163,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
   it('Classic context sensitive syntax should work.', function() {
-    let cs_lsys7 = new lsys.LSystem({
+    var cs_lsys7 = new lsys.LSystem({
       word: 'A[X]BC',
       productions: {'A<B>C': 'Z'}
     });
@@ -172,7 +172,7 @@ describe('Correct behavior of L-Systems', function() {
   });
 
   it('Left side, classic CS should work.', function() {
-    let cs_lsys8 = new lsys.LSystem({
+    var cs_lsys8 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {'BC<S': 'Z'}
     });
@@ -180,7 +180,7 @@ describe('Correct behavior of L-Systems', function() {
   });
 
   it('right side, classic CS should work.', function() {
-    let cs_lsys8 = new lsys.LSystem({
+    var cs_lsys8 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {'S>G[H]M': 'Z'}
     });
@@ -189,17 +189,17 @@ describe('Correct behavior of L-Systems', function() {
 
 
   it('Custom parametric L-Systems (that dont use `params`) should work.', function() {
-    let custom_para_lsys1 = new lsys.LSystem({
+    var custom_para_lsys1 = new lsys.LSystem({
       word: [
-        {letter: 'A', x:1, y:0.5},
-        {letter: 'B', x:0, y:5},
-        {letter: 'C', x:0, y:2, foo: 'bar'},
-        {letter: 'C', x:0, y:2, foo: 'notbar'}
+        {varter: 'A', x:1, y:0.5},
+        {varter: 'B', x:0, y:5},
+        {varter: 'C', x:0, y:2, foo: 'bar'},
+        {varter: 'C', x:0, y:2, foo: 'notbar'}
       ],
       productions: {
-        'A': ({part}) => (part.x===1) ? {letter: 'Z', x: 42} : part,
-        'B': ({part}) => (part.y===5) ? {letter: 'Z', x: 42} : part,
-        'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
+        'A': ({part}) => (part.x===1) ? {varter: 'Z', x: 42} : part,
+        'B': ({part}) => (part.y===5) ? {varter: 'Z', x: 42} : part,
+        'C': ({part}) => (part.foo === 'bar') ? {varter: 'Z'} : part
       }
     });
 
@@ -208,19 +208,19 @@ describe('Correct behavior of L-Systems', function() {
   });
 
   it('Basic (normalized) parametric L-System structure should ge parsed.', function() {
-    let para_lsys1 = new lsys.LSystem({
+    var para_lsys1 = new lsys.LSystem({
       word: [
-        {letter: 'A'},
-        {letter: 'B'},
-        {letter: 'C', params: [3]},
-        {letter: 'D', params: [23, 42, 5]},
-        {letter: 'E'},
-        {letter: 'F'},
-        {letter: 'G', mehh:'foo'}
+        {varter: 'A'},
+        {varter: 'B'},
+        {varter: 'C', params: [3]},
+        {varter: 'D', params: [23, 42, 5]},
+        {varter: 'E'},
+        {varter: 'F'},
+        {varter: 'G', mehh:'foo'}
       ],
       productions: {
-        'C': ({index, word, params:[x]}) => (x===3) ? {letter: 'Z'} : {letter: 'C'},
-        'D': ({index, word, params:[x, y, z]}) => (y===42) ? {letter: 'Z'} : {letter: 'D'}
+        'C': ({index, word, params:[x]}) => (x===3) ? {varter: 'Z'} : {varter: 'C'},
+        'D': ({index, word, params:[x, y, z]}) => (y===42) ? {varter: 'Z'} : {varter: 'D'}
       }
     });
 
@@ -230,7 +230,7 @@ describe('Correct behavior of L-Systems', function() {
 
   // it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {
   //
-  //   let classicParamLsys = new lsys.LSystem({
+  //   var classicParamLsys = new lsys.LSystem({
   //     claasicParametricSyntax: true,
   //     word: 'A(1,2)  B(2, 3, 5)',
   //     productions: {
@@ -244,18 +244,18 @@ describe('Correct behavior of L-Systems', function() {
   // })
 
   // it('Parametric L-Systems should work. (ABOP, p.42)', function() {
-  //   let para_lsys2 = new lsys.LSystem({
+  //   var para_lsys2 = new lsys.LSystem({
   //     word: [
-  //       {letter: 'B', params: [2]},
-  //       {letter: 'A', params: [4, 4]}
+  //       {varter: 'B', params: [2]},
+  //       {varter: 'A', params: [4, 4]}
   //     ],
   //     productions: [
-  //       ['A', ([x, y]) => y<=3 ? {letter: 'A', params: [x*2, x+y]} : 'A'],
+  //       ['A', ([x, y]) => y<=3 ? {varter: 'A', params: [x*2, x+y]} : 'A'],
   //       ['A', ([x, y]) => y>3 ?
-  //         [{letter: 'B', params: [x]},
-  //          {letter: 'A', params: [x/y, 0]}]: 'A'],
-  //       ['B', ([x]) => x<1 ? {letter: 'C'} : 'B'],
-  //       ['B', ([x]) => x>=1 ? {letter: 'B', params: [x-1]} : 'B']
+  //         [{varter: 'B', params: [x]},
+  //          {varter: 'A', params: [x/y, 0]}]: 'A'],
+  //       ['B', ([x]) => x<1 ? {varter: 'C'} : 'B'],
+  //       ['B', ([x]) => x>=1 ? {varter: 'B', params: [x-1]} : 'B']
   //     ]
   //   })
   //
@@ -264,18 +264,18 @@ describe('Correct behavior of L-Systems', function() {
   // })
 
   // it('Parametric L-Systems should work.', function() {
-  //   let para_lsys1 = new lsys.LSystem({
+  //   var para_lsys1 = new lsys.LSystem({
   //     word: [
-  //       {letter: 'A'},
-  //       {letter: 'B'},
-  //       {letter: 'C'},
-  //       {letter: 'D'},
-  //       {letter: 'E'},
-  //       {letter: 'F'},
-  //       {letter: 'G'}
+  //       {varter: 'A'},
+  //       {varter: 'B'},
+  //       {varter: 'C'},
+  //       {varter: 'D'},
+  //       {varter: 'E'},
+  //       {varter: 'F'},
+  //       {varter: 'G'}
   //     ],
   //     productions: [
-  //       ['C', {letter: 'Z'}]
+  //       ['C', {varter: 'Z'}]
   //     ]
   //   })
   //
@@ -284,10 +284,10 @@ describe('Correct behavior of L-Systems', function() {
   // })
   //
   // it('Classic parametric L-Systems should work.', function() {
-  //   let para_lsys3 = new lsys.LSystem({
+  //   var para_lsys3 = new lsys.LSystem({
   //     word: '',
   //     productions: [
-  //       ['C', {letter: 'Z'}]
+  //       ['C', {varter: 'Z'}]
   //     ]
   //   })
   //
@@ -296,7 +296,7 @@ describe('Correct behavior of L-Systems', function() {
   // })
 
   it('should handle UTF8', function() {
-    let test = new lsys.LSystem({
+    var test = new lsys.LSystem({
       word:'⚣⚤●',
       productions: {
         '⚣': '♂♂',
