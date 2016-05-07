@@ -1,15 +1,15 @@
-let chai = require("chai")
-let chaiAsPromised = require("chai-as-promised")
-let expect = chai.expect
-chai.use(chaiAsPromised)
+let chai = require('chai');
+let chaiAsPromised = require('chai-as-promised');
+let expect = chai.expect;
+chai.use(chaiAsPromised);
 
-let lsys = require('../lindenmayer')
+let lsys = require('../lindenmayer');
 let test = new lsys.LSystem({
   word: 'F++F++F',
   productions: {
     'F': 'F-F++F-F'
-  }})
-test.transformClassicParametricWord('A (1, 2.5, 1234)  B(2, 3, 5)')
+  }});
+test.transformClassicParametricWord('A (1, 2.5, 1234)  B(2, 3, 5)');
 
 describe('Correct behavior of L-Systems', function() {
 
@@ -19,18 +19,18 @@ describe('Correct behavior of L-Systems', function() {
       productions: {
         'F': 'F-F++F-F'
       }
-    })
+    });
 
-    expect(koch.iterate()).to.equal('F-F++F-F++F-F++F-F++F-F++F-F')
+    expect(koch.iterate()).to.equal('F-F++F-F++F-F++F-F++F-F++F-F');
 
-    expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+    expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F');
 
-    expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F')
+    expect(koch.iterate()).to.equal('F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F-F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F');
 
 
-    let wordFromGenerator = koch.iterate()
-    expect(wordFromGenerator).to.equal(koch.word)
-  })
+    let wordFromGenerator = koch.iterate();
+    expect(wordFromGenerator).to.equal(koch.word);
+  });
 
 
   it('should execute final functions to draw eg. visualizations.', function() {
@@ -48,31 +48,31 @@ describe('Correct behavior of L-Systems', function() {
         '-': () => {vizsys.output += '-'},
         '+': () => {vizsys.output += '+'}
       }
-    })
+    });
 
-    vizsys.output = ''
+    vizsys.output = '';
 
-    vizsys.iterate(2)
-    vizsys.final()
-    expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----')
-  })
+    vizsys.iterate(2);
+    vizsys.final();
+    expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----');
+  });
 
   it('Final functions must be functions. Should throw an error on any other type.', function() {
     let vizsys = new lsys.LSystem({
       word:'A',
       productions: {'A': 'Z'},
       finals: {'Z': 'A_STRING'}
-    })
+    });
 
     expect(function () {
-      vizsys.iterate()
-      vizsys.final()
-    }).to.throw(/not a function/)
+      vizsys.iterate();
+      vizsys.final();
+    }).to.throw(/not a function/);
 
     expect(function () {
-      vizsys.finals.set('Z', 7)
-      vizsys.final()
-    }).to.throw(/not a function/)
+      vizsys.finals.set('Z', 7);
+      vizsys.final();
+    }).to.throw(/not a function/);
 
     expect(function () {
       vizsys.finals.set('Z', new Date())
@@ -81,12 +81,12 @@ describe('Correct behavior of L-Systems', function() {
 
     let rotation = 5
     expect(function () {
-      vizsys.finals.set('Z', () => {rotation *= 2})
-      vizsys.final()
-    }).to.not.throw(/not a function/)
+      vizsys.finals.set('Z', () => {rotation *= 2});
+      vizsys.final();
+    }).to.not.throw(/not a function/);
 
-    expect(rotation).to.equal(10)
-  })
+    expect(rotation).to.equal(10);
+  });
 
 
   it('Helper functions for context sensitive productions should work properly. Especially with branches.', function() {
@@ -98,11 +98,11 @@ describe('Correct behavior of L-Systems', function() {
       },
       branchSymbols: '[]',
       ignoredSymbols: '+-/'
-    })
+    });
 
-    expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G')
+    expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G');
 
-  })
+  });
 
   it('Context sensitive L-System should work inside explicitly wanted branches', function() {
     // this example is taken from ABOP S. 32
@@ -115,8 +115,8 @@ describe('Correct behavior of L-Systems', function() {
           cs_lsys3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
         ) ? 'Z' : 'S'
       }
-    })
-    expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
+    });
+    expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
 
 
     let cs_lsys4 = new lsys.LSystem({
@@ -129,7 +129,7 @@ describe('Correct behavior of L-Systems', function() {
 
       })
       // I[K]L should not apply to I[JK]L
-      expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]')
+      expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]');
 
 
       let cs_lsys5 = new lsys.LSystem({
@@ -138,11 +138,11 @@ describe('Correct behavior of L-Systems', function() {
           'S': ({index}) =>  ( cs_lsys5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S'
         }
 
-      })
+      });
       // as required by ABOP S. 32 (reversed string)
-      expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA')
+      expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA');
 
-    })
+    });
 
 
 
@@ -155,9 +155,9 @@ describe('Correct behavior of L-Systems', function() {
           (cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
 
       }
-    })
-    expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-')
-  })
+    });
+    expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-');
+  });
 
 
 
@@ -166,26 +166,26 @@ describe('Correct behavior of L-Systems', function() {
     let cs_lsys7 = new lsys.LSystem({
       word: 'A[X]BC',
       productions: {'A<B>C': 'Z'}
-    })
+    });
 
-    expect(cs_lsys7.iterate()).to.equal('A[X]ZC')
-  })
+    expect(cs_lsys7.iterate()).to.equal('A[X]ZC');
+  });
 
   it('Left side, classic CS should work.', function() {
     let cs_lsys8 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {'BC<S': 'Z'}
-    })
-    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
-  })
+    });
+    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+  });
 
   it('right side, classic CS should work.', function() {
     let cs_lsys8 = new lsys.LSystem({
       word: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {'S>G[H]M': 'Z'}
-    })
-    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]')
-  })
+    });
+    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+  });
 
 
   it('Custom parametric L-Systems (that dont use `params`) should work.', function() {
@@ -201,11 +201,11 @@ describe('Correct behavior of L-Systems', function() {
         'B': ({part}) => (part.y===5) ? {letter: 'Z', x: 42} : part,
         'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
       }
-    })
+    });
 
-    custom_para_lsys1.iterate()
-    expect(custom_para_lsys1.getString()).to.equal('ZZZC')
-  })
+    custom_para_lsys1.iterate();
+    expect(custom_para_lsys1.getString()).to.equal('ZZZC');
+  });
 
   it('Basic (normalized) parametric L-System structure should ge parsed.', function() {
     let para_lsys1 = new lsys.LSystem({
@@ -222,11 +222,11 @@ describe('Correct behavior of L-Systems', function() {
         'C': ({index, word, params:[x]}) => (x===3) ? {letter: 'Z'} : {letter: 'C'},
         'D': ({index, word, params:[x, y, z]}) => (y===42) ? {letter: 'Z'} : {letter: 'D'}
       }
-    })
+    });
 
-    para_lsys1.iterate()
-    expect(para_lsys1.getString()).to.equal('ABZZEFG')
-  })
+    para_lsys1.iterate();
+    expect(para_lsys1.getString()).to.equal('ABZZEFG');
+  });
 
   // it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {
   //
@@ -285,7 +285,7 @@ describe('Correct behavior of L-Systems', function() {
   //
   // it('Classic parametric L-Systems should work.', function() {
   //   let para_lsys3 = new lsys.LSystem({
-  //     word: "",
+  //     word: '',
   //     productions: [
   //       ['C', {letter: 'Z'}]
   //     ]

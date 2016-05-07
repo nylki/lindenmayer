@@ -1,14 +1,6 @@
 'use strict';
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
-
-function LSystem(_ref) {
-	var word = _ref.word;
-	var productions = _ref.productions;
-	var finals = _ref.finals;
-	var branchSymbols = _ref.branchSymbols;
-	var ignoredSymbols = _ref.ignoredSymbols;
-	var classicParametricSyntax = _ref.classicParametricSyntax;
+function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax }) {
 
 	// faking default values until better support lands in all browser
 	word = typeof word !== 'undefined' ? word : '';
@@ -17,15 +9,11 @@ function LSystem(_ref) {
 	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false';
 
 	// if using objects in words, as used in parametric L-Systems
-	this.getString = function () {
-		var onlyLetters = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
-
+	this.getString = function (onlyLetters = true) {
 		if (typeof this.word === 'string') return this.word;
 
 		if (onlyLetters === true) {
-			return this.word.reduce(function (prev, current) {
-				return prev + current.letter;
-			}, '');
+			return this.word.reduce((prev, current) => prev + current.letter, '');
 		} else {
 			return JSON.stringify(this.word);
 		}
@@ -36,11 +24,11 @@ function LSystem(_ref) {
 	};
 
 	this.setProduction = function (A, B) {
-		var newProduction = [A, B];
+		let newProduction = [A, B];
 		if (newProduction === undefined) throw new Error('no production specified.');
 
 		if (this.parameters.allowClassicSyntax === true) {
-			var transformedProduction = this.transformClassicCSProduction.bind(this)(newProduction);
+			let transformedProduction = this.transformClassicCSProduction.bind(this)(newProduction);
 			this.productions.set(transformedProduction[0], transformedProduction[1]);
 		} else {
 			this.productions.set(newProduction[0], newProduction[1]);
@@ -53,7 +41,7 @@ function LSystem(_ref) {
 		this.productions = new Map();
 
 		// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
-		for (var condition in newProductions) {
+		for (let condition in newProductions) {
 			if (newProductions.hasOwnProperty(condition)) {
 				this.setProduction(condition, newProductions[condition]);
 			}
@@ -61,7 +49,7 @@ function LSystem(_ref) {
 	};
 
 	this.setFinal = function (letter, final) {
-		var newFinal = [letter, final];
+		let newFinal = [letter, final];
 		if (newFinal === undefined) {
 			throw new Error('no final specified.');
 		}
@@ -72,7 +60,7 @@ function LSystem(_ref) {
 	this.setFinals = function (newFinals) {
 		if (newFinals === undefined) throw new Error('no finals specified.');
 		this.finals = new Map();
-		for (var letter in newFinals) {
+		for (let letter in newFinals) {
 			if (newFinals.hasOwnProperty(letter)) {
 				this.setFinal(letter, newFinals[letter]);
 			}
@@ -84,10 +72,7 @@ function LSystem(_ref) {
 		return p;
 	};
 
-	this.testClassicParametricSyntax = function (word) {
-		return (/\(.+\)/.test(word)
-		);
-	};
+	this.testClassicParametricSyntax = word => /\(.+\)/.test(word);
 
 	// transforms things like 'A(1,2,5)B(2.5)' to
 	// [ {letter: 'A', params: [1,2,5]}, {letter: 'B', params:[25]} ]
@@ -95,12 +80,12 @@ function LSystem(_ref) {
 	this.transformClassicParametricWord = function (word) {
 
 		// Replace whitespaces, then split between square brackets.
-		var splitWord = word.replace(/\s+/g, '').split(/[\(\)]/);
+		let splitWord = word.replace(/\s+/g, '').split(/[\(\)]/);
 		console.log('parts:', splitWord);
-		var newWord = [];
+		let newWord = [];
 		// Construct new word by getting the params and letter.
-		for (var i = 0; i < splitWord.length - 1; i += 2) {
-			var params = splitWord[i + 1].split(',').map(Number);
+		for (let i = 0; i < splitWord.length - 1; i += 2) {
+			let params = splitWord[i + 1].split(',').map(Number);
 			newWord.push({ letter: splitWord[i], params: params });
 		}
 		console.log('parsed word:', newWord);
@@ -110,16 +95,15 @@ function LSystem(_ref) {
 	// TODO: Only work on first part pf production P[0]
 	// -> this.transformClassicCSCondition
 	this.transformClassicCSProduction = function (p) {
-		var _this = this;
 
 		// before continuing, check if classic syntax actually there
 		// example: p = ['A<B>C', 'Z']
 
 		// left should be ['A', 'B']
-		var left = p[0].match(/(\w+)<(\w)/);
+		let left = p[0].match(/(\w+)<(\w)/);
 
 		// right should be ['B', 'C']
-		var right = p[0].match(/(\w)>(\w+)/);
+		let right = p[0].match(/(\w)>(\w+)/);
 
 		// Not a CS-Production (no '<' or '>'),
 		//return original production.
@@ -129,7 +113,7 @@ function LSystem(_ref) {
 
 		// indexLetter should be 'B' in A<B>C
 		// get it either from left side or right side if left is nonexistent
-		var indexLetter = left !== null ? left[2] : right[1];
+		let indexLetter = left !== null ? left[2] : right[1];
 
 		// double check: make sure that the right and left match got the same indexLetter (B)
 		if (left !== null && right !== null && left[2] !== right[1]) {
@@ -139,18 +123,14 @@ function LSystem(_ref) {
 		// finally build the new (valid JS) production
 		// (that is being executed instead of the classic syntax,
 		//  which can't be interpreted by the JS engine)
-		var transformedFunction = function transformedFunction(_ref2) {
-			var _index = _ref2.index;
-			var _part = _ref2.part;
-			var _word = _ref2.word;
-			var _params = _ref2.params;
+		let transformedFunction = ({ index: _index, part: _part, word: _word, params: _params }) => {
 
-			var leftMatch = true;
-			var rightMatch = true;
+			let leftMatch = true;
+			let rightMatch = true;
 
 			// this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
 			if (left !== null) {
-				leftMatch = _this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
+				leftMatch = this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
 			}
 
 			// don't match with right side if left already false or no right match necessary
@@ -160,172 +140,107 @@ function LSystem(_ref) {
 			// so left/right are not checked here, which improves speed, as left/right
 			// are in a scope above.
 			if (right !== null) {
-				rightMatch = _this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
+				rightMatch = this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
 			}
 
 			return leftMatch && rightMatch ? p[1] : indexLetter;
 		};
 
-		var transformedProduction = [indexLetter, transformedFunction];
+		let transformedProduction = [indexLetter, transformedFunction];
 
 		return transformedProduction;
 	};
 
 	this.applyProductions = function () {
 		// a word can be a string or an array of objects that contain the key/value 'letter'
-		var newWord = typeof this.word === 'string' ? '' : [];
-		var index = 0;
+		let newWord = typeof this.word === 'string' ? '' : [];
+		let index = 0;
 
 		// iterate all letters/characters of the word and lookup according productions
-		var _iteratorNormalCompletion = true;
-		var _didIteratorError = false;
-		var _iteratorError = undefined;
+		for (let part of this.word) {
+			let letter = part;
 
-		try {
-			for (var _iterator = this.word[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-				var part = _step.value;
+			// Stuff for classic parametric L-Systems: get actual letter and possible parameters
+			// params will be given the production function, if applicable.
+			let params = [];
+			if (typeof part === 'object' && part.letter) letter = part.letter;
+			if (typeof part === 'object' && part.params) params = part.params;
 
-				var letter = part;
+			// default production result is just the original part itself
+			let result = part;
 
-				// Stuff for classic parametric L-Systems: get actual letter and possible parameters
-				// params will be given the production function, if applicable.
-				var params = [];
-				if (typeof part === 'object' && part.letter) letter = part.letter;
-				if (typeof part === 'object' && part.params) params = part.params;
+			if (this.productions.has(letter)) {
+				let p = this.productions.get(letter);
 
-				// default production result is just the original part itself
-				var result = part;
+				// if p is a function, execute function and append return value
+				if (typeof p === 'function') {
+					result = p({ index, word: this.word, part, params });
 
-				if (this.productions.has(letter)) {
-					var p = this.productions.get(letter);
+					/* if p is no function and no iterable, then
+     it should be a string (regular) or object
+     directly return it then as result */
+				} else if (typeof p === 'string' || p instanceof String || typeof p === 'object' && p[Symbol.iterator] === undefined) {
 
-					// if p is a function, execute function and append return value
-					if (typeof p === 'function') {
-						result = p({ index: index, word: this.word, part: part, params: params });
+						result = p;
 
-						/* if p is no function and no iterable, then
-      it should be a string (regular) or object
-      directly return it then as result */
-					} else if (typeof p === 'string' || p instanceof String || typeof p === 'object' && p[Symbol.iterator] === undefined) {
-
-							result = p;
-
-							// if p is a list/iterable
-						} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
-								/*
-        go through the list and use
-        the first valid production in that list. (that returns true)
-        This assumes, it's a list of functions.
-        */
-								var _iteratorNormalCompletion2 = true;
-								var _didIteratorError2 = false;
-								var _iteratorError2 = undefined;
-
-								try {
-									for (var _iterator2 = p[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-										var _p = _step2.value;
-
-										var _result = typeof _p === 'function' ? _p({ index: index, word: this.word, part: part, params: params }) : _p;
-										if (_result !== undefined && _result !== false) {
-											result = _result;
-											break;
-										}
-									}
-								} catch (err) {
-									_didIteratorError2 = true;
-									_iteratorError2 = err;
-								} finally {
-									try {
-										if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-											_iterator2['return']();
-										}
-									} finally {
-										if (_didIteratorError2) {
-											throw _iteratorError2;
-										}
-									}
+						// if p is a list/iterable
+					} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
+							/*
+       go through the list and use
+       the first valid production in that list. (that returns true)
+       This assumes, it's a list of functions.
+       */
+							for (let _p of p) {
+								let _result = typeof _p === 'function' ? _p({ index, word: this.word, part, params }) : _p;
+								if (_result !== undefined && _result !== false) {
+									result = _result;
+									break;
 								}
 							}
-				}
-				// finally add result to new word
-				if (typeof newWord === 'string') {
-					newWord += result;
-				} else {
-					newWord.push(result);
-				}
-				index++;
+						}
 			}
-
-			// finally set new word and also return for convenience
-		} catch (err) {
-			_didIteratorError = true;
-			_iteratorError = err;
-		} finally {
-			try {
-				if (!_iteratorNormalCompletion && _iterator['return']) {
-					_iterator['return']();
-				}
-			} finally {
-				if (_didIteratorError) {
-					throw _iteratorError;
-				}
+			// finally add result to new word
+			if (typeof newWord === 'string') {
+				newWord += result;
+			} else {
+				newWord.push(result);
 			}
+			index++;
 		}
 
+		// finally set new word and also return for convenience
 		this.word = newWord;
 		return newWord;
 	};
 
 	// iterate n times
-	this.iterate = function () {
-		var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
-
+	this.iterate = function (n = 1) {
 		this.iterations = n;
-		var lastIteration = undefined;
-		for (var iteration = 0; iteration < n; iteration++, this.iterationCount++) {
+		let lastIteration;
+		for (let iteration = 0; iteration < n; iteration++, this.iterationCount++) {
 			lastIteration = this.applyProductions();
 		}
 		return lastIteration;
 	};
 
 	this.final = function () {
-		var _iteratorNormalCompletion3 = true;
-		var _didIteratorError3 = false;
-		var _iteratorError3 = undefined;
+		for (let part of this.word) {
 
-		try {
-			for (var _iterator3 = this.word[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-				var part = _step3.value;
+			// if we have objects for each letter, (when using parametric L-Systems)
+			// get actual identifiable letter character
+			let letter = part;
+			if (typeof part === 'object' && part.letter) letter = part.letter;
 
-				// if we have objects for each letter, (when using parametric L-Systems)
-				// get actual identifiable letter character
-				var letter = part;
-				if (typeof part === 'object' && part.letter) letter = part.letter;
-
-				if (this.finals.has(letter)) {
-					var finalFunction = this.finals.get(letter);
-					var typeOfFinalFunction = typeof finalFunction;
-					if (typeOfFinalFunction !== 'function') {
-						throw Error('\'' + letter + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
-					}
-					// execute letters function
-					finalFunction();
-				} else {
-					// letter has no final function
+			if (this.finals.has(letter)) {
+				var finalFunction = this.finals.get(letter);
+				var typeOfFinalFunction = typeof finalFunction;
+				if (typeOfFinalFunction !== 'function') {
+					throw Error('\'' + letter + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
-			}
-		} catch (err) {
-			_didIteratorError3 = true;
-			_iteratorError3 = err;
-		} finally {
-			try {
-				if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-					_iterator3['return']();
-				}
-			} finally {
-				if (_didIteratorError3) {
-					throw _iteratorError3;
-				}
+				// execute letters function
+				finalFunction();
+			} else {
+				// letter has no final function
 			}
 		}
 	};
@@ -355,64 +270,36 @@ function LSystem(_ref) {
  	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
 
-	this.match = function (_ref3) {
-		var word_ = _ref3.word_;
-		var match = _ref3.match;
-		var ignoredSymbols = _ref3.ignoredSymbols;
-		var branchSymbols = _ref3.branchSymbols;
-		var index = _ref3.index;
-		var direction = _ref3.direction;
+	this.match = function ({ word_, match, ignoredSymbols, branchSymbols, index, direction }) {
 
-		var branchCount = 0;
-		var explicitBranchCount = 0;
+		let branchCount = 0;
+		let explicitBranchCount = 0;
 		word_ = word || this.word;
 		if (branchSymbols === undefined) branchSymbols = this.branchSymbols !== undefined ? this.branchSymbols : [];
 		if (ignoredSymbols === undefined) ignoredSymbols = this.ignoredSymbols !== undefined ? this.ignoredSymbols : [];
 
-		var branchStart = undefined,
-		    branchEnd = undefined,
-		    wordIndex = undefined,
-		    loopIndexChange = undefined,
-		    matchIndex = undefined,
-		    matchIndexChange = undefined,
-		    matchIndexOverflow = undefined;
+		let branchStart, branchEnd, wordIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow;
 		// set some variables depending on the direction to match
 		if (direction === 'right') {
 			loopIndexChange = matchIndexChange = +1;
 			wordIndex = index + 1;
 			matchIndex = 0;
 			matchIndexOverflow = match.length;
-			if (branchSymbols.length > 0) {
-				;
-				var _branchSymbols = branchSymbols;
-
-				var _branchSymbols2 = _slicedToArray(_branchSymbols, 2);
-
-				branchStart = _branchSymbols2[0];
-				branchEnd = _branchSymbols2[1];
-			}
+			if (branchSymbols.length > 0) [branchStart, branchEnd] = branchSymbols;
 		} else if (direction === 'left') {
 			loopIndexChange = matchIndexChange = -1;
 			wordIndex = index - 1;
 			matchIndex = match.length - 1;
 			matchIndexOverflow = -1;
-			if (branchSymbols.length > 0) {
-				;
-				var _branchSymbols3 = branchSymbols;
-
-				var _branchSymbols32 = _slicedToArray(_branchSymbols3, 2);
-
-				branchEnd = _branchSymbols32[0];
-				branchStart = _branchSymbols32[1];
-			}
+			if (branchSymbols.length > 0) [branchEnd, branchStart] = branchSymbols;
 		} else {
 			throw Error(direction, 'is not a valid direction for matching.');
 		}
 
 		for (; wordIndex < word_.length && wordIndex >= 0; wordIndex += loopIndexChange) {
 			// FIXME: what about objects with .letter
-			var wordLetter = word_[wordIndex];
-			var matchLetter = match[matchIndex];
+			let wordLetter = word_[wordIndex];
+			let matchLetter = match[matchIndex];
 
 			// compare current letter of word with current letter of match
 			if (wordLetter === matchLetter) {
