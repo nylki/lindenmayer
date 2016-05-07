@@ -3,7 +3,7 @@ let chaiAsPromised = require('chai-as-promised');
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let lsys = require('../lindenmayer');
+let lsys = require('../dist/lindenmayer');
 let test = new lsys.LSystem({
   word: 'F++F++F',
   productions: {
