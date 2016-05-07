@@ -34,7 +34,7 @@
     "fractal"
   ],
   "author": "Tom Brewe <info@nylkiway.net>",
-  "license": "CC0-1.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/nylki/lindenmayer/issues"
   },
