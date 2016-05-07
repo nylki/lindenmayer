@@ -16,7 +16,7 @@
   "name": "lindenmayer",
   "description": "Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
   "version": "1.0.0",
-  "main": "lindenmayer.js",
+  "main": "dist/lindenmayer.js",
   "directories": {
     "example": "examples",
     "test": "test"
