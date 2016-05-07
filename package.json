@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
-    "build": "babel lindenmayer.js -o dist/lindenmayer.js"
+    "build": "babel lindenmayer.js -o dist/lindenmayer.js && cp dist/lindenmayer.js examples/lindenmayer.js"
   },
   "devDependencies": {
     "babel": "^5.8.35",

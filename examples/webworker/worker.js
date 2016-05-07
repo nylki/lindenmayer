@@ -1,11 +1,11 @@
-importScripts('../../dist/lindenmayer.js');
+importScripts('../lindenmayer.js');
 var lsystem = new LSystem({});
 var timeout = {}
 
 onmessage = function(e) {
   
   // wait a few ms to start thread, to be able to cancel old tasks
-  clearTimeout(timeout)
+  clearTimeout(timeout);
   timeout = setTimeout(function() {
       // console.log('received message from main', e. data);
       lsystem.setWord(e.data.word);
@@ -18,4 +18,4 @@ onmessage = function(e) {
       
   }, 20);
 
-}
+};
