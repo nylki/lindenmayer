@@ -1,13 +1,15 @@
 {
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
-    "build": "babel lindenmayer.js -o dist/lindenmayer.js && cp dist/lindenmayer.js examples/lindenmayer.js"
+    "build": "babel lindenmayer.js -o dist/lindenmayer.js && cp dist/lindenmayer.js examples/lindenmayer.js",
+    "ghpages": "ghpages -p examples/"
   },
   "devDependencies": {
     "babel": "^5.8.35",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "expect": "^1.15.2",
+    "ghpages": "0.0.8",
     "mocha": "^2.4.5"
   },
   "dependencies": {}
