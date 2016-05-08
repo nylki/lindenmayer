@@ -3,7 +3,7 @@
     "test": "npm run build && mocha",
     "build": "babel lindenmayer.js -o dist/lindenmayer.js && cp dist/lindenmayer.js examples/lindenmayer.js",
     "prepublish": "npm test && npm run build && npm run sync-ghpages",
-    "sync-ghpages": "git checkout gh-pages && git checkout master examples && git commit -a -m \"added/checkout out examples from master branch to ghpages branch.\"; git checkout master"
+    "sync-ghpages": "git checkout gh-pages && git checkout master examples && git commit -a -m \"added/checkout out examples from master branch to ghpages branch.\" && git push; git checkout master"
   },
   "devDependencies": {
     "babel-cli": "^6.8.0",
