@@ -80,7 +80,7 @@ let lsystem = new LSystem({
 })
 ```
 
-It's also possible to use functions as productions (useful for **stochasic** L-Systems):
+A major feature of Lindenmayer.js is the possibility to use functions as productions (useful for **stochasic** L-Systems):
 
 ```.js
 let lsys = new LSystem({
