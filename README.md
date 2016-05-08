@@ -59,7 +59,7 @@ new LSystem(options)
 ```
 
 `options` may contain:
-- `word`: A String or an Array of Objects to set the initial word (or Axiom). 
+- `word`: A String or an Array of Objects to set the initial word (sometimes called axiom, start or initiator). 
 - `productions`: key-value Object to set the productions from one symbol to its word. Used when calling `iterate()`
 - `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. used when calling `final()`.
 
