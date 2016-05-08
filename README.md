@@ -62,6 +62,7 @@ new LSystem(options)
 - `word`: A `String` or an `Array` of `Objects` to set the initial word (or Axiom). 
 - `productions`: key-value `Object` to set the productions from one symbol to its word.
 - `finals`: key-value `Object` to set `Functions` for one symbol to be executed sequentially on calling `final()`.
+advanced options:
 - `branchSymbols`: A `String` of two characters. Only used when working with classic context sensitive L-System syntax (eg.: `"A<B>CE"` ) or using the `match()` function when defining own productions or final functions. The first symbol is treated as start of a branch, the last symbol as end of a branch. (default: `"[]"`, but only when using classic CS syntax)
 - `ignoredSymbols`: A `String` of characters to ignore when using context sensitive productions (via classic syntax, or by calling `match()`). (default: `"+-&^/|\\"`, but only using classic CS syntax)
 - `classicParametricSyntax`: A `Bool` to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)
