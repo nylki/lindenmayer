@@ -66,7 +66,7 @@ let lsystem = new LSystem({
 
 ```
 
-It's also possible to use functions as productions. This can be useful if you want to create **stochastic L-Systems**, like so:
+It's also possible to use functions as productions (useful for **stochasic** L-Systems):
 
 ```.js
 let lsys = new LSystem({
@@ -78,7 +78,7 @@ let lsys = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-You could also start with an empty L-System, and set all necessary parameters later on.
+You could also start with an empty L-System object, and set all necessary parameters later on:
 
 ```.js
 let lsys = new LSystem()
