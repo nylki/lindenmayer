@@ -16,13 +16,15 @@ I will remove this warning when I consider this library stable.**
 ## Basic Usage
 
 ```.js
-// Initializing a L-System that produces the Koch-curve.
+// Initializing a L-System that produces the Koch-curve
 let kochcurve = new LSystem({
       word: 'F++F++F',
       productions: {'F': 'F-F++F-F'}
 })
+// Iterate the L-System two times and log the result.
 let result = kochcurve.iterate(2)
-// result === 'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
+console.log(result)
+//'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
 ```
 
 There are multiple way to set productions, including javascript functions:
@@ -91,13 +93,27 @@ This can be useful if you want to dynamically generate and edit L-Systems. For e
 
 ### iterating
 Now that we have set up our L-System set, we want to generate new words:
-```.js
-// iterate once, log result to console:
-let result = lsys.iterate()
-console.log(result))
 
-// iterate multiple times, then log result
-console.log(lsys.iterate(5))
+```.js
+// Iterate once
+lsys.iterate();
+
+// Iterate n-times
+lsys.iterate(5);
+```
+
+### Getting Results
+`iterate()` conveniently returns the resulting string:
+
+```.js
+console.log(lsys.iterate())
+```
+
+If you want to fetch the result later, use `getString()`:
+
+```.js
+lsys.iterate(5)
+console.log(lsys.getString())
 ```
 
 
