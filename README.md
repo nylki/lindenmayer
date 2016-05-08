@@ -66,6 +66,8 @@ new LSystem(options)
 - `ignoredSymbols`: A `String` of characters to ignore when using context sensitive productions (via classic syntax, or by calling `match()`). (default: `"+-&^/|\\"`, but only using classic CS syntax)
 - `classicParametricSyntax`: A `Bool` to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)
 
+Most often you will find yourself only setting `word`, `productions` and `finals`.
+
 ```.js
 // Initialize L-System with multiple productions
 let lsystem = new LSystem({
