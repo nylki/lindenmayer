@@ -181,4 +181,4 @@ koch.final()
 
 And the result:
 
-![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)
+[![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
