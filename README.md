@@ -129,13 +129,16 @@ console.log(lsys.getString())
 ```
 
 
-### Final functions: Visualization and other post processing
+### Putting it all together
+#### Final functions: Visualization and other post processing
 
 Most likely you want to visualize or post-process your L-Systems output in some way.
 You could iterate and parse the result yourself, however `lindemayer` already offers an easy way to define
 such postprocessing: *final* functions. In those final functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
-The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [HTML Canvas element](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API):
+The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
 
+
+You can fiddle with the following example in [this codepen](http://codepen.io/nylki/pen/QNYqzd)!
 ```.html
 <body>
 	<canvas id="canvas" width="1000" height="1000"></canvas>
@@ -144,12 +147,11 @@ The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz'
 ```
 
 ```.js
-
 var canvas = document.getElementById('canvas')
 var ctx = canvas.getContext("2d")
 
 // translate to center of canvas
-ctx.translate(canvas.width/2, canvas/2)
+ctx.translate(canvas.width / 2, canvas.height / 4)
 
 // initialize a koch curve L-System that uses final functions
 // to draw the fractal onto a Canvas element.
@@ -161,19 +163,22 @@ ctx.translate(canvas.width/2, canvas/2)
 var koch = new LSystem({
   word: 'F++F++F',
   productions: {'F': 'F-F++F-F'},
-  finals: [
-    ['+', () => { ctx.rotate((Math.PI/180) * 60) }],
-    ['-', () => { ctx.rotate((Math.PI/180) * -60) }],
-    ['F', () => {
+  finals: {
+    '+': () => { ctx.rotate((Math.PI/180) * 60) },
+    '-': () => { ctx.rotate((Math.PI/180) * -60) },
+    'F': () => {
       ctx.beginPath()
       ctx.moveTo(0,0)
-      ctx.lineTo(0, 50/(koch.iterations + 1))
+      ctx.lineTo(0, 40/(koch.iterations + 1))
       ctx.stroke()
-      ctx.translate(0, 50/(koch.iterations + 1))}
-     ]
-   ]
+      ctx.translate(0, 40/(koch.iterations + 1))}
+   }
 })
 
 koch.iterate(3)
 koch.final()
 ```
+
+And the result:
+
+![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)
