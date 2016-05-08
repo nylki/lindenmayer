@@ -53,7 +53,18 @@ lsys.setProduction('A<B>C', 'Z')
 
 ### initializing
 
-You can init a L-System in one go:
+You can init a L-System object with the `new` keyword:
+```.js
+new LSystem(options)
+```
+
+`options` may contain:
+- `word`: A `String` or an `Array` of `Objects` to set the initial word (or Axiom). 
+- `productions`: key-value `Object` to set the productions from one symbol to its word.
+- `finals`: key-value `Object` to set `Functions` for one symbol to be executed sequentially on calling `final()`.
+- `branchSymbols`: A `String` of two characters. Only used when working with classic context sensitive L-System syntax (eg.: `"A<B>CE"` ) or using the `match()` function when defining own productions or final functions. The first symbol is treated as start of a branch, the last symbol as end of a branch. (default: `"[]"`, but only when using classic CS syntax)
+- `ignoredSymbols`: A `String` of characters to ignore when using context sensitive productions (via classic syntax, or by calling `match()`). (default: `"+-&^/|\\"`, but only using classic CS syntax)
+- `classicParametricSyntax`: A `Bool` to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)
 
 ```.js
 // Initialize L-System with multiple productions
@@ -65,7 +76,6 @@ let lsystem = new LSystem({
         'C': 'ABC'
       }
 })
-
 ```
 
 It's also possible to use functions as productions (useful for **stochasic** L-Systems):
@@ -80,7 +90,7 @@ let lsys = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-You could also start with an empty L-System object, and set all necessary parameters later on:
+You could also start with an empty L-System object, and use `setWord()` and `setProduction()` to edit the L-System later:
 
 ```.js
 let lsys = new LSystem()
@@ -92,7 +102,7 @@ lsys.setProduction('B', 'CB')
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
 ### iterating
-Now that we have set up our L-System set, we want to generate new words:
+Now that we have set up our L-System set, we want to generate new words with `iterate()`:
 
 ```.js
 // Iterate once
