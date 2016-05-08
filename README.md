@@ -112,7 +112,7 @@ console.log(lsys.iterate())
 If you want to fetch the result later, use `getString()`:
 
 ```.js
-lsys.iterate(5)
+lsys.iterate()
 console.log(lsys.getString())
 ```
 
