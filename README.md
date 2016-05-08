@@ -99,6 +99,8 @@ let lsys = new LSystem()
 lsys.setWord('ABC')
 lsys.setProduction('A', 'AAB')
 lsys.setProduction('B', 'CB')
+// Then iterate:
+console.log(lsys.iterate())
 ```
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
