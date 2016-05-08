@@ -49,22 +49,13 @@ lsys.setProduction('B',
 lsys.setProduction('A<B>C', 'Z')
 ```
 
-## Usage
-
 ### initializing
 
 You can init a L-System in one go:
 
 ```.js
-// Initializing a L-System that produces the Koch curve.
-let kochcurve = new LSystem({
-      word: 'F++F++F',
-      productions: {'F': 'F-F++F-F'}
-})
-let result = kochcurve.iterate(2)
-
 // Initialize L-System with multiple productions
-let mylsys = new LSystem({
+let lsystem = new LSystem({
       word: 'ABC',
       productions: {
         'A': 'A+',
@@ -111,9 +102,10 @@ console.log(lsys.iterate(5))
 
 
 ### Final functions: Visualization and other post processing
-You possibly want to visualize your L-Systems in some way.
-Of course you could iterate and parse the resulting string yourself. But `lindemayer` already got an API to define
-such postprocessing: `final` functions in an easy way. In those `final` functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
+
+Most likely you want to visualize or post-process your L-Systems output in some way.
+You could iterate and parse the result yourself, however `lindemayer` already offers an easy way to define
+such postprocessing: *final* functions. In those final functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
 The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [HTML Canvas element](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API):
 
 ```.html
