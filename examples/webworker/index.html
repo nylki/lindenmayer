@@ -10,49 +10,60 @@
 	}
 	body {
 		display: flex;
-		flex-direction: row;
 	}
 	
 	canvas {
-		width: 1000px;
+		min-width: 1000px;
 		height: auto;
+
 	}
 	
 	.inputcontaner {
 		display: flex;
 		flex-direction: column;
+		width: 15vw;
+		min-width: 15vw;
+	}
+
+
+	production:nth-child(0) {
+		width: 200px;
+	}
+	production:nth-child(1) {
+		width: 19em;
 	}
 	
 	</style>
 	
 </head>
 <body onkeyup="update()">
-	<div>
+	<main>
 		<h1> Interactive L-System builder </h1>
 		<p>Go ahead, fiddle around and change the initial word, the productions, etc. and see changes live in the canvas below!</p>
-	</div>
-
+		
+		<div class="inputcontainer">
+			
+			<div class="label">Initial word:</div>
+			<input id="word" type="text" name="name"> <br>
+			
+			
+			<div class="label">iterations:</div>
+			<input id="iterations" type="range" min="1" max="12" name="name" value="1" oninput="update()"> <br>
+			
+			<div class="label">rotation:</div>
+			<input id="rotation" type="range" min="0" max="360" name="name" value="45" oninput="window.requestAnimationFrame(draw)"> <br>
+			
+			<div class="label">line length:</div>
+			<input id="linelength" type="range" min="1" max="100" name="name" value="25" oninput="window.requestAnimationFrame(draw)"> <br>
+			
+			<div id="productions"></div>
+			<button type="button" onclick="addProductionField()">add production</button>
+			
+		</div>
+	</main>
+<canvas id="canvas" width="1000" height="1000"></canvas>
 	
-	<div class="inputcontainer">
-		
-		<div class="label">Initial word:</div>
-		<input id="word" type="text" name="name"> <br>
-		
-		
-		<div class="label">iterations:</div>
-		<input id="iterations" type="range" min="1" max="12" name="name" value="1" oninput="update()"> <br>
-		
-		<div class="label">rotation:</div>
-		<input id="rotation" type="range" min="0" max="360" name="name" value="45" oninput="window.requestAnimationFrame(draw)"> <br>
-		
-		<div class="label">line length:</div>
-		<input id="linelength" type="range" min="1" max="100" name="name" value="25" oninput="window.requestAnimationFrame(draw)"> <br>
-		
-		<div id="productions"></div>
-		<button type="button" onclick="addProductionField()">add production</button>
-		
-	</div>
-	<canvas id="canvas" width="1000" height="1000"></canvas>
+	
 	
 	<script src="../lindenmayer.js"></script>
 	<script type="text/javascript">
@@ -90,6 +101,7 @@
 		var prodTo = document.createElement('input');
 		var prodRemove = document.createElement('button');
 		var prodContainer = document.createElement('div');
+		prodContainer.className = "production";
 		prodFrom.type = prodTo.type = 'text';
 		prodFrom.style.width = '2em';
 		prodRemove.type = 'button';
@@ -134,6 +146,7 @@
 	}
 	
 	function draw() {
+		console.log(window.getComputedStyle(canvas).width);
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.translate(500, 500);
