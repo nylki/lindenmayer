@@ -9,7 +9,11 @@ Most stuff should work. I am currently working on parametric L-System support.
 I will remove this warning when I consider this library stable.**
 **Better docs and more examples are coming soon** :)
 
-Basic usage:
+## Examples
+-  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
+-  [Interactive L-System builder](http://nylki.github.io/lindenmayer/examples/webworker)
+
+## Basic Usage
 
 ```.js
 // Initializing a L-System that produces the Koch-curve.
