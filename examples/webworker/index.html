@@ -13,8 +13,7 @@
 	}
 	
 	canvas {
-		min-width: 1000px;
-		height: auto;
+		width
 
 	}
 	
@@ -131,8 +130,12 @@
 			productions: {},
 			iterations: iterationInput.value
 		}
-		for (var prod of productionList.childNodes)
-		params.productions[prod.childNodes[0].value] = prod.childNodes[1].value;
+		
+		for (var i = 0; i < productionList.childNodes.length; i++) {
+			let prod = productionList.childNodes[i];
+			params.productions[prod.childNodes[0].value] = prod.childNodes[1].value;
+		}
+		
 		
 		if(Date.now() - worker.startTime > 1000 ) {
 			// if we got user input, but worker is running for over a second
