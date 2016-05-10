@@ -16,13 +16,15 @@ I will remove this warning when I consider this library stable.**
 ## Basic Usage
 
 ```.js
-// Initializing a L-System that produces the Koch-curve.
+// Initializing a L-System that produces the Koch-curve
 let kochcurve = new LSystem({
       word: 'F++F++F',
       productions: {'F': 'F-F++F-F'}
 })
+// Iterate the L-System two times and log the result.
 let result = kochcurve.iterate(2)
-// result === 'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
+console.log(result)
+//'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
 ```
 
 There are multiple way to set productions, including javascript functions:
@@ -49,22 +51,29 @@ lsys.setProduction('B',
 lsys.setProduction('A<B>C', 'Z')
 ```
 
-## Usage
-
 ### initializing
 
-You can init a L-System in one go:
+You can init a L-System object with the `new` keyword:
+```.js
+new LSystem(options)
+```
+
+`options` may contain:
+- `word`: A String or an Array of Objects to set the initial word (sometimes called axiom, start or initiator). 
+- `productions`: key-value Object to set the productions from one symbol to its word. Used when calling `iterate()`
+- `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final()`.
+
+advanced options (see [API docs](not yet created) for details):
+
+- `branchSymbols`: A String of two characters. Only used when working with classic context sensitive productions. The first symbol is treated as start of a branch, the last symbol as end of a branch. (default: `"[]"`, but only when using classic CS syntax)
+- `ignoredSymbols`: A String of characters to ignore when using context sensitive productions. (default: `"+-&^/|\\"`, but only when using classic CS syntax)
+- `classicParametricSyntax`: A Bool to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)
+
+Most often you will find yourself only setting `word`, `productions` and `finals`.
 
 ```.js
-// Initializing a L-System that produces the Koch curve.
-let kochcurve = new LSystem({
-      word: 'F++F++F',
-      productions: {'F': 'F-F++F-F'}
-})
-let result = kochcurve.iterate(2)
-
 // Initialize L-System with multiple productions
-let mylsys = new LSystem({
+let lsystem = new LSystem({
       word: 'ABC',
       productions: {
         'A': 'A+',
@@ -72,10 +81,9 @@ let mylsys = new LSystem({
         'C': 'ABC'
       }
 })
-
 ```
 
-It's also possible to use functions as productions. This can be useful if you want to create **stochastic L-Systems**, like so:
+A major feature of Lindenmayer.js is the possibility to use functions as productions (useful for **stochasic** L-Systems):
 
 ```.js
 let lsys = new LSystem({
@@ -87,7 +95,7 @@ let lsys = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-You could also start with an empty L-System, and set all necessary parameters later on.
+You could also start with an empty L-System object, and use `setWord()` and `setProduction()` to edit the L-System later:
 
 ```.js
 let lsys = new LSystem()
@@ -99,23 +107,41 @@ lsys.setProduction('B', 'CB')
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
 ### iterating
-Now that we have set up our L-System set, we want to generate new words:
-```.js
-// iterate once, log result to console:
-let result = lsys.iterate()
-console.log(result))
+Now that we have set up our L-System set, we want to generate new words with `iterate()`:
 
-// iterate multiple times, then log result
-console.log(lsys.iterate(5))
+```.js
+// Iterate once
+lsys.iterate();
+
+// Iterate n-times
+lsys.iterate(5);
+```
+
+### Getting Results
+`iterate()` conveniently returns the resulting string:
+
+```.js
+console.log(lsys.iterate())
+```
+
+If you want to fetch the result later, use `getString()`:
+
+```.js
+lsys.iterate()
+console.log(lsys.getString())
 ```
 
 
-### Final functions: Visualization and other post processing
-You possibly want to visualize your L-Systems in some way.
-Of course you could iterate and parse the resulting string yourself. But `lindemayer` already got an API to define
-such postprocessing: `final` functions in an easy way. In those `final` functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
-The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [HTML Canvas element](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API):
+### Putting it all together
+#### Final functions: Visualization and other post processing
 
+Most likely you want to visualize or post-process your L-Systems output in some way.
+You could iterate and parse the result yourself, however `lindemayer` already offers an easy way to define
+such postprocessing: *final* functions. In those final functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
+The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
+
+
+You can fiddle with the following example in [this codepen](http://codepen.io/nylki/pen/QNYqzd)!
 ```.html
 <body>
 	<canvas id="canvas" width="1000" height="1000"></canvas>
@@ -124,12 +150,11 @@ The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz'
 ```
 
 ```.js
-
 var canvas = document.getElementById('canvas')
 var ctx = canvas.getContext("2d")
 
 // translate to center of canvas
-ctx.translate(canvas.width/2, canvas/2)
+ctx.translate(canvas.width / 2, canvas.height / 4)
 
 // initialize a koch curve L-System that uses final functions
 // to draw the fractal onto a Canvas element.
@@ -141,19 +166,22 @@ ctx.translate(canvas.width/2, canvas/2)
 var koch = new LSystem({
   word: 'F++F++F',
   productions: {'F': 'F-F++F-F'},
-  finals: [
-    ['+', () => { ctx.rotate((Math.PI/180) * 60) }],
-    ['-', () => { ctx.rotate((Math.PI/180) * -60) }],
-    ['F', () => {
+  finals: {
+    '+': () => { ctx.rotate((Math.PI/180) * 60) },
+    '-': () => { ctx.rotate((Math.PI/180) * -60) },
+    'F': () => {
       ctx.beginPath()
       ctx.moveTo(0,0)
-      ctx.lineTo(0, 50/(koch.iterations + 1))
+      ctx.lineTo(0, 40/(koch.iterations + 1))
       ctx.stroke()
-      ctx.translate(0, 50/(koch.iterations + 1))}
-     ]
-   ]
+      ctx.translate(0, 40/(koch.iterations + 1))}
+   }
 })
 
 koch.iterate(3)
 koch.final()
 ```
+
+And the result:
+
+[![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
