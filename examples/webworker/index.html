@@ -9,11 +9,26 @@
 		/*min-width: 100px;*/
 	}
 	body {
+		background-color: rgb(238, 240, 211);
+		color: rgb(47, 79, 38);
 		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	
+	main {
+		max-width: 25em;
+		border-top: 0.5px dotted  rgb(47, 79, 38);
+		border-left: 0.5px dotted  rgb(47, 79, 38);
+		border-bottom: 0.5px dotted  rgb(47, 79, 38);
 	}
 	
 	canvas {
-		width
+		border: 0.5px dotted  rgb(47, 79, 38);
+		background-color: rgb(244, 237, 206);
+		min-width: 1000px;
+		width: 1000px;
+		height: auto;
 
 	}
 	
@@ -47,7 +62,7 @@
 			
 			
 			<div class="label">iterations:</div>
-			<input id="iterations" type="range" min="1" max="12" name="name" value="1" oninput="update()"> <br>
+			<input id="iterations" type="range" min="1" max="12" name="name" value="2" oninput="update()"> <br>
 			
 			<div class="label">rotation:</div>
 			<input id="rotation" type="range" min="0" max="360" name="name" value="45" oninput="window.requestAnimationFrame(draw)"> <br>
@@ -151,6 +166,7 @@
 	function draw() {
 		console.log(window.getComputedStyle(canvas).width);
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.strokeStyle = 'rgb(73, 63, 20)';
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.translate(500, 500);
 		ctx.moveTo(0, 0);
