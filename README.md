@@ -55,7 +55,7 @@ lsys.setProduction('A<B>C', 'Z')
 
 You can init a L-System object with the `new` keyword:
 ```.js
-let myLsystem = new LSystem(options)
+let myCoolLSystem = new LSystem(options)
 ```
 
 `options` may contain:
