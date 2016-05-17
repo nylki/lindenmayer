@@ -91,7 +91,7 @@ lsys.setAxiom('F-F-F')
 
 
 ## setting productions
-Productions define how one symbol gets transformed into another symbol or string of symbols. If you want all `A`s to be replaced by `B`, you may construct the following production would look like:
+Productions define how the axioms symbols get transformed. For example, if you want all `A`s to be replaced by `B` in your axiom, you could construct the following production:
 ```.js
 let lsystem = new LSystem({
   axiom: 'ABC',
