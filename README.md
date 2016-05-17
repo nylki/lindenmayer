@@ -139,9 +139,9 @@ lsys.setProduction('F', (parameters) => {
 ```
 
 #### parameters
-- index: the index inside the axiom
-- currentAxiom: the current axiom
-- part: the current part (symbol or object) the production is applied on.
+- `index`: the index inside the axiom
+- `currentAxiom`: the current full axiom/word
+- `part`: the current part (symbol or object) the production is applied on. This is only useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
 
 You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
 
