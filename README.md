@@ -240,14 +240,14 @@ And the result:
 ## Advanced Usage
 ### Parametric L-Systems
 
-Besides a String, you may also use an Array of Objects. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `C` may contain a `food` variable that can also mutate:
+Besides a String, you may also use an Array of Objects. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `C` may contain a `food` variable to simulate organic growth when combined with a random() function:
 
 ```.js
 let parametricLsystem = new lsys.LSystem({
   axiom: [
-    {symbol: 'A', food=0.5},
+    {symbol: 'A', food:0.5},
     {symbol: 'B'},
-    {symbol: 'A'},
+    {symbol: 'A', , food:0.1},
     {symbol: 'C'}
   ],
   // And then do stuff with those custom parameters in productions:
@@ -255,21 +255,23 @@ let parametricLsystem = new lsys.LSystem({
     'A': ({part, index}) => {
       // split A into one A and a new B if it ate enough:
       if(part.food >= 1.0) {
-        return [{symbol: 'A', food:0}, {symbol: 'A', food:0}]        
+        return [{symbol: 'A', food:0}, {symbol: 'B', food:0}]        
       } else {
         // otherwise eat a random amount of food
-        part.food += Math.random() * 0.25;
+        part.food += Math.random() * 0.1;
         return part;
       }
     }
   }
 });
 
-// parametricLsystem.iterate(10);
-// parametricLsystem.getString() === 'ZZZC';
+// parametricLsystem.iterate(60);
+// Depending on randomness:
+// parametricLsystem.getString() ~= 'ABBBBBABBBC';
+// The first part of B's has ore B's because the first A got more initial food which in the end made a small difference, as you can see.
 ```
 
-As you can see, you need to explicitly define the `symbol` value, so the correct production can be applied.
+As you can see above, you need to explicitly define the `symbol` value, so the correct production can be applied.
 
 #### Classic Parametric L-System syntax
 they loook like `A -> A(1,2)B(5,2)`.
