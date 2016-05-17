@@ -268,7 +268,7 @@ let parametricLsystem = new lsys.LSystem({
 // parametricLsystem.iterate(60);
 // Depending on randomness:
 // parametricLsystem.getString() ~= 'ABBBBBABBBC';
-// The first part of B's has ore B's because the first A got more initial food which in the end made a small difference, as you can see.
+// The first part of B's has more B's because the first A got more initial food which in the end made a small difference, as you can see.
 ```
 
 As you can see above, you need to explicitly define the `symbol` value, so the correct production can be applied.
