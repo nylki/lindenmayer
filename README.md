@@ -114,6 +114,17 @@ let lsystem = new LSystem({
 // lsystem.iterate() === 'A+BAABC'
 ```
 
+You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
+
+```.js
+let lsys = new LSystem()
+lsys.setAxiom('ABC')
+lsys.setProduction('A', 'AAB')
+lsys.setProduction('B', 'CB')
+```
+
+This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
+
 A major feature of Lindenmayer.js is the possibility to use functions as productions, which is especially useful for stochasic L-Systems:
 
 ```.js
@@ -138,21 +149,10 @@ lsys.setProduction('F', (parameters) => {
 // lsys.iterate() === FFXFF
 ```
 
-#### parameters
+**parameters**:
 - `index`: the index inside the axiom
 - `currentAxiom`: the current full axiom/word
 - `part`: the current part (symbol or object) the production is applied on. This is only useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
-
-You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
-
-```.js
-let lsys = new LSystem()
-lsys.setAxiom('ABC')
-lsys.setProduction('A', 'AAB')
-lsys.setProduction('B', 'CB')
-```
-
-This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
 
 
