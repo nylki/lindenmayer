@@ -39,7 +39,7 @@ lsys.setProduction('B', () => 'F+F')
 // or same with just the String, both works
 lsys.setProduction('B', 'F+F')
 
-// simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
+// simple stochastic production, producing `F` with 10% probability, `B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
 // simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
