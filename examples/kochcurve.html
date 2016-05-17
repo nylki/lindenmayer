@@ -24,7 +24,7 @@
 		ctx.translate(canvas.width/2, 0);
 	
 		var kochcurve = new LSystem({
-			word: 'F++F++F',
+			axiom: 'F++F++F',
 			productions: {'F': 'F-F++F-F'},
 			finals: {
 				'+': () => { ctx.rotate((Math.PI/180) * 60); },

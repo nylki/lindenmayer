@@ -18,7 +18,7 @@ I will remove this warning when I consider this library stable.**
 ```.js
 // Initializing a L-System that produces the Koch-curve
 let kochcurve = new LSystem({
-      word: 'F++F++F',
+      axiom: 'F++F++F',
       productions: {'F': 'F-F++F-F'}
 })
 // Iterate the L-System two times and log the result.
@@ -31,7 +31,7 @@ There are multiple way to set productions, including javascript functions:
 
 ```.js
 let lsys = new LSystem()
-lsys.setWord('ABC')
+lsys.setAxiom('ABC')
 
 // simple production, using ES6 arrow function
 lsys.setProduction('B', () => 'F+F')
@@ -44,7 +44,7 @@ myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
 // simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
 lsys.setProduction('B',
-  ({index, word}) => (word[index-1] === 'A') && (word[index+1] === 'C') ? 'Z' : 'B'
+  ({index, currentAxiom}) => (currentAxiom[index-1] === 'A') && (currentAxiom[index+1] === 'C') ? 'Z' : 'B'
 )
 
 // or if you prefer the concise *classic* syntax for context sensitive productions:
@@ -53,14 +53,14 @@ lsys.setProduction('A<B>C', 'Z')
 
 ### initializing
 
-You can init a L-System object with the `new` keyword:
+You can init a L-System object with the `new` keyaxiom:
 ```.js
 new LSystem(options)
 ```
 
 `options` may contain:
-- `word`: A String or an Array of Objects to set the initial word (sometimes called axiom, start or initiator). 
-- `productions`: key-value Object to set the productions from one symbol to its word. Used when calling `iterate()`
+- `axiom`: A String or an Array of Objects to set the initial axiom (sometimes called axiom, start or initiator).
+- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling `iterate()`
 - `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final()`.
 
 advanced options (see [API docs](not yet created) for details):
@@ -69,12 +69,12 @@ advanced options (see [API docs](not yet created) for details):
 - `ignoredSymbols`: A String of characters to ignore when using context sensitive productions. (default: `"+-&^/|\\"`, but only when using classic CS syntax)
 - `classicParametricSyntax`: A Bool to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)
 
-Most often you will find yourself only setting `word`, `productions` and `finals`.
+Most often you will find yourself only setting `axiom`, `productions` and `finals`.
 
 ```.js
 // Initialize L-System with multiple productions
 let lsystem = new LSystem({
-      word: 'ABC',
+      axiom: 'ABC',
       productions: {
         'A': 'A+',
         'B': 'BA',
@@ -87,7 +87,7 @@ A major feature of Lindenmayer.js is the possibility to use functions as product
 
 ```.js
 let lsys = new LSystem({
-      word: 'F++F++F',
+      axiom: 'F++F++F',
       productions: {'F': () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F'}
 })
 
@@ -95,11 +95,11 @@ let lsys = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-You could also start with an empty L-System object, and use `setWord()` and `setProduction()` to edit the L-System later:
+You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
 
 ```.js
 let lsys = new LSystem()
-lsys.setWord('ABC')
+lsys.setAxiom('ABC')
 lsys.setProduction('A', 'AAB')
 lsys.setProduction('B', 'CB')
 ```
@@ -107,7 +107,7 @@ lsys.setProduction('B', 'CB')
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
 ### iterating
-Now that we have set up our L-System set, we want to generate new words with `iterate()`:
+Now that we have set up our L-System set, we want to generate new axioms with `iterate()`:
 
 ```.js
 // Iterate once
@@ -137,7 +137,7 @@ console.log(lsys.getString())
 
 Most likely you want to visualize or post-process your L-Systems output in some way.
 You could iterate and parse the result yourself, however `lindemayer` already offers an easy way to define
-such postprocessing: *final* functions. In those final functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize words with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
+such postprocessing: *final* functions. In those final functions you can define what should be done for each literal/character. The classic way to use L-Systems is to visualize axioms with [turtle graphics](https://en.wikipedia.org/wiki/Turtle_graphics).
 The standard rules, found in Aristid Lindenmayer's and Przemyslaw Prusinkiewicz's classic work [Algorithmic Beauty of Plants](http://algorithmicbotany.org/papers/#abop) can be easily implented this way, to output the fractals onto a [Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
 
 
@@ -164,7 +164,7 @@ ctx.translate(canvas.width / 2, canvas.height / 4)
 // -: rotates the canvas -60 degree
 
 var koch = new LSystem({
-  word: 'F++F++F',
+  axiom: 'F++F++F',
   productions: {'F': 'F-F++F-F'},
   finals: {
     '+': () => { ctx.rotate((Math.PI/180) * 60) },

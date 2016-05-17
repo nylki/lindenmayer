@@ -1,26 +1,28 @@
 'use strict';
 
-function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax }) {
+function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax }) {
 
 	// faking default values until better support lands in all browser
-	word = typeof word !== 'undefined' ? word : '';
+	axiom = typeof axiom !== 'undefined' ? axiom : '';
 	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : [];
 	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : [];
 	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false';
 
-	// if using objects in words, as used in parametric L-Systems
+	// if using objects in axioms, as used in parametric L-Systems
 	this.getString = function (onlyLetters = true) {
-		if (typeof this.word === 'string') return this.word;
+		if (typeof this.axiom === 'string') return this.axiom;
 
 		if (onlyLetters === true) {
-			return this.word.reduce((prev, current) => prev + current.letter, '');
+			return this.axiom.reduce((prev, current) => prev + current.letter, '');
 		} else {
-			return JSON.stringify(this.word);
+			return JSON.stringify(this.axiom);
 		}
 	};
 
-	this.setWord = function (word) {
-		this.word = word;
+	this.setAxiom = function (axiom) {
+		console.log(axiom);
+		this.axiom = axiom;
+		console.log(this.axiom);
 	};
 
 	this.setProduction = function (A, B) {
@@ -72,23 +74,23 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 		return p;
 	};
 
-	this.testClassicParametricSyntax = word => /\(.+\)/.test(word);
+	this.testClassicParametricSyntax = axiom => /\(.+\)/.test(axiom);
 
 	// transforms things like 'A(1,2,5)B(2.5)' to
 	// [ {letter: 'A', params: [1,2,5]}, {letter: 'B', params:[25]} ]
 	// strips spaces
-	this.transformClassicParametricWord = function (word) {
+	this.transformClassicParametricAxiom = function (axiom) {
 
 		// Replace whitespaces, then split between square brackets.
-		let splitWord = word.replace(/\s+/g, '').split(/[\(\)]/);
-		console.log('parts:', splitWord);
-		let newWord = [];
-		// Construct new word by getting the params and letter.
-		for (let i = 0; i < splitWord.length - 1; i += 2) {
-			let params = splitWord[i + 1].split(',').map(Number);
-			newWord.push({ letter: splitWord[i], params: params });
+		let splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
+		console.log('parts:', splitAxiom);
+		let newAxiom = [];
+		// Construct new axiom by getting the params and letter.
+		for (let i = 0; i < splitAxiom.length - 1; i += 2) {
+			let params = splitAxiom[i + 1].split(',').map(Number);
+			newAxiom.push({ letter: splitAxiom[i], params: params });
 		}
-		console.log('parsed word:', newWord);
+		console.log('parsed axiom:', newAxiom);
 	};
 
 	// transform a classic syntax production into valid JS production
@@ -123,7 +125,7 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 		// finally build the new (valid JS) production
 		// (that is being executed instead of the classic syntax,
 		//  which can't be interpreted by the JS engine)
-		let transformedFunction = ({ index: _index, part: _part, word: _word, params: _params }) => {
+		let transformedFunction = ({ index: _index, part: _part, currentAxiom: _axiom, params: _params }) => {
 
 			let leftMatch = true;
 			let rightMatch = true;
@@ -152,12 +154,12 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 	};
 
 	this.applyProductions = function () {
-		// a word can be a string or an array of objects that contain the key/value 'letter'
-		let newWord = typeof this.word === 'string' ? '' : [];
+		// a axiom can be a string or an array of objects that contain the key/value 'letter'
+		let newAxiom = typeof this.axiom === 'string' ? '' : [];
 		let index = 0;
-
-		// iterate all letters/characters of the word and lookup according productions
-		for (let part of this.word) {
+		console.log(this);
+		// iterate all letters/characters of the axiom and lookup according productions
+		for (let part of this.axiom) {
 			let letter = part;
 
 			// Stuff for classic parametric L-Systems: get actual letter and possible parameters
@@ -174,7 +176,7 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 
 				// if p is a function, execute function and append return value
 				if (typeof p === 'function') {
-					result = p({ index, word: this.word, part, params });
+					result = p({ index, currentAxiom: this.axiom, part, params });
 
 					/* if p is no function and no iterable, then
      it should be a string (regular) or object
@@ -191,7 +193,7 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
        This assumes, it's a list of functions.
        */
 							for (let _p of p) {
-								let _result = typeof _p === 'function' ? _p({ index, word: this.word, part, params }) : _p;
+								let _result = typeof _p === 'function' ? _p({ index, currentAxiom: this.axiom, part, params }) : _p;
 								if (_result !== undefined && _result !== false) {
 									result = _result;
 									break;
@@ -199,18 +201,18 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 							}
 						}
 			}
-			// finally add result to new word
-			if (typeof newWord === 'string') {
-				newWord += result;
+			// finally add result to new axiom
+			if (typeof newAxiom === 'string') {
+				newAxiom += result;
 			} else {
-				newWord.push(result);
+				newAxiom.push(result);
 			}
 			index++;
 		}
 
-		// finally set new word and also return for convenience
-		this.word = newWord;
-		return newWord;
+		// finally set new axiom and also return for convenience
+		this.axiom = newAxiom;
+		return newAxiom;
 	};
 
 	// iterate n times
@@ -224,7 +226,7 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 	};
 
 	this.final = function () {
-		for (let part of this.word) {
+		for (let part of this.axiom) {
 
 			// if we have objects for each letter, (when using parametric L-Systems)
 			// get actual identifiable letter character
@@ -262,7 +264,7 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
  	the index of the `B<C>D -> 'Z'` production would be the index of C (which is 2) when the
  	production would perform match(). so (if not using the ClassicLSystem class) you'd construction your context-sensitive production from C to Z like so:
  
- 	LSYS.setProduction('C', (index, word) => {
+ 	LSYS.setProduction('C', (index, axiom) => {
  		(LSYS.match({index, match: 'B', direction: 'left'}) &&
  		 LSYS.match({index, match: 'DE', direction: 'right'}) ? 'Z' : 'C')
  	})
@@ -270,25 +272,25 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
  	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
 
-	this.match = function ({ word_, match, ignoredSymbols, branchSymbols, index, direction }) {
+	this.match = function ({ axiom_, match, ignoredSymbols, branchSymbols, index, direction }) {
 
 		let branchCount = 0;
 		let explicitBranchCount = 0;
-		word_ = word || this.word;
+		axiom_ = axiom || this.axiom;
 		if (branchSymbols === undefined) branchSymbols = this.branchSymbols !== undefined ? this.branchSymbols : [];
 		if (ignoredSymbols === undefined) ignoredSymbols = this.ignoredSymbols !== undefined ? this.ignoredSymbols : [];
 
-		let branchStart, branchEnd, wordIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow;
+		let branchStart, branchEnd, axiomIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow;
 		// set some variables depending on the direction to match
 		if (direction === 'right') {
 			loopIndexChange = matchIndexChange = +1;
-			wordIndex = index + 1;
+			axiomIndex = index + 1;
 			matchIndex = 0;
 			matchIndexOverflow = match.length;
 			if (branchSymbols.length > 0) [branchStart, branchEnd] = branchSymbols;
 		} else if (direction === 'left') {
 			loopIndexChange = matchIndexChange = -1;
-			wordIndex = index - 1;
+			axiomIndex = index - 1;
 			matchIndex = match.length - 1;
 			matchIndexOverflow = -1;
 			if (branchSymbols.length > 0) [branchEnd, branchStart] = branchSymbols;
@@ -296,23 +298,23 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 			throw Error(direction, 'is not a valid direction for matching.');
 		}
 
-		for (; wordIndex < word_.length && wordIndex >= 0; wordIndex += loopIndexChange) {
+		for (; axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
 			// FIXME: what about objects with .letter
-			let wordLetter = word_[wordIndex];
+			let axiomLetter = axiom_[axiomIndex];
 			let matchLetter = match[matchIndex];
 
-			// compare current letter of word with current letter of match
-			if (wordLetter === matchLetter) {
+			// compare current letter of axiom with current letter of match
+			if (axiomLetter === matchLetter) {
 
 				if (branchCount === 0 || explicitBranchCount > 0) {
 					// if its a match and previously NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
 
-					// if a bracket was explicitly stated in match word
-					if (wordLetter === branchStart) {
+					// if a bracket was explicitly stated in match axiom
+					if (axiomLetter === branchStart) {
 						explicitBranchCount++;
 						branchCount++;
 						matchIndex += matchIndexChange;
-					} else if (wordLetter === branchEnd) {
+					} else if (axiomLetter === branchEnd) {
 						explicitBranchCount = Math.max(0, explicitBranchCount - 1);
 						branchCount = Math.max(0, branchCount - 1);
 						// only increase match if we are out of explicit branch
@@ -331,13 +333,13 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 				if (matchIndex === matchIndexOverflow) {
 					return true;
 				}
-			} else if (wordLetter === branchStart) {
+			} else if (axiomLetter === branchStart) {
 				branchCount++;
 				if (explicitBranchCount > 0) explicitBranchCount++;
-			} else if (wordLetter === branchEnd) {
+			} else if (axiomLetter === branchEnd) {
 				branchCount = Math.max(0, branchCount - 1);
 				if (explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount - 1);
-			} else if ((branchCount === 0 || explicitBranchCount > 0 && matchLetter !== branchEnd) && ignoredSymbols.includes(wordLetter) === false) {
+			} else if ((branchCount === 0 || explicitBranchCount > 0 && matchLetter !== branchEnd) && ignoredSymbols.includes(axiomLetter) === false) {
 				// not in branchSymbols/branch? or if in explicit branch, and not at the very end of
 				// condition (at the ]), and letter not in ignoredSymbols ? then false
 				return false;
@@ -350,7 +352,7 @@ function LSystem({ word, productions, finals, branchSymbols, ignoredSymbols, cla
 		allowClassicSyntax: true
 	};
 
-	this.setWord(word);
+	this.setAxiom(axiom);
 	this.productions = new Map();
 	if (productions) this.setProductions(productions);
 	this.branchSymbols = branchSymbols;

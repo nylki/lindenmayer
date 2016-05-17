@@ -54,12 +54,12 @@
 <body onkeyup="update()">
 	<main>
 		<h1> Interactive L-System builder </h1>
-		<p>Go ahead, fiddle around and change the initial word, the productions, etc. and see changes live in the canvas below!</p>
+		<p>Go ahead, fiddle around and change the initial word (axiom), the productions, etc. and see changes live in the canvas below!</p>
 		
 		<div class="inputcontainer">
 			
-			<div class="label">Initial word:</div>
-			<input id="word" type="text" name="name"> <br>
+			<div class="label">Axiom:</div>
+			<input id="axiom" type="text" name="name"> <br>
 			
 			
 			<div class="label">iterations:</div>
@@ -84,7 +84,7 @@
 	<script type="text/javascript">
 	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext("2d");
-	var wordInput = document.getElementById('word');
+	var axiomInput = document.getElementById('axiom');
 	var rotationInput = document.getElementById('rotation');
 	var iterationInput = document.getElementById('iterations');
 	var lineLengthInput = document.getElementById('linelength');
@@ -141,7 +141,7 @@
 	function update() {
 		// gather info from text fields
 		var params = {
-			word: 		wordInput.value,
+			axiom: 		axiomInput.value,
 			rotation: rotationInput.value,
 			productions: {},
 			iterations: iterationInput.value
@@ -184,13 +184,13 @@
 	
 	function onWorkerUpdate(e) {
 		lsystem.setProductions(e.data.initial.productions);
-		lsystem.setWord(e.data.result);
+		lsystem.setAxiom(e.data.result);
 		window.requestAnimationFrame(draw);
 	}
 	
 	// Initially add Koch-Flake/Curve for demonstration
 	addProductionField();
-	wordInput.value = 'F++F++F++F';
+	axiomInput.value = 'F++F++F++F';
 	productionList.childNodes[0].childNodes[0].value = 'F';
 	productionList.childNodes[0].childNodes[1].value = 'F-F++F-F';
 	update();
