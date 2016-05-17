@@ -212,7 +212,12 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 			if(typeof newAxiom === 'string') {
 				newAxiom += result
 			} else {
-				newAxiom.push(result)
+				// If result is an array, merge result into new axiom instead of pushing.
+				if(result.constructor === Array) {
+					Array.prototype.push.apply(newAxiom, result);
+				} else {
+					newAxiom.push(result);
+				}
 			}
 			index++
 		}

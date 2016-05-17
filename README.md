@@ -89,28 +89,6 @@ let lsys = new LSystem({
 lsys.setAxiom('F-F-F')
 ```
 
-Besides a String, you may also use an Array of Objects. This is advanced usage (TODO: document!) though, but makes this library very flexible because you can insert custom parameters into your symbols. Eg. an `A` may contain a `health` and `size` variable that can also mutate:
-
-```.js
-let parametricLsystem = new lsys.LSystem({
-  axiom: [
-    {letter: 'A', health:1.0, size=0.5},
-    {letter: 'B', health:0.1, size=1.0},
-    {letter: 'C', health:0.25, size=0.001},
-    {letter: 'C', health:1.0, size=0.12}
-  ],
-  productions: {
-    'A': ({part}) => (part.x===1) ? {letter: 'Z', x: 42} : part,
-    'B': ({part}) => (part.y===5) ? {letter: 'Z', x: 42} : part,
-    'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
-  }
-});
-
-// parametricLsystem.iterate();
-// parametricLsystem.getString() === 'ZZZC';
-```
-
-
 
 ## setting productions
 Productions define how one symbol gets transformed into another symbol or string of symbols. If you want all `A`s to be replaced by `B`, you may construct the following production would look like:
@@ -257,3 +235,42 @@ koch.final()
 And the result:
 
 [![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
+
+
+## Advanced Usage
+### Parametric L-Systems
+
+Besides a String, you may also use an Array of Objects. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `C` may contain a `food` variable that can also mutate:
+
+```.js
+let parametricLsystem = new lsys.LSystem({
+  axiom: [
+    {symbol: 'A', food=0.5},
+    {symbol: 'B'},
+    {symbol: 'A'},
+    {symbol: 'C'}
+  ],
+  // And then do stuff with those custom parameters in productions:
+  productions: {
+    'A': ({part, index}) => {
+      // split A into one A and a new B if it ate enough:
+      if(part.food >= 1.0) {
+        return [{symbol: 'A', food:0}, {symbol: 'A', food:0}]        
+      } else {
+        // otherwise eat a random amount of food
+        part.food += Math.random() * 0.25;
+        return part;
+      }
+    }
+  }
+});
+
+// parametricLsystem.iterate(10);
+// parametricLsystem.getString() === 'ZZZC';
+```
+
+As you can see, you need to explicitly define the `symbol` value, so the correct production can be applied.
+
+#### Classic Parametric L-System syntax
+they loook like `A -> A(1,2)B(5,2)`.
+Are planned, but not yet fully implemented. Stay tuned!
