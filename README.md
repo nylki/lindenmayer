@@ -114,7 +114,7 @@ let lsystem = new LSystem({
 // lsystem.iterate() === 'A+BAABC'
 ```
 
-A major feature of Lindenmayer.js is the possibility to use functions as productions (especially useful for stochasic L-Systems):
+A major feature of Lindenmayer.js is the possibility to use functions as productions, which is especially useful for stochasic L-Systems:
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
