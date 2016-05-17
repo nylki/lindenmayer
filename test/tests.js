@@ -191,15 +191,15 @@ describe('Correct behavior of L-Systems', function() {
   it('Custom parametric L-Systems (that dont use `params`) should work.', function() {
     let custom_para_lsys1 = new lsys.LSystem({
       axiom: [
-        {letter: 'A', x:1, y:0.5},
-        {letter: 'B', x:0, y:5},
-        {letter: 'C', x:0, y:2, foo: 'bar'},
-        {letter: 'C', x:0, y:2, foo: 'notbar'}
+        {symbol: 'A', x:1, y:0.5},
+        {symbol: 'B', x:0, y:5},
+        {symbol: 'C', x:0, y:2, foo: 'bar'},
+        {symbol: 'C', x:0, y:2, foo: 'notbar'}
       ],
       productions: {
-        'A': ({part}) => (part.x===1) ? {letter: 'Z', x: 42} : part,
-        'B': ({part}) => (part.y===5) ? {letter: 'Z', x: 42} : part,
-        'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
+        'A': ({part}) => (part.x===1) ? {symbol: 'Z', x: 42} : part,
+        'B': ({part}) => (part.y===5) ? {symbol: 'Z', x: 42} : part,
+        'C': ({part}) => (part.foo === 'bar') ? {symbol: 'Z'} : part
       }
     });
 
@@ -210,17 +210,17 @@ describe('Correct behavior of L-Systems', function() {
   it('Basic (normalized) parametric L-System structure should ge parsed.', function() {
     let para_lsys1 = new lsys.LSystem({
       axiom: [
-        {letter: 'A'},
-        {letter: 'B'},
-        {letter: 'C', params: [3]},
-        {letter: 'D', params: [23, 42, 5]},
-        {letter: 'E'},
-        {letter: 'F'},
-        {letter: 'G', mehh:'foo'}
+        {symbol: 'A'},
+        {symbol: 'B'},
+        {symbol: 'C', params: [3]},
+        {symbol: 'D', params: [23, 42, 5]},
+        {symbol: 'E'},
+        {symbol: 'F'},
+        {symbol: 'G', mehh:'foo'}
       ],
       productions: {
-        'C': ({index, axiom, params:[x]}) => (x===3) ? {letter: 'Z'} : {letter: 'C'},
-        'D': ({index, axiom, params:[x, y, z]}) => (y===42) ? {letter: 'Z'} : {letter: 'D'}
+        'C': ({index, axiom, params:[x]}) => (x===3) ? {symbol: 'Z'} : {symbol: 'C'},
+        'D': ({index, axiom, params:[x, y, z]}) => (y===42) ? {symbol: 'Z'} : {symbol: 'D'}
       }
     });
 
@@ -248,16 +248,16 @@ describe('Correct behavior of L-Systems', function() {
   // it('Parametric L-Systems should work. (ABOP, p.42)', function() {
   //   let para_lsys2 = new lsys.LSystem({
   //     axiom: [
-  //       {letter: 'B', params: [2]},
-  //       {letter: 'A', params: [4, 4]}
+  //       {symbol: 'B', params: [2]},
+  //       {symbol: 'A', params: [4, 4]}
   //     ],
   //     productions: [
-  //       ['A', ([x, y]) => y<=3 ? {letter: 'A', params: [x*2, x+y]} : 'A'],
+  //       ['A', ([x, y]) => y<=3 ? {symbol: 'A', params: [x*2, x+y]} : 'A'],
   //       ['A', ([x, y]) => y>3 ?
-  //         [{letter: 'B', params: [x]},
-  //          {letter: 'A', params: [x/y, 0]}]: 'A'],
-  //       ['B', ([x]) => x<1 ? {letter: 'C'} : 'B'],
-  //       ['B', ([x]) => x>=1 ? {letter: 'B', params: [x-1]} : 'B']
+  //         [{symbol: 'B', params: [x]},
+  //          {symbol: 'A', params: [x/y, 0]}]: 'A'],
+  //       ['B', ([x]) => x<1 ? {symbol: 'C'} : 'B'],
+  //       ['B', ([x]) => x>=1 ? {symbol: 'B', params: [x-1]} : 'B']
   //     ]
   //   })
   //
@@ -268,16 +268,16 @@ describe('Correct behavior of L-Systems', function() {
   // it('Parametric L-Systems should work.', function() {
   //   let para_lsys1 = new lsys.LSystem({
   //     axiom: [
-  //       {letter: 'A'},
-  //       {letter: 'B'},
-  //       {letter: 'C'},
-  //       {letter: 'D'},
-  //       {letter: 'E'},
-  //       {letter: 'F'},
-  //       {letter: 'G'}
+  //       {symbol: 'A'},
+  //       {symbol: 'B'},
+  //       {symbol: 'C'},
+  //       {symbol: 'D'},
+  //       {symbol: 'E'},
+  //       {symbol: 'F'},
+  //       {symbol: 'G'}
   //     ],
   //     productions: [
-  //       ['C', {letter: 'Z'}]
+  //       ['C', {symbol: 'Z'}]
   //     ]
   //   })
   //
@@ -289,7 +289,7 @@ describe('Correct behavior of L-Systems', function() {
   //   let para_lsys3 = new lsys.LSystem({
   //     axiom: '',
   //     productions: [
-  //       ['C', {letter: 'Z'}]
+  //       ['C', {symbol: 'Z'}]
   //     ]
   //   })
   //

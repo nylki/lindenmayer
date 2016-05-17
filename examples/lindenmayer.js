@@ -9,20 +9,18 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false';
 
 	// if using objects in axioms, as used in parametric L-Systems
-	this.getString = function (onlyLetters = true) {
+	this.getString = function (onlySymbols = true) {
 		if (typeof this.axiom === 'string') return this.axiom;
 
-		if (onlyLetters === true) {
-			return this.axiom.reduce((prev, current) => prev + current.letter, '');
+		if (onlySymbols === true) {
+			return this.axiom.reduce((prev, current) => prev + current.symbol, '');
 		} else {
 			return JSON.stringify(this.axiom);
 		}
 	};
 
 	this.setAxiom = function (axiom) {
-		console.log(axiom);
 		this.axiom = axiom;
-		console.log(this.axiom);
 	};
 
 	this.setProduction = function (A, B) {
@@ -50,8 +48,8 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 		}
 	};
 
-	this.setFinal = function (letter, final) {
-		let newFinal = [letter, final];
+	this.setFinal = function (symbol, final) {
+		let newFinal = [symbol, final];
 		if (newFinal === undefined) {
 			throw new Error('no final specified.');
 		}
@@ -62,9 +60,9 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 	this.setFinals = function (newFinals) {
 		if (newFinals === undefined) throw new Error('no finals specified.');
 		this.finals = new Map();
-		for (let letter in newFinals) {
-			if (newFinals.hasOwnProperty(letter)) {
-				this.setFinal(letter, newFinals[letter]);
+		for (let symbol in newFinals) {
+			if (newFinals.hasOwnProperty(symbol)) {
+				this.setFinal(symbol, newFinals[symbol]);
 			}
 		}
 	};
@@ -77,7 +75,7 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 	this.testClassicParametricSyntax = axiom => /\(.+\)/.test(axiom);
 
 	// transforms things like 'A(1,2,5)B(2.5)' to
-	// [ {letter: 'A', params: [1,2,5]}, {letter: 'B', params:[25]} ]
+	// [ {symbol: 'A', params: [1,2,5]}, {symbol: 'B', params:[25]} ]
 	// strips spaces
 	this.transformClassicParametricAxiom = function (axiom) {
 
@@ -85,10 +83,10 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 		let splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
 		console.log('parts:', splitAxiom);
 		let newAxiom = [];
-		// Construct new axiom by getting the params and letter.
+		// Construct new axiom by getting the params and symbol.
 		for (let i = 0; i < splitAxiom.length - 1; i += 2) {
 			let params = splitAxiom[i + 1].split(',').map(Number);
-			newAxiom.push({ letter: splitAxiom[i], params: params });
+			newAxiom.push({ symbol: splitAxiom[i], params: params });
 		}
 		console.log('parsed axiom:', newAxiom);
 	};
@@ -113,13 +111,13 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 			return p;
 		}
 
-		// indexLetter should be 'B' in A<B>C
+		// indexSymbol should be 'B' in A<B>C
 		// get it either from left side or right side if left is nonexistent
-		let indexLetter = left !== null ? left[2] : right[1];
+		let indexSymbol = left !== null ? left[2] : right[1];
 
-		// double check: make sure that the right and left match got the same indexLetter (B)
+		// double check: make sure that the right and left match got the same indexSymbol (B)
 		if (left !== null && right !== null && left[2] !== right[1]) {
-			throw new Error('index letter differs in context sensitive production from left to right check.', left[2], '!==', right[1]);
+			throw new Error('index symbol differs in context sensitive production from left to right check.', left[2], '!==', right[1]);
 		}
 
 		// finally build the new (valid JS) production
@@ -136,7 +134,7 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 			}
 
 			// don't match with right side if left already false or no right match necessary
-			if (leftMatch === false || leftMatch === true && right === null) return leftMatch ? p[1] : indexLetter;
+			if (leftMatch === false || leftMatch === true && right === null) return leftMatch ? p[1] : indexSymbol;
 
 			// see left!== null. could be optimized. Creating 3 variations of function
 			// so left/right are not checked here, which improves speed, as left/right
@@ -145,34 +143,34 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 				rightMatch = this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
 			}
 
-			return leftMatch && rightMatch ? p[1] : indexLetter;
+			return leftMatch && rightMatch ? p[1] : indexSymbol;
 		};
 
-		let transformedProduction = [indexLetter, transformedFunction];
+		let transformedProduction = [indexSymbol, transformedFunction];
 
 		return transformedProduction;
 	};
 
 	this.applyProductions = function () {
-		// a axiom can be a string or an array of objects that contain the key/value 'letter'
+		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 		let newAxiom = typeof this.axiom === 'string' ? '' : [];
 		let index = 0;
 		console.log(this);
-		// iterate all letters/characters of the axiom and lookup according productions
+		// iterate all symbols/characters of the axiom and lookup according productions
 		for (let part of this.axiom) {
-			let letter = part;
+			let symbol = part;
 
-			// Stuff for classic parametric L-Systems: get actual letter and possible parameters
+			// Stuff for classic parametric L-Systems: get actual symbol and possible parameters
 			// params will be given the production function, if applicable.
 			let params = [];
-			if (typeof part === 'object' && part.letter) letter = part.letter;
+			if (typeof part === 'object' && part.symbol) symbol = part.symbol;
 			if (typeof part === 'object' && part.params) params = part.params;
 
 			// default production result is just the original part itself
 			let result = part;
 
-			if (this.productions.has(letter)) {
-				let p = this.productions.get(letter);
+			if (this.productions.has(symbol)) {
+				let p = this.productions.get(symbol);
 
 				// if p is a function, execute function and append return value
 				if (typeof p === 'function') {
@@ -228,21 +226,21 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 	this.final = function () {
 		for (let part of this.axiom) {
 
-			// if we have objects for each letter, (when using parametric L-Systems)
-			// get actual identifiable letter character
-			let letter = part;
-			if (typeof part === 'object' && part.letter) letter = part.letter;
+			// if we have objects for each symbol, (when using parametric L-Systems)
+			// get actual identifiable symbol character
+			let symbol = part;
+			if (typeof part === 'object' && part.symbol) symbol = part.symbol;
 
-			if (this.finals.has(letter)) {
-				var finalFunction = this.finals.get(letter);
+			if (this.finals.has(symbol)) {
+				var finalFunction = this.finals.get(symbol);
 				var typeOfFinalFunction = typeof finalFunction;
 				if (typeOfFinalFunction !== 'function') {
-					throw Error('\'' + letter + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
+					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
-				// execute letters function
+				// execute symbols function
 				finalFunction();
 			} else {
-				// letter has no final function
+				// symbol has no final function
 			}
 		}
 	};
@@ -299,22 +297,22 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 		}
 
 		for (; axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
-			// FIXME: what about objects with .letter
-			let axiomLetter = axiom_[axiomIndex];
-			let matchLetter = match[matchIndex];
+			// FIXME: what about objects with .symbol
+			let axiomSymbol = axiom_[axiomIndex];
+			let matchSymbol = match[matchIndex];
 
-			// compare current letter of axiom with current letter of match
-			if (axiomLetter === matchLetter) {
+			// compare current symbol of axiom with current symbol of match
+			if (axiomSymbol === matchSymbol) {
 
 				if (branchCount === 0 || explicitBranchCount > 0) {
 					// if its a match and previously NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
 
 					// if a bracket was explicitly stated in match axiom
-					if (axiomLetter === branchStart) {
+					if (axiomSymbol === branchStart) {
 						explicitBranchCount++;
 						branchCount++;
 						matchIndex += matchIndexChange;
-					} else if (axiomLetter === branchEnd) {
+					} else if (axiomSymbol === branchEnd) {
 						explicitBranchCount = Math.max(0, explicitBranchCount - 1);
 						branchCount = Math.max(0, branchCount - 1);
 						// only increase match if we are out of explicit branch
@@ -333,15 +331,15 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 				if (matchIndex === matchIndexOverflow) {
 					return true;
 				}
-			} else if (axiomLetter === branchStart) {
+			} else if (axiomSymbol === branchStart) {
 				branchCount++;
 				if (explicitBranchCount > 0) explicitBranchCount++;
-			} else if (axiomLetter === branchEnd) {
+			} else if (axiomSymbol === branchEnd) {
 				branchCount = Math.max(0, branchCount - 1);
 				if (explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount - 1);
-			} else if ((branchCount === 0 || explicitBranchCount > 0 && matchLetter !== branchEnd) && ignoredSymbols.includes(axiomLetter) === false) {
+			} else if ((branchCount === 0 || explicitBranchCount > 0 && matchSymbol !== branchEnd) && ignoredSymbols.includes(axiomSymbol) === false) {
 				// not in branchSymbols/branch? or if in explicit branch, and not at the very end of
-				// condition (at the ]), and letter not in ignoredSymbols ? then false
+				// condition (at the ]), and symbol not in ignoredSymbols ? then false
 				return false;
 			}
 		}

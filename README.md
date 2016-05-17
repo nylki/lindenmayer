@@ -51,16 +51,16 @@ lsys.setProduction('B',
 lsys.setProduction('A<B>C', 'Z')
 ```
 
-### initializing
+## initializing
 
-You can init a L-System object with the `new` keyaxiom:
+You can init a L-System object with the `new` keyword:
 ```.js
-new LSystem(options)
+let myLsystem = new LSystem(options)
 ```
 
 `options` may contain:
 - `axiom`: A String or an Array of Objects to set the initial axiom (sometimes called axiom, start or initiator).
-- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling `iterate()`
+- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling `iterate()`. A production can be either a String or a Function (see below.)
 - `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final()`.
 
 advanced options (see [API docs](not yet created) for details):
@@ -71,8 +71,60 @@ advanced options (see [API docs](not yet created) for details):
 
 Most often you will find yourself only setting `axiom`, `productions` and `finals`.
 
+## setting an axiom
+As seen in the first section you can simply set your axiom when you init your L-System.
+
 ```.js
-// Initialize L-System with multiple productions
+let lsys = new LSystem({
+      axiom: 'F++F++F'
+})
+```
+
+You can also set an axiom after initialization:
+
+```.js
+let lsys = new LSystem({
+      axiom: 'F++F++F'
+})
+lsys.setAxiom('F-F-F')
+```
+
+Besides a String, you may also use an Array of Objects. This is advanced usage (TODO: document!) though, but makes this library very flexible because you can insert custom parameters into your symbols. Eg. an `A` may contain a `health` and `size` variable that can also mutate:
+
+```.js
+let parametricLsystem = new lsys.LSystem({
+  axiom: [
+    {letter: 'A', health:1.0, size=0.5},
+    {letter: 'B', health:0.1, size=1.0},
+    {letter: 'C', health:0.25, size=0.001},
+    {letter: 'C', health:1.0, size=0.12}
+  ],
+  productions: {
+    'A': ({part}) => (part.x===1) ? {letter: 'Z', x: 42} : part,
+    'B': ({part}) => (part.y===5) ? {letter: 'Z', x: 42} : part,
+    'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
+  }
+});
+
+// parametricLsystem.iterate();
+// parametricLsystem.getString() === 'ZZZC';
+```
+
+
+
+## setting productions
+Productions define how one symbol gets transformed into another symbol or string of symbols. If you want all `A`s to be replaced by `B`, you may construct the following production would look like:
+```.js
+let lsystem = new LSystem({
+  axiom: 'ABC',
+  productions: {'A': 'B'}
+})
+//lsystem.iterate() === 'BBC'
+```
+
+You can set as many productions on initialization as you like:
+
+```.js
 let lsystem = new LSystem({
       axiom: 'ABC',
       productions: {
@@ -81,19 +133,37 @@ let lsystem = new LSystem({
         'C': 'ABC'
       }
 })
+// lsystem.iterate() === 'A+BAABC'
 ```
 
-A major feature of Lindenmayer.js is the possibility to use functions as productions (useful for **stochasic** L-Systems):
+A major feature of Lindenmayer.js is the possibility to use functions as productions (especially useful for stochasic L-Systems):
 
 ```.js
+// This L-System produces `F+` with a 70% probability and `F-` with 30% probability
 let lsys = new LSystem({
       axiom: 'F++F++F',
-      productions: {'F': () => (Math.random() < 0.7) ? 'F-F++F-F' : 'F+F'}
+      productions: {'F': () => (Math.random() <= 0.7) ? 'F+' : 'F-'}
 })
 
-// Productions can be changed later:
+// Productions can also be changed later:
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
+
+If you are using functions as productions, your function can make use of a number of additional parameters:
+{index, currentAxiom: this.axiom, part, params}
+```
+lsys.setAxiom('FFFFF')
+lsys.setProduction('F', (parameters) => {
+  // Use the `index` to determine where inside the current axiom, the function is applied on.
+  if(parameters.index === 3) return 'X';
+})
+// lsys.iterate() === FFXFF
+```
+
+#### parameters
+- index: the index inside the axiom
+- currentAxiom: the current axiom
+- part: the current part (symbol or object) the production is applied on.
 
 You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
 
@@ -105,6 +175,8 @@ lsys.setProduction('B', 'CB')
 ```
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
+
+
 
 ### iterating
 Now that we have set up our L-System set, we want to generate new axioms with `iterate()`:
