@@ -128,7 +128,6 @@ lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
 If you are using functions as productions, your function can make use of a number of additional parameters:
-{index, currentAxiom: this.axiom, part, params}
 
 ```.js
 lsys.setAxiom('FFFFF')
