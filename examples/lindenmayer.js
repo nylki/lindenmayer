@@ -155,7 +155,6 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 		let newAxiom = typeof this.axiom === 'string' ? '' : [];
 		let index = 0;
-		console.log(this);
 		// iterate all symbols/characters of the axiom and lookup according productions
 		for (let part of this.axiom) {
 			let symbol = part;

@@ -2,7 +2,7 @@
 
 Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.
 
-The library can also parse (to some extend) classic L-System syntax as defined in Lindenmayers original work *Algorithmic Beauty of Plant* from 1990. (for example branches: `[]` or context sensitive productions: `<>`).
+The library can also parse (to some extend) classic L-System syntax as defined in Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. (for example branches: `[]` or context sensitive productions: `<>`).
 Most stuff should work. I am currently working on parametric L-System support.
 
 **Right now it's under heavy development, so features and names are subject to change.
@@ -27,7 +27,7 @@ console.log(result)
 //'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
 ```
 
-There are multiple way to set productions, including javascript functions:
+There are multiple ways to set productions, including javascript functions:
 
 ```.js
 let lsys = new LSystem()
@@ -39,7 +39,7 @@ lsys.setProduction('B', () => 'F+F')
 // or same with just the String, both works
 lsys.setProduction('B', 'F+F')
 
-// simple stochastic production, producing `+F` with 10% probability, `FB+B` with 90%
+// simple stochastic production, producing `F` with 10% probability, `B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
 // simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
@@ -55,7 +55,7 @@ lsys.setProduction('A<B>C', 'Z')
 
 You can init a L-System object with the `new` keyword:
 ```.js
-let myLsystem = new LSystem(options)
+let myCoolLSystem = new LSystem(options)
 ```
 
 `options` may contain:
@@ -91,7 +91,7 @@ lsys.setAxiom('F-F-F')
 
 
 ## setting productions
-Productions define how one symbol gets transformed into another symbol or string of symbols. If you want all `A`s to be replaced by `B`, you may construct the following production would look like:
+Productions define how the axioms symbols get transformed. For example, if you want all `A`s to be replaced by `B` in your axiom, you could construct the following production:
 ```.js
 let lsystem = new LSystem({
   axiom: 'ABC',
@@ -114,7 +114,18 @@ let lsystem = new LSystem({
 // lsystem.iterate() === 'A+BAABC'
 ```
 
-A major feature of Lindenmayer.js is the possibility to use functions as productions (especially useful for stochasic L-Systems):
+You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
+
+```.js
+let lsys = new LSystem()
+lsys.setAxiom('ABC')
+lsys.setProduction('A', 'AAB')
+lsys.setProduction('B', 'CB')
+```
+
+This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
+
+A major feature of Lindenmayer.js is the possibility to use functions as productions, which is especially useful for stochasic L-Systems:
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
@@ -128,8 +139,8 @@ lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
 If you are using functions as productions, your function can make use of a number of additional parameters:
-{index, currentAxiom: this.axiom, part, params}
-```
+
+```.js
 lsys.setAxiom('FFFFF')
 lsys.setProduction('F', (parameters) => {
   // Use the `index` to determine where inside the current axiom, the function is applied on.
@@ -138,21 +149,10 @@ lsys.setProduction('F', (parameters) => {
 // lsys.iterate() === FFXFF
 ```
 
-#### parameters
-- index: the index inside the axiom
-- currentAxiom: the current axiom
-- part: the current part (symbol or object) the production is applied on.
-
-You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
-
-```.js
-let lsys = new LSystem()
-lsys.setAxiom('ABC')
-lsys.setProduction('A', 'AAB')
-lsys.setProduction('B', 'CB')
-```
-
-This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
+**parameters**:
+- `index`: the index inside the axiom
+- `currentAxiom`: the current full axiom/word
+- `part`: the current part (symbol or object) the production is applied on. This is only useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
 
 
 
@@ -240,14 +240,14 @@ And the result:
 ## Advanced Usage
 ### Parametric L-Systems
 
-Besides a String, you may also use an Array of Objects. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `C` may contain a `food` variable that can also mutate:
+When defining axioms you may also use an Array of Objects instead of basic Strings. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `A` may contain a `food` variable to simulate organic growth when combined with a random() function:
 
 ```.js
 let parametricLsystem = new lsys.LSystem({
   axiom: [
-    {symbol: 'A', food=0.5},
+    {symbol: 'A', food:0.5},
     {symbol: 'B'},
-    {symbol: 'A'},
+    {symbol: 'A', , food:0.1},
     {symbol: 'C'}
   ],
   // And then do stuff with those custom parameters in productions:
@@ -255,21 +255,23 @@ let parametricLsystem = new lsys.LSystem({
     'A': ({part, index}) => {
       // split A into one A and a new B if it ate enough:
       if(part.food >= 1.0) {
-        return [{symbol: 'A', food:0}, {symbol: 'A', food:0}]        
+        return [{symbol: 'A', food:0}, {symbol: 'B', food:0}]        
       } else {
         // otherwise eat a random amount of food
-        part.food += Math.random() * 0.25;
+        part.food += Math.random() * 0.1;
         return part;
       }
     }
   }
 });
 
-// parametricLsystem.iterate(10);
-// parametricLsystem.getString() === 'ZZZC';
+// parametricLsystem.iterate(60);
+// Depending on randomness:
+// parametricLsystem.getString() ~= 'ABBBBBABBBC';
+// The first part of B's has more B's because the first A got more initial food which in the end made a small difference, as you can see.
 ```
 
-As you can see, you need to explicitly define the `symbol` value, so the correct production can be applied.
+As you can see above, you need to explicitly define the `symbol` value, so the correct production can be applied.
 
 #### Classic Parametric L-System syntax
 they loook like `A -> A(1,2)B(5,2)`.
