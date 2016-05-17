@@ -240,7 +240,7 @@ And the result:
 ## Advanced Usage
 ### Parametric L-Systems
 
-Besides a String, you may also use an Array of Objects. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `C` may contain a `food` variable to simulate organic growth when combined with a random() function:
+When defining axioms you may also use an Array of Objects instead of basic Strings. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `C` may contain a `food` variable to simulate organic growth when combined with a random() function:
 
 ```.js
 let parametricLsystem = new lsys.LSystem({
