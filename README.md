@@ -151,7 +151,7 @@ lsys.setProduction('F', (parameters) => {
 
 For a shorter notation you could use the ES6 feature of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Object_destructuring) (has support in most modern browsers):
 ```.js
-lsys.setProduction('F', ({index, part}) => index === 2  ? return 'X' : part);
+lsys.setProduction('F', ({index, part}) => index === 2  ? 'X' : part);
 ```
 
 
