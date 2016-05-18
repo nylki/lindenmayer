@@ -149,6 +149,12 @@ lsys.setProduction('F', (parameters) => {
 // lsys.iterate() === FFXFF
 ```
 
+For a shorter notation you could use the ES6 feature of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Object_destructuring) (has support in most modern browsers):
+```.js
+lsys.setProduction('F', ({index, part}) => /* do something with index or/and part*/);
+```
+
+
 **parameters**:
 - `index`: the index inside the axiom
 - `currentAxiom`: the current full axiom/word
