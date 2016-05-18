@@ -91,7 +91,7 @@ lsys.setAxiom('F-F-F')
 
 
 ## setting productions
-Productions define how the axioms symbols get transformed. For example, if you want all `A`s to be replaced by `B` in your axiom, you could construct the following production:
+Productions define how the symbols of an axiom get transformed. For example, if you want all `A`s to be replaced by `B` in your axiom, you could construct the following production:
 ```.js
 let lsystem = new LSystem({
   axiom: 'ABC',
@@ -125,7 +125,7 @@ lsys.setProduction('B', 'CB')
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
-A major feature of Lindenmayer.js is the possibility to use functions as productions, which is especially useful for stochasic L-Systems:
+A major feature of this library is the possibility to use functions as productions, which is especially useful for stochasic L-Systems:
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
@@ -144,7 +144,7 @@ If you are using functions as productions, your function can make use of a numbe
 lsys.setAxiom('FFFFF')
 lsys.setProduction('F', (parameters) => {
   // Use the `index` to determine where inside the current axiom, the function is applied on.
-  if(parameters.index === 3) return 'X';
+  if(parameters.index === 2) return 'X';
 })
 // lsys.iterate() === FFXFF
 ```
