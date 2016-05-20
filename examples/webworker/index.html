@@ -66,10 +66,10 @@
 			<input id="iterations" type="range" min="1" max="12" name="name" value="2" oninput="update()"> <br>
 			
 			<div class="label">rotation:</div>
-			<input id="rotation" type="range" min="0" max="360" name="name" value="45" oninput="window.requestAnimationFrame(draw)"> <br>
+			<input id="rotation" type="range" min="0.0" max="360.0" name="name" value="45.0" oninput="window.requestAnimationFrame(draw)"> <br>
 			
 			<div class="label">line length:</div>
-			<input id="linelength" type="range" min="1" max="100" name="name" value="25" oninput="window.requestAnimationFrame(draw)"> <br>
+			<input id="linelength" type="range" min="0.1" max="300.0" name="name" value="100.0" oninput="window.requestAnimationFrame(draw)"> <br>
 			
 			<div id="productions"></div>
 			<button type="button" onclick="addProductionField()">add production</button>
@@ -172,7 +172,7 @@
 		ctx.translate(500, 500);
 		ctx.moveTo(0, 0);
 		ctx.rotate(Math.PI);
-		lineLength = lineLengthInput.value;
+		lineLength = lineLengthInput.value / Math.pow(iterationInput.value, 2);
 		rotation = rotationInput.value;
 		lsystem.final();
 	}
