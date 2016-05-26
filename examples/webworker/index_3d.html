@@ -75,10 +75,8 @@
 			<div id="productions"></div>
 			<button type="button" onclick="addProductionField()">add production</button>
 
-			
-			
-			
 	</main>
+	
 	<div id="rendercontainer"></div>
 	
 	<script src="../lindenmayer.js"></script>
@@ -214,8 +212,8 @@
 	}
 	
 	function addProductionField() {
-		var prodFrom = document.createElement('input');
-		var prodTo = document.createElement('input');
+		var prodFrom = document.createElement('textarea');
+		var prodTo = document.createElement('textarea');
 		var prodEval = document.createElement('input');
 		var prodRemove = document.createElement('button');
 		var prodContainer = document.createElement('div');
@@ -236,7 +234,6 @@
 		prodContainer.appendChild(prodTo);
 		prodContainer.appendChild(prodEval);
 		prodContainer.appendChild(prodRemove);
-		
 		productionList.appendChild(prodContainer);
 	}
 	
@@ -282,7 +279,6 @@
 	}
 	
 	function onWorkerUpdate(e) {
-		console.log('onworker update');
 		lsystem.setProductions(e.data.initial.productions);
 		lsystem.setAxiom(e.data.result);
 		window.requestAnimationFrame(render);
