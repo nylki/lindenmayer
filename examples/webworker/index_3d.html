@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Basic Interactive L-Systems with web worker threads</title>
+	
+	<style media="screen">
+	.label {
+		/*min-width: 100px;*/
+	}
+	body {
+		background-color: rgb(238, 240, 211);
+		color: rgb(47, 79, 38);
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	
+	main {
+		padding: 0.5em;
+		max-width: 25em;
+		border-top: 0.5px dotted  rgb(47, 79, 38);
+		border-left: 0.5px dotted  rgb(47, 79, 38);
+		border-bottom: 0.5px dotted  rgb(47, 79, 38);
+	}
+	
+	canvas {
+		border: 0.5px dotted  rgb(47, 79, 38);
+		background-color: rgb(244, 237, 206);
+		min-width: 500px;
+		width: 500px;
+		height: auto;
+
+	}
+	
+	.inputcontaner {
+		display: flex;
+		flex-direction: column;
+		width: 15vw;
+		min-width: 15vw;
+	}
+
+
+	production:nth-child(0) {
+		width: 200px;
+	}
+	production:nth-child(1) {
+		width: 19em;
+	}
+	
+	</style>
+	
+</head>
+<body onkeyup="update()">
+	<main>
+		<h1> Interactive L-System builder </h1>
+		<p>Go ahead, fiddle around and change the initial word (axiom), the productions, etc. and see changes live in the canvas below!</p>
+		<div class="inputcontainer">
+			
+			<div class="label">Axiom:</div>
+			<input id="axiom" type="text" name="name"> <br>
+			
+			<div class="label">iterations:</div>
+			<input id="iterations" type="range" min="1" max="12" name="name" value="2" oninput="update()"> <br>
+			
+			<div class="label">rotation:</div>
+			<input id="rotation" type="range" min="0.0" max="360.0" name="name" value="45.0" oninput="window.requestAnimationFrame(render)"> <br>
+			
+			<div class="label">line length:</div>
+			<input id="linelength" type="range" min="1" max="1000.0" name="name" value="100" oninput="window.requestAnimationFrame(render)"> <br>
+			
+			<div class="label">line width:</div>
+			<input id="linewidth" type="range" min="0.1" max="100.0" name="name" value="1" oninput="window.requestAnimationFrame(render)"> <br>
+			
+			<div id="productions"></div>
+			<button type="button" onclick="addProductionField()">add production</button>
+
+			
+			
+			
+	</main>
+	<div id="rendercontainer"></div>
+	
+	<script src="../lindenmayer.js"></script>
+	<script src="../third_party_libraries/three.min.js"></script>
+	<script src="../third_party_libraries/TrackballControls.js"></script>
+	
+	<script type="text/javascript">
+	
+	var axiomInput = document.getElementById('axiom');
+	var rotationInput = document.getElementById('rotation');
+	var iterationInput = document.getElementById('iterations');
+	var lineLengthInput = document.getElementById('linelength');
+	var lineWidthInput = document.getElementById('linewidth');
+	var productionList = document.getElementById('productions');
+	var rendercontainer = document.getElementById('rendercontainer');
+	var rotation;
+	var lsystem;
+	var bbox;
+	
+	// Init three.js stuff
+	var camera, controls, scene, renderer, currentModel, fullModel;
+	var stack = [];
+	var X = new THREE.Vector3(1, 0, 0);
+	var Y = new THREE.Vector3(0, 1, 0);
+	var Z = new THREE.Vector3(0, 0, 1);
+	
+	function init() {
+		renderer = new THREE.WebGLRenderer({ alpha: true });
+		renderer.setSize(750, 750);
+		renderer.setClearColor( 0xffffff, 0);
+		rendercontainer.appendChild(renderer.domElement);
+		
+		console.log('init');
+		scene = new THREE.Scene();
+		
+		
+		let directionalLight = new THREE.DirectionalLight( 0xeefecb, 1.0 );
+		directionalLight.position.set( 0, 1, 0 );
+		scene.add( directionalLight );
+		
+		camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+		camera.position.set(1, 1, 1);
+		
+		controls = new THREE.TrackballControls(camera, rendercontainer);
+		controls.rotateSpeed = 1.0;
+		controls.zoomSpeed = 1.2;
+		controls.panSpeed = 0.8;
+		controls.noZoom = false;
+		controls.noPan = false;
+		controls.staticMoving = true;
+		controls.dynamicDampingFactor = 0.3;
+		controls.keys = [65, 83, 68];
+		controls.addEventListener( 'change', render );
+
+		fullModel = new THREE.Object3D();
+		scene.add(fullModel);
+		clearCanvas();
+
+		// Init L-System stuff
+		// Only define drawing function now. Productions get set by the user via UI.
+		lsystem = new LSystem({
+			finals: {
+				'F': pushSegment,
+				'+': () => { currentModel.rotation.y += ((Math.PI / 180) * angle) },
+				'-': () => { currentModel.rotation.y += ((Math.PI / 180) * -angle) },
+				'&': () => { currentModel.rotation.z += ((Math.PI / 180) * angle) },
+				'^': () => { currentModel.rotation.z += ((Math.PI / 180) * -angle) },
+				'\\': () =>{ currentModel.rotation.x += ((Math.PI / 180) * angle) },
+				'<': () => { currentModel.rotation.x += ((Math.PI / 180) * angle) },
+				'/': () => { currentModel.rotation.x += ((Math.PI / 180) * -angle) },
+				'>': () => { currentModel.rotation.x += ((Math.PI / 180) * -angle) },
+				'|': () => { currentModel.rotation.y += ((Math.PI / 180) * 180) },
+				'[': () => { stack.push(currentModel.clone()) },
+				']': () => { currentModel = stack.pop() }
+			}
+		});
+		
+		
+		// Initially add Koch-Flake/Curve for demonstration
+		addProductionField();
+		axiomInput.value = 'F++F++F++F';
+		productionList.childNodes[0].childNodes[0].value = 'F';
+		productionList.childNodes[0].childNodes[1].value = 'F-F++F-F';
+		initWorker();
+		update();
+		animate();
+		
+	}
+	
+	function animate() {
+		requestAnimationFrame(animate);
+		controls.update();
+	}
+	
+	function clearCanvas() {
+		for( var i = fullModel.children.length - 1; i >= 0; i--) {
+			fullModel.remove(fullModel.children[i]);
+		}
+		scene.remove(fullModel);
+		fullModel = new THREE.Object3D();
+		scene.add(fullModel);
+	}
+
+	function render() {
+		
+		// IDEA: Maybe don't completely clear everything but update the parts that need change
+		//
+		clearCanvas();
+		
+		// Read in necessary values.
+		lineLength = lineLengthInput.value / 1000;
+		lineWidth = lineWidthInput.value / 100;
+		angle = rotationInput.value;
+		
+		let geometry = new THREE.CylinderBufferGeometry(lineWidth, lineWidth, lineLength, 8);
+		geometry.rotateZ((Math.PI / 180) * 90);
+		geometry.translate( -(lineLength/2), 0, 0 );
+		let material = new THREE.MeshLambertMaterial({
+			color: 0xfee47e
+		});
+		currentModel = new THREE.Mesh( geometry, material );
+
+		lsystem.final();
+		renderer.render(scene, camera);
+	}
+	
+	function pushSegment() {
+		let newSegment = currentModel.clone();
+		fullModel.add(newSegment);
+		currentModel.translateX(-(lineLength));
+		newSegment.matrixAutoUpdate = false;
+		newSegment.updateMatrix();
+	}
+	
+	function addProductionField() {
+		var prodFrom = document.createElement('input');
+		var prodTo = document.createElement('input');
+		var prodEval = document.createElement('input');
+		var prodRemove = document.createElement('button');
+		var prodContainer = document.createElement('div');
+		prodContainer.className = "production";
+		prodFrom.type = prodTo.type = 'text';
+		prodFrom.style.width = '2em';
+		prodRemove.type = 'button';
+		prodRemove.innerHTML = 'x';
+		prodRemove.style.width = '1em';
+		prodEval.type = 'checkbox';
+		prodEval.id = 'evalStringCheckbox';
+		
+		prodRemove.onclick = function() {
+			removeProductionField(prodContainer)
+		}
+		
+		prodContainer.appendChild(prodFrom);
+		prodContainer.appendChild(prodTo);
+		prodContainer.appendChild(prodEval);
+		prodContainer.appendChild(prodRemove);
+		
+		productionList.appendChild(prodContainer);
+	}
+	
+	function removeProductionField(production) {
+		productionList.removeChild(production);
+		update();
+	}
+	
+	function update() {
+
+		// gather info from text fields
+		var params = {
+			axiom: 		axiomInput.value,
+			rotation: rotationInput.value,
+			productions: [],
+			iterations: iterationInput.value
+		}
+		
+		for (var i = 0; i < productionList.childNodes.length; i++) {
+			let prod = productionList.childNodes[i];
+				params.productions.push({
+					parsejs: prod.childNodes[2].checked,
+					from: prod.childNodes[0].value,
+					to: prod.childNodes[1].value,
+				})
+		}
+		
+		
+		if(Date.now() - worker.startTime > 1000 ) {
+			// if we got user input, but worker is running for over a second
+			// terminate old worker and start new one.
+			worker.terminate();
+			initWorker();
+		}
+		// post params to worker
+		worker.startTime = Date.now();
+		worker.postMessage(params);
+	}
+	
+	function initWorker() {
+		worker = new Worker("worker.js");
+		worker.onmessage = onWorkerUpdate;
+	}
+	
+	function onWorkerUpdate(e) {
+		console.log('onworker update');
+		lsystem.setProductions(e.data.initial.productions);
+		lsystem.setAxiom(e.data.result);
+		window.requestAnimationFrame(render);
+	}
+	
+	init();
+	
+	</script>
+</body>
+</html>
