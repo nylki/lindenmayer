@@ -11,7 +11,8 @@ I will remove this warning when I consider this library stable.**
 
 ## Examples
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
--  [Interactive L-System builder](http://nylki.github.io/lindenmayer/examples/webworker)
+-  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
+-  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
 
 ## Basic Usage
 
