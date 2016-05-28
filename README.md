@@ -126,7 +126,7 @@ lsys.setProduction('B', 'CB')
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
-A major feature of this library is the possibility to use functions as productions, which is especially useful for stochasic L-Systems:
+A major feature of this library is the possibility to use functions as productions, which is especially useful for stochastic L-Systems:
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
