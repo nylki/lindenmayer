@@ -3,8 +3,8 @@ let chaiAsPromised = require('chai-as-promised');
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let lsys = require('../dist/lindenmayer');
-let test = new lsys.LSystem({
+let LSystem = require('../dist/lindenmayer');
+let test = new LSystem({
   axiom: 'F++F++F',
   productions: {
     'F': 'F-F++F-F'
@@ -14,7 +14,7 @@ test.transformClassicParametricAxiom('A (1, 2.5, 1234)  B(2, 3, 5)');
 describe('Correct behavior of L-Systems', function() {
 
   it('should generate the string for the Koch-curve', function() {
-    let koch = new lsys.LSystem({
+    let koch = new LSystem({
       axiom: 'F++F++F',
       productions: {
         'F': 'F-F++F-F'
@@ -34,7 +34,7 @@ describe('Correct behavior of L-Systems', function() {
 
 
   it('should execute final functions to draw eg. visualizations.', function() {
-    let vizsys = new lsys.LSystem({
+    let vizsys = new LSystem({
       axiom: 'A---',
       productions: {
         'A': 'AARA-BB-B',
@@ -58,7 +58,7 @@ describe('Correct behavior of L-Systems', function() {
   });
 
   it('Final functions must be functions. Should throw an error on any other type.', function() {
-    let vizsys = new lsys.LSystem({
+    let vizsys = new LSystem({
       axiom:'A',
       productions: {'A': 'Z'},
       finals: {'Z': 'A_STRING'}
@@ -91,56 +91,56 @@ describe('Correct behavior of L-Systems', function() {
 
   it('Helper functions for context sensitive productions should work properly. Especially with branches.', function() {
 
-    let cs_lsys = new lsys.LSystem({
+    let cs_LSystem = new LSystem({
       axiom: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: {
-        'C': ({index, axiom}) => (cs_lsys.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C'
+        'C': ({index, axiom}) => (cs_LSystem.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C'
       },
       branchSymbols: '[]',
       ignoredSymbols: '+-/'
     });
 
-    expect(cs_lsys.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G');
+    expect(cs_LSystem.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G');
 
   });
 
   it('Context sensitive L-System should work inside explicitly wanted branches', function() {
     // this example is taken from ABOP S. 32
-    let cs_lsys3 = new lsys.LSystem({
+    let cs_LSystem3 = new LSystem({
       axiom: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {
         'S': ({index, axiom}) =>
         (
-          cs_lsys3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}) &&
-          cs_lsys3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
+          cs_LSystem3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}) &&
+          cs_LSystem3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
         ) ? 'Z' : 'S'
       }
     });
-    expect(cs_lsys3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+    expect(cs_LSystem3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
 
 
-    let cs_lsys4 = new lsys.LSystem({
+    let cs_LSystem4 = new LSystem({
       axiom: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: {
         'H': ({index, axiom}) =>  (
-          cs_lsys4.match({direction: 'right', match: 'I[K]L', index, branchSymbols: '[]'}))
+          cs_LSystem4.match({direction: 'right', match: 'I[K]L', index, branchSymbols: '[]'}))
           ? 'Z' : 'H'
         }
 
       })
       // I[K]L should not apply to I[JK]L
-      expect(cs_lsys4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]');
+      expect(cs_LSystem4.iterate()).to.not.equal('ABC[DE][FG[ZI[JK]L]MNO]');
 
 
-      let cs_lsys5 = new lsys.LSystem({
+      let cs_LSystem5 = new LSystem({
         axiom: 'S][ED]CBA',
         productions: {
-          'S': ({index}) =>  ( cs_lsys5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S'
+          'S': ({index}) =>  ( cs_LSystem5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S'
         }
 
       });
       // as required by ABOP S. 32 (reversed string)
-      expect(cs_lsys5.iterate()).to.equal('Z][ED]CBA');
+      expect(cs_LSystem5.iterate()).to.equal('Z][ED]CBA');
 
     });
 
@@ -148,48 +148,48 @@ describe('Correct behavior of L-Systems', function() {
 
 
     it('Context sensitive L-System helper function match() should work in L-Systems that don\'t use branches/brackets.', function() {
-      let cs_lsys6 = new lsys.LSystem({
+      let cs_LSystem6 = new LSystem({
         axiom: 'A+++C-DE-+F&GH++-',
         productions: {
           'C': ({index}) =>
-          (cs_lsys6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
+          (cs_LSystem6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
 
       }
     });
-    expect(cs_lsys6.iterate()).to.equal('A+++Z-DE-+F&GH++-');
+    expect(cs_LSystem6.iterate()).to.equal('A+++Z-DE-+F&GH++-');
   });
 
 
 
 
   it('Classic context sensitive syntax should work.', function() {
-    let cs_lsys7 = new lsys.LSystem({
+    let cs_LSystem7 = new LSystem({
       axiom: 'A[X]BC',
       productions: {'A<B>C': 'Z'}
     });
 
-    expect(cs_lsys7.iterate()).to.equal('A[X]ZC');
+    expect(cs_LSystem7.iterate()).to.equal('A[X]ZC');
   });
 
   it('Left side, classic CS should work.', function() {
-    let cs_lsys8 = new lsys.LSystem({
+    let cs_LSystem8 = new LSystem({
       axiom: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {'BC<S': 'Z'}
     });
-    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+    expect(cs_LSystem8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
   });
 
   it('right side, classic CS should work.', function() {
-    let cs_lsys8 = new lsys.LSystem({
+    let cs_LSystem8 = new LSystem({
       axiom: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {'S>G[H]M': 'Z'}
     });
-    expect(cs_lsys8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+    expect(cs_LSystem8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
   });
 
 
   it('Custom parametric L-Systems (that dont use `params`) should work.', function() {
-    let custom_para_lsys1 = new lsys.LSystem({
+    let custom_para_LSystem1 = new LSystem({
       axiom: [
         {symbol: 'A', x:1, y:0.5},
         {symbol: 'B', x:0, y:5},
@@ -203,12 +203,12 @@ describe('Correct behavior of L-Systems', function() {
       }
     });
 
-    custom_para_lsys1.iterate();
-    expect(custom_para_lsys1.getString()).to.equal('ZZZC');
+    custom_para_LSystem1.iterate();
+    expect(custom_para_LSystem1.getString()).to.equal('ZZZC');
   });
 
   it('Basic (normalized) parametric L-System structure should ge parsed.', function() {
-    let para_lsys1 = new lsys.LSystem({
+    let para_LSystem1 = new LSystem({
       axiom: [
         {symbol: 'A'},
         {symbol: 'B'},
@@ -224,15 +224,15 @@ describe('Correct behavior of L-Systems', function() {
       }
     });
 
-    para_lsys1.iterate();
-    expect(para_lsys1.getString()).to.equal('ABZZEFG');
+    para_LSystem1.iterate();
+    expect(para_LSystem1.getString()).to.equal('ABZZEFG');
   });
   
   // When using functions, all additional info should be usable (index, part, currentAxiom, params)
 
   // it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {
   //
-  //   let classicParamLsys = new lsys.LSystem({
+  //   let classicParamLSystem = new LSystem({
   //     claasicParametricSyntax: true,
   //     axiom: 'A(1,2)  B(2, 3, 5)',
   //     productions: {
@@ -241,12 +241,12 @@ describe('Correct behavior of L-Systems', function() {
   //     }
   //   })
   //
-  //   classicParamLsys.iterate(1)
-  //   expect(classicParamLsys.getString()).to.equal('ABZZEFG')
+  //   classicParamLSystem.iterate(1)
+  //   expect(classicParamLSystem.getString()).to.equal('ABZZEFG')
   // })
 
   // it('Parametric L-Systems should work. (ABOP, p.42)', function() {
-  //   let para_lsys2 = new lsys.LSystem({
+  //   let para_LSystem2 = new LSystem({
   //     axiom: [
   //       {symbol: 'B', params: [2]},
   //       {symbol: 'A', params: [4, 4]}
@@ -261,12 +261,12 @@ describe('Correct behavior of L-Systems', function() {
   //     ]
   //   })
   //
-  //   para_lsys2.iterate()
-  //   expect(para_lsys2.getString()).to.equal('BBA')
+  //   para_LSystem2.iterate()
+  //   expect(para_LSystem2.getString()).to.equal('BBA')
   // })
 
   // it('Parametric L-Systems should work.', function() {
-  //   let para_lsys1 = new lsys.LSystem({
+  //   let para_LSystem1 = new LSystem({
   //     axiom: [
   //       {symbol: 'A'},
   //       {symbol: 'B'},
@@ -281,24 +281,24 @@ describe('Correct behavior of L-Systems', function() {
   //     ]
   //   })
   //
-  //   para_lsys1.iterate()
-  //   expect(para_lsys1.getString()).to.equal('ABZDEFG')
+  //   para_LSystem1.iterate()
+  //   expect(para_LSystem1.getString()).to.equal('ABZDEFG')
   // })
   //
   // it('Classic parametric L-Systems should work.', function() {
-  //   let para_lsys3 = new lsys.LSystem({
+  //   let para_LSystem3 = new LSystem({
   //     axiom: '',
   //     productions: [
   //       ['C', {symbol: 'Z'}]
   //     ]
   //   })
   //
-  //   para_lsys1.iterate()
-  //   expect(para_lsys1.getString()).to.equal('ABZDEFG')
+  //   para_LSystem1.iterate()
+  //   expect(para_LSystem1.getString()).to.equal('ABZDEFG')
   // })
 
   it('should handle UTF8', function() {
-    let test = new lsys.LSystem({
+    let test = new LSystem({
       axiom:'⚣⚤●',
       productions: {
         '⚣': '♂♂',

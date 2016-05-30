@@ -386,9 +386,8 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 
 // Try to export to be used via require in NodeJS.
 try {
-	exports.LSystem = LSystem;
-	exports.matchRight = matchRight;
-	exports.matchLeft = matchLeft;
+	module.exports = LSystem;
+	// module.exports.matchRight = matchRight;
+	// module.exports.matchLeft = matchLeft;
 } catch (err) {
-	
 }
