@@ -5,14 +5,26 @@ Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library usi
 The library can also parse (to some extend) classic L-System syntax as defined in Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. (for example branches: `[]` or context sensitive productions: `<>`).
 Most stuff should work. I am currently working on parametric L-System support.
 
-**Right now it's under heavy development, so features and names are subject to change.
-I will remove this warning when I consider this library stable.**
+**Right now it's under heavy development, so names etc. are subject to change.
+I will remove this warning when I consider this library stable and then publish it as a npm package as well.**
 **Better docs and more examples are coming soon** :)
 
 ## Examples
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
 -  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
+
+## Install
+Copy the library from `lindenmayer/dist/` to your preferred location and then use a script tag, for example:
+
+```.html
+<script src="mylibs/lindenmayer.js"></script>
+```
+
+Or if you are working with nodejs:
+```
+let LSystem = require('lindenmayer');
+```
 
 ## Basic Usage
 
@@ -31,25 +43,25 @@ console.log(result)
 There are multiple ways to set productions, including javascript functions:
 
 ```.js
-let lsys = new LSystem()
-lsys.setAxiom('ABC')
+let myLsys = new LSystem()
+myLsys.setAxiom('ABC')
 
 // simple production, using ES6 arrow function
-lsys.setProduction('B', () => 'F+F')
+myLsys.setProduction('B', () => 'F+F')
 
 // or same with just the String, both works
-lsys.setProduction('B', 'F+F')
+myLsys.setProduction('B', 'F+F')
 
 // simple stochastic production, producing `F` with 10% probability, `B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
 // simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
-lsys.setProduction('B',
+myLsys.setProduction('B',
   ({index, currentAxiom}) => (currentAxiom[index-1] === 'A') && (currentAxiom[index+1] === 'C') ? 'Z' : 'B'
 )
 
 // or if you prefer the concise *classic* syntax for context sensitive productions:
-lsys.setProduction('A<B>C', 'Z')
+myLsys.setProduction('A<B>C', 'Z')
 ```
 
 ## initializing
