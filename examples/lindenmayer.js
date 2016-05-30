@@ -370,6 +370,4 @@ try {
 	module.exports = LSystem;
 	// module.exports.matchRight = matchRight;
 	// module.exports.matchLeft = matchLeft;
-} catch (err) {
-	console.log(err);
-}
+} catch (err) {}
