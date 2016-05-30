@@ -5,14 +5,26 @@ Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library usi
 The library can also parse (to some extend) classic L-System syntax as defined in Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. (for example branches: `[]` or context sensitive productions: `<>`).
 Most stuff should work. I am currently working on parametric L-System support.
 
-**Right now it's under heavy development, so features and names are subject to change.
-I will remove this warning when I consider this library stable.**
+**Right now it's under heavy development, so names etc. are subject to change.
+I will remove this warning when I consider this library stable and then publish it as a npm package as well.**
 **Better docs and more examples are coming soon** :)
 
 ## Examples
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
 -  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
+
+## Install
+Copy the library from `lindenmayer/dist/` to your preferred location and then use a script tag, for example:
+
+```.html
+<script src="mylibs/lindenmayer.js"></script>
+```
+
+Or if you are working with nodejs:
+```
+let LSystem = require('lindenmayer');
+```
 
 ## Basic Usage
 
