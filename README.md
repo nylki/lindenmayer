@@ -41,6 +41,7 @@ Or in your `index.html`:
 
 
 ## Basic Usage
+You can also take a look at some of the [examples](https://github.com/nylki/lindenmayer/tree/master/examples), to get an idea how to use this library.
 
 ```.js
 // Initializing a L-System that produces the Koch-curve
