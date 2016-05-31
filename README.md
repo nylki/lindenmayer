@@ -81,7 +81,7 @@ myLsys.setProduction('A<B>C', 'Z')
 ```
 
 # Documentation
-## initializing
+## Initialization
 
 You can init a L-System object with the `new` keyword:
 ```.js
@@ -120,7 +120,7 @@ lsys.setAxiom('F-F-F')
 ```
 
 
-## setting productions
+## Setting Productions
 Productions define how the symbols of an axiom get transformed. For example, if you want all `A`s to be replaced by `B` in your axiom, you could construct the following production:
 ```.js
 let lsystem = new LSystem({
@@ -192,7 +192,7 @@ lsys.setProduction('F', ({index, part}) => index === 2  ? 'X' : part);
 
 
 
-### iterating
+### Applying Productions
 Now that we have set up our L-System set, we want to generate new axioms with `iterate()`:
 
 ```.js
