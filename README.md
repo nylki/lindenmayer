@@ -101,7 +101,7 @@ advanced options (see [API docs](not yet created) for details):
 
 Most often you will find yourself only setting `axiom`, `productions` and `finals`.
 
-## setting an axiom
+## Setting an Axiom
 As seen in the first section you can simply set your axiom when you init your L-System.
 
 ```.js
