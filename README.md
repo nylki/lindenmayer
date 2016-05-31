@@ -80,6 +80,7 @@ myLsys.setProduction('B',
 // or if you prefer the concise *classic* syntax for context sensitive productions:
 myLsys.setProduction('A<B>C', 'Z')
 ```
+
 # Documentation
 ## initializing
 
