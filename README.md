@@ -13,6 +13,7 @@ I will remove this warning when I consider this library stable and then publish 
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
 -  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
+-  [more examples](https://github.com/nylki/lindenmayer/tree/master/examples) in the ithub repository.
 
 ## Setup
 ### Direct download
@@ -41,7 +42,6 @@ Or in your `index.html`:
 
 
 ## Basic Usage
-You can also take a look at some of the [examples](https://github.com/nylki/lindenmayer/tree/master/examples), to get an idea how to use this library.
 
 ```.js
 // Initializing a L-System that produces the Koch-curve
