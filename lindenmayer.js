@@ -43,37 +43,40 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 			// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
 			for (let condition in newProductions) {
 			  if( newProductions.hasOwnProperty( condition ) ) {
-					this.setProduction(condition, newProductions[condition])
+					this.setProduction(condition, newProductions[condition]);
 			  }
 			}
-	}
+	};
 
 	this.setFinal = function (symbol, final) {
-		let newFinal = [symbol, final]
+		let newFinal = [symbol, final];
 		if(newFinal === undefined) {
-			throw	new Error('no final specified.')
+			throw	new Error('no final specified.');
 		}
-		this.finals.set(newFinal[0], newFinal[1])
-	}
+		this.finals.set(newFinal[0], newFinal[1]);
+	};
 
 	// set multiple finals from name:value Object
 	this.setFinals = function (newFinals) {
-		if(newFinals === undefined) throw new Error('no finals specified.')
-		this.finals = new Map()
+		if(newFinals === undefined) throw new Error('no finals specified.');
+		this.finals = new Map();
 			for (let symbol in newFinals) {
 			  if( newFinals.hasOwnProperty( symbol ) ) {
-					this.setFinal(symbol, newFinals[symbol])
+					this.setFinal(symbol, newFinals[symbol]);
 			  }
 			}
-	}
+	};
 
 
 	// TODO: implement it!
 	this.transformClassicParametricProduction = function (p) {
-		return p
-	}
+		return p;
+	};
 
-	this.testClassicParametricSyntax = (axiom) => (/\(.+\)/).test(axiom)
+	// TODO: Scaffold classic parametric and context sensitive stuff out of main file
+	// And simply require it here, eg:
+	// this.testClassicParametricSyntax = require(classicSyntax.testParametric)??
+	this.testClassicParametricSyntax = (axiom) => (/\(.+\)/).test(axiom);
 
 	// transforms things like 'A(1,2,5)B(2.5)' to
 	// [ {symbol: 'A', params: [1,2,5]}, {symbol: 'B', params:[25]} ]
@@ -381,6 +384,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 	if (finals) this.setFinals(finals);
 
 	this.iterationCount = 0;
+	return this;
 }
 
 

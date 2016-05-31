@@ -363,11 +363,12 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 	if (finals) this.setFinals(finals);
 
 	this.iterationCount = 0;
+	return this;
 }
 
 // Try to export to be used via require in NodeJS.
-try {
+if (typeof module !== 'undefined') {
 	module.exports = LSystem;
 	// module.exports.matchRight = matchRight;
 	// module.exports.matchLeft = matchLeft;
-} catch (err) {}
+}

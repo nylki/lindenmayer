@@ -46,9 +46,7 @@
 				'[': () => { ctx.save() },
 				']': () => { ctx.restore() }
 			}
-		})
-		
-		tree.iterate(iterations);
+		}).iterate(iterations);
 		textresult.value = tree.getString();
 		tree.final();
 	</script>

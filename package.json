@@ -15,10 +15,16 @@
   },
   "dependencies": {},
   "name": "lindenmayer",
-  "description": "Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
+  "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
   "version": "1.0.0",
   "main": "dist/lindenmayer.js",
+  "files": [
+    "dist/lindenmayer.js",
+    "README.md",
+    "LICENSE"
+  ],
   "directories": {
+    "dist": "dist",
     "example": "examples",
     "test": "test"
   },
@@ -28,10 +34,9 @@
   },
   "keywords": [
     "L-System",
-    "L-Systems",
+    "LSystem",
     "turtle",
     "graphics",
-    "fractals",
     "fractal"
   ],
   "author": "Tom Brewe <info@nylkiway.net>",
