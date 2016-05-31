@@ -40,7 +40,7 @@ Or in your `index.html`:
 ```
 
 
-## Basic Usage
+## Getting Started
 
 ```.js
 // Initializing a L-System that produces the Koch-curve
@@ -80,7 +80,7 @@ myLsys.setProduction('B',
 // or if you prefer the concise *classic* syntax for context sensitive productions:
 myLsys.setProduction('A<B>C', 'Z')
 ```
-
+# Documentation
 ## initializing
 
 You can init a L-System object with the `new` keyword:
