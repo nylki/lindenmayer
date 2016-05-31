@@ -57,19 +57,22 @@ console.log(result)
 There are multiple ways to set productions, including javascript functions:
 
 ```.js
-let myLsys = new LSystem()
-myLsys.setAxiom('ABC')
+let myLsys = new LSystem({
+  axiom: 'ABC',
+  /* Directly when initializing a new L-System object: */
+  productions: { 'B': 'BB' }
+})
 
-// simple production, using ES6 arrow function
-myLsys.setProduction('B', () => 'F+F')
-
-// or same with just the String, both works
+// After initialization:
 myLsys.setProduction('B', 'F+F')
 
-// simple stochastic production, producing `F` with 10% probability, `B` with 90%
+// You can also use ES6 arrow functions (same result as above):
+myLsys.setProduction('B', () => 'F+F')
+
+// Simple stochastic production, producing `F` with 10% probability, `B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
-// simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
+// Simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
 myLsys.setProduction('B',
   ({index, currentAxiom}) => (currentAxiom[index-1] === 'A') && (currentAxiom[index+1] === 'C') ? 'Z' : 'B'
 )
