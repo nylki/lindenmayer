@@ -5,8 +5,7 @@ Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library usi
 The library can also parse (to some extend) classic L-System syntax as defined in Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. (for example branches: `[]` or context sensitive productions: `<>`).
 Most stuff should work. I am currently working on parametric L-System support.
 
-**Right now it's under heavy development, so names etc. are subject to change.
-I will remove this warning when I consider this library stable and then publish it as a npm package as well.**
+*Please note, that this library is still under heavy development, so names etc. are subject to change.**
 **Better docs and more examples are coming soon** :)
 
 ## Examples
@@ -15,18 +14,32 @@ I will remove this warning when I consider this library stable and then publish 
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
 
 ## Install
-Copy the library from `lindenmayer/dist/` to your preferred location and then use a script tag, for example:
+### Direct download
+- Download `lindenmayer.js` from the [latest release](https://github.com/nylki/lindenmayer/releases).
+- Then in your `index.html`:
 
 ```.html
-<script src="mylibs/lindenmayer.js"></script>
+<script src="lindenmayer.js"></script>
+```
+### npm
+```.sh
+npm install --save lindenmayer
 ```
 
-Or if you are working with nodejs:
-```
-let LSystem = require('lindenmayer');
+Then in your Node.js/browserify/… script:
+
+```.js
+var LSystem = require('lindenmayer');
 ```
 
-## Basic Usage
+Or in your `index.html`:
+
+```.html
+<script src="node_modules/lindenmayer/dist/lindenmayer.js"></script>
+```
+
+
+## Quick Intro
 
 ```.js
 // Initializing a L-System that produces the Koch-curve
@@ -43,19 +56,22 @@ console.log(result)
 There are multiple ways to set productions, including javascript functions:
 
 ```.js
-let myLsys = new LSystem()
-myLsys.setAxiom('ABC')
+let myLsys = new LSystem({
+  axiom: 'ABC',
+  /* Directly when initializing a new L-System object: */
+  productions: { 'B': 'BB' }
+})
 
-// simple production, using ES6 arrow function
-myLsys.setProduction('B', () => 'F+F')
-
-// or same with just the String, both works
+// After initialization:
 myLsys.setProduction('B', 'F+F')
 
-// simple stochastic production, producing `F` with 10% probability, `B` with 90%
+// You can also use ES6 arrow functions (same result as above):
+myLsys.setProduction('B', () => 'F+F')
+
+// Simple stochastic production, producing `F` with 10% probability, `B` with 90%
 myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
-// simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
+// Simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
 myLsys.setProduction('B',
   ({index, currentAxiom}) => (currentAxiom[index-1] === 'A') && (currentAxiom[index+1] === 'C') ? 'Z' : 'B'
 )
@@ -64,7 +80,8 @@ myLsys.setProduction('B',
 myLsys.setProduction('A<B>C', 'Z')
 ```
 
-## initializing
+# Documentation
+## Initialization
 
 You can init a L-System object with the `new` keyword:
 ```.js
@@ -84,7 +101,7 @@ advanced options (see [API docs](not yet created) for details):
 
 Most often you will find yourself only setting `axiom`, `productions` and `finals`.
 
-## setting an axiom
+## Setting an Axiom
 As seen in the first section you can simply set your axiom when you init your L-System.
 
 ```.js
@@ -103,7 +120,7 @@ lsys.setAxiom('F-F-F')
 ```
 
 
-## setting productions
+## Setting Productions
 Productions define how the symbols of an axiom get transformed. For example, if you want all `A`s to be replaced by `B` in your axiom, you could construct the following production:
 ```.js
 let lsystem = new LSystem({
@@ -175,7 +192,7 @@ lsys.setProduction('F', ({index, part}) => index === 2  ? 'X' : part);
 
 
 
-### iterating
+### Applying Productions
 Now that we have set up our L-System set, we want to generate new axioms with `iterate()`:
 
 ```.js
