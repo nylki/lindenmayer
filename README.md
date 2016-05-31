@@ -14,7 +14,7 @@ I will remove this warning when I consider this library stable and then publish 
 -  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
 
-## Setup
+## Install
 ### Direct download
 - Download `lindenmayer.js` from the [latest release](https://github.com/nylki/lindenmayer/releases).
 - Then in your `index.html`:
@@ -40,7 +40,7 @@ Or in your `index.html`:
 ```
 
 
-## Getting Started
+## Quick Intro
 
 ```.js
 // Initializing a L-System that produces the Koch-curve
