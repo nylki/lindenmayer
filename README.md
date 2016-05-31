@@ -16,13 +16,13 @@ I will remove this warning when I consider this library stable and then publish 
 
 ## Install
 - Download the [latest release](https://github.com/nylki/lindenmayer/releases).
-- Copy the library from `lindenmayer/dist/` to your preferred location and include it with script tag, for example:
+- Copy the library from `lindenmayer/dist/` to your preferred location and include it into your project with a script tag, for example:
 
 ```.html
 <script src="mylibs/lindenmayer.js"></script>
 ```
 -------------------------------------------------------------------------------
-Alternatively to downloading the release from github you can use [npm](https://www.npmjs.com/):
+Alternatively to the above method, you can use [npm](https://www.npmjs.com/) (recommended):
 
 ```.sh
 npm install --save lindenmayer
