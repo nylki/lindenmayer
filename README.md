@@ -15,16 +15,32 @@ I will remove this warning when I consider this library stable and then publish 
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
 
 ## Install
-Copy the library from `lindenmayer/dist/` to your preferred location and then use a script tag, for example:
+#### Script Tag
+- Download the [latest release](https://github.com/nylki/lindenmayer/releases).
+- Copy the library from `lindenmayer/dist/` to your preferred location and include it with script tag, for example:
 
 ```.html
 <script src="mylibs/lindenmayer.js"></script>
 ```
+#### NPM
+Or if you use **npm**:
 
-Or if you are working with nodejs:
+```.sh
+npm install --save lindenmayer
 ```
+
+Then require the library in your nodejs/browserify/... script.
+
+```.js
 let LSystem = require('lindenmayer');
 ```
+
+Or include it with a script tag:
+
+```.html
+<script src="node_modules/lindenmayer/dist/lindenmayer.js"></script>
+```
+
 
 ## Basic Usage
 
