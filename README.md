@@ -188,7 +188,7 @@ lsys.setProduction('F', ({index, part}) => index === 2  ? 'X' : part);
 **parameters**:
 - `index`: the index inside the axiom
 - `currentAxiom`: the current full axiom/word
-- `part`: the current part (symbol or object) the production is applied on. This is only useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
+- `part`: the current part (symbol or object) the production is applied on. This is especially useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
 
 
 
