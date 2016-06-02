@@ -62,10 +62,10 @@
 			<input id="axiom" type="text" name="name"> <br>
 			
 			<div class="label">iterations:</div>
-			<input id="iterations" type="range" min="1" max="12" name="name" value="2" oninput="update()"> <br>
+			<input id="iterations" type="range" min="1" max="10" name="name" value="1" oninput="update()"> <br>
 			
-			<div class="label">rotation:</div>
-			<input id="rotation" type="range" min="0.0" max="360.0" name="name" value="45.0" oninput="window.requestAnimationFrame(render)"> <br>
+			<div class="label">angle:</div>
+			<input id="angle" type="range" min="0.0" max="360.0" name="name" value="90.0" oninput="window.requestAnimationFrame(render)"> <br>
 			
 			<div class="label">line length:</div>
 			<input id="linelength" type="range" min="1" max="1000.0" name="name" value="100" oninput="window.requestAnimationFrame(render)"> <br>
@@ -87,22 +87,29 @@
 	<script type="text/javascript">
 	
 	var axiomInput = document.getElementById('axiom');
-	var rotationInput = document.getElementById('rotation');
+	var angleInput = document.getElementById('angle');
 	var iterationInput = document.getElementById('iterations');
 	var lineLengthInput = document.getElementById('linelength');
 	var lineWidthInput = document.getElementById('linewidth');
 	var productionList = document.getElementById('productions');
 	var rendercontainer = document.getElementById('rendercontainer');
-	var rotation;
+	var angle;
 	var lsystem;
 	var bbox;
 	
 	// Init three.js stuff
-	var camera, controls, scene, renderer, currentModel, fullModel;
+	var camera, controls, scene, renderer, currentSegment, fullModel;
 	var stack = [];
 	var X = new THREE.Vector3(1, 0, 0);
 	var Y = new THREE.Vector3(0, 1, 0);
 	var Z = new THREE.Vector3(0, 0, 1);
+	var xPosRotation = new THREE.Quaternion();
+	var xNegRotation = new THREE.Quaternion();
+	var yPosRotation = new THREE.Quaternion();
+	var yNegRotation = new THREE.Quaternion();
+	var zPosRotation = new THREE.Quaternion();
+	var zNegRotation = new THREE.Quaternion();
+	var yReverseRotation = new THREE.Quaternion();
 	
 	function init() {
 		renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -131,36 +138,35 @@
 		controls.dynamicDampingFactor = 0.3;
 		controls.keys = [65, 83, 68];
 		controls.addEventListener( 'change', render );
+		
+		resetCanvas();
 
-		fullModel = new THREE.Object3D();
-		scene.add(fullModel);
-		clearCanvas();
 
 		// Init L-System stuff
 		// Only define drawing function now. Productions get set by the user via UI.
 		lsystem = new LSystem({
 			finals: {
 				'F': pushSegment,
-				'+': () => { currentModel.rotation.y += ((Math.PI / 180) * angle) },
-				'-': () => { currentModel.rotation.y += ((Math.PI / 180) * -angle) },
-				'&': () => { currentModel.rotation.z += ((Math.PI / 180) * angle) },
-				'^': () => { currentModel.rotation.z += ((Math.PI / 180) * -angle) },
-				'\\': () =>{ currentModel.rotation.x += ((Math.PI / 180) * angle) },
-				'<': () => { currentModel.rotation.x += ((Math.PI / 180) * angle) },
-				'/': () => { currentModel.rotation.x += ((Math.PI / 180) * -angle) },
-				'>': () => { currentModel.rotation.x += ((Math.PI / 180) * -angle) },
-				'|': () => { currentModel.rotation.y += ((Math.PI / 180) * 180) },
-				'[': () => { stack.push(currentModel.clone()) },
-				']': () => { currentModel = stack.pop() }
+				'+': () => { currentSegment.quaternion.multiply(yPosRotation)},
+				'-': () => { currentSegment.quaternion.multiply(yNegRotation)},
+				'&': () => { currentSegment.quaternion.multiply(zNegRotation)},
+				'^': () => { currentSegment.quaternion.multiply(zPosRotation)},
+				'\\': () =>{ currentSegment.quaternion.multiply(xNegRotation)},
+				'<': () => { currentSegment.quaternion.multiply(xNegRotation)},
+				'/': () => { currentSegment.quaternion.multiply(xPosRotation)},
+				'>': () => { currentSegment.quaternion.multiply(xPosRotation)},
+				'|': () => { currentSegment.quaternion.multiply(yReverseRotation)},
+				'[': () => { stack.push(currentSegment.clone()) },
+				']': () => { currentSegment = stack.pop() }
 			}
 		});
 		
-		
+		console.log('hello');
 		// Initially add Koch-Flake/Curve for demonstration
 		addProductionField();
-		axiomInput.value = 'F++F++F++F';
-		productionList.childNodes[0].childNodes[0].value = 'F';
-		productionList.childNodes[0].childNodes[1].value = 'F-F++F-F';
+		axiomInput.value = 'X';
+		productionList.childNodes[0].childNodes[0].value = 'X';
+		productionList.childNodes[0].childNodes[1].value = '^<XfF^<XfFX-fF^>>XfFX&fF+>>XfFX-fF>X->';
 		initWorker();
 		update();
 		animate();
@@ -172,12 +178,36 @@
 		controls.update();
 	}
 	
-	function clearCanvas() {
-		for( var i = fullModel.children.length - 1; i >= 0; i--) {
-			fullModel.remove(fullModel.children[i]);
-		}
-		scene.remove(fullModel);
-		fullModel = new THREE.Object3D();
+	function resetCanvas() {
+		
+		lineLength = lineLengthInput.value / 1000;
+		lineWidth = lineWidthInput.value / 100;
+		
+		angle = angleInput.value;
+		xPosRotation.setFromAxisAngle( X, (Math.PI / 180) * angle );
+		xNegRotation.setFromAxisAngle( X, (Math.PI / 180) * -angle );
+		
+		yPosRotation.setFromAxisAngle( Y, (Math.PI / 180) * angle );
+		yNegRotation.setFromAxisAngle( Y, (Math.PI / 180) * -angle );
+		
+		zPosRotation.setFromAxisAngle( Z, (Math.PI / 180) * angle );
+		zNegRotation.setFromAxisAngle( Z, (Math.PI / 180) * -angle );
+		yReverseRotation.setFromAxisAngle( Z, (Math.PI / 180) * 180 );
+		
+		let geometry = new THREE.CylinderGeometry(lineWidth, lineWidth, lineLength, 6);
+		geometry.rotateZ((Math.PI / 180) * 90);
+		geometry.translate( -(lineLength/2), 0, 0 );
+		let material = new THREE.MeshLambertMaterial({
+			color: 0xfee47e
+		});
+
+		currentSegment = new THREE.Mesh( geometry );
+		
+		// for( var i = fullModel.children.length - 1; i >= 0; i--) {
+		// 	fullModel.remove(fullModel.children[i]);
+		// }
+		if(fullModel) scene.remove(fullModel);
+		fullModel = new THREE.Mesh(new THREE.Geometry(), material);
 		scene.add(fullModel);
 	}
 
@@ -185,29 +215,21 @@
 		
 		// IDEA: Maybe don't completely clear everything but update the parts that need change
 		//
-		clearCanvas();
-		
 		// Read in necessary values.
-		lineLength = lineLengthInput.value / 1000;
-		lineWidth = lineWidthInput.value / 100;
-		angle = rotationInput.value;
-		
-		let geometry = new THREE.CylinderBufferGeometry(lineWidth, lineWidth, lineLength, 8);
-		geometry.rotateZ((Math.PI / 180) * 90);
-		geometry.translate( -(lineLength/2), 0, 0 );
-		let material = new THREE.MeshLambertMaterial({
-			color: 0xfee47e
-		});
-		currentModel = new THREE.Mesh( geometry, material );
 
+		
+		resetCanvas();
+		
 		lsystem.final();
+		
 		renderer.render(scene, camera);
 	}
 	
 	function pushSegment() {
-		let newSegment = currentModel.clone();
-		fullModel.add(newSegment);
-		currentModel.translateX(-(lineLength));
+		let newSegment = currentSegment.clone();
+		newSegment.updateMatrix();
+		fullModel.geometry.merge(newSegment.geometry, newSegment.matrix);
+		currentSegment.translateX(-(lineLength));
 		newSegment.matrixAutoUpdate = false;
 		newSegment.updateMatrix();
 	}
@@ -244,11 +266,13 @@
 	}
 	
 	function update() {
+		
+
 
 		// gather info from text fields
 		var params = {
 			axiom: 		axiomInput.value,
-			rotation: rotationInput.value,
+			angle: angleInput.value,
 			productions: [],
 			iterations: iterationInput.value
 		}
@@ -284,6 +308,7 @@
 		lsystem.setAxiom(e.data.result);
 		window.requestAnimationFrame(render);
 	}
+
 	
 	init();
 	
