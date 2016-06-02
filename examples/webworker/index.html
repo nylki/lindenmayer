@@ -2,12 +2,10 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Basic Interactive L-Systems with web worker threads</title>
+	<title>Interactive L-Systems with 2D turtle graphic interpretation</title>
 	
 	<style media="screen">
-	.label {
-		/*min-width: 100px;*/
-	}
+
 	body {
 		background-color: rgb(238, 240, 211);
 		color: rgb(47, 79, 38);
@@ -60,20 +58,20 @@
 		<div class="inputcontainer">
 			
 			<div class="label">Axiom:</div>
-			<input id="axiom" type="text" name="name"> <br>
+			<input id="axiom" type="text"> <br>
 			
 			
 			<div class="label">iterations:</div>
-			<input id="iterations" type="range" min="1" max="12" name="name" value="2" oninput="update()"> <br>
+			<input id="iterations" type="range" min="1" max="12" value="2" oninput="update()"> <br>
 			
 			<div class="label">rotation:</div>
-			<input id="rotation" type="range" min="0.0" max="360.0" name="name" value="45.0" oninput="window.requestAnimationFrame(draw)"> <br>
+			<input id="rotation" type="range" min="0.0" max="360.0" value="45.0" oninput="window.requestAnimationFrame(draw)"> <br>
 			
 			<div class="label">line length:</div>
-			<input id="linelength" type="range" min="0.1" max="300.0" name="name" value="100.0" oninput="window.requestAnimationFrame(draw)"> <br>
+			<input id="linelength" type="range" min="0.1" max="300.0" value="100.0" oninput="window.requestAnimationFrame(draw)"> <br>
 			
 			<div class="label">line width:</div>
-			<input id="linewidth" type="range" min="0.1" max="50.0" name="name" value="1.0" oninput="window.requestAnimationFrame(draw)"> <br>
+			<input id="linewidth" type="range" min="0.1" max="50.0"  value="1.0" oninput="window.requestAnimationFrame(draw)"> <br>
 			
 			<div id="productions"></div>
 			<button type="button" onclick="addProductionField()">add production</button>
@@ -81,8 +79,6 @@
 		</div>
 	</main>
 <canvas id="canvas" width="1000" height="1000"></canvas>
-	
-	
 	
 	<script src="../lindenmayer.js"></script>
 	<script type="text/javascript">
