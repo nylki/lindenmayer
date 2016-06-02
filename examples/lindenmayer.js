@@ -38,7 +38,7 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 	// set multiple productions from name:value Object
 	this.setProductions = function (newProductions) {
 		if (newProductions === undefined) throw new Error('no production specified.');
-		this.productions = new Map();
+		this.clearProductions();
 
 		// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
 		for (let condition in newProductions) {
@@ -46,6 +46,10 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 				this.setProduction(condition, newProductions[condition]);
 			}
 		}
+	};
+
+	this.clearProductions = function () {
+		this.productions = new Map();
 	};
 
 	this.setFinal = function (symbol, final) {
@@ -72,6 +76,9 @@ function LSystem({ axiom, productions, finals, branchSymbols, ignoredSymbols, cl
 		return p;
 	};
 
+	// TODO: Scaffold classic parametric and context sensitive stuff out of main file
+	// And simply require it here, eg:
+	// this.testClassicParametricSyntax = require(classicSyntax.testParametric)??
 	this.testClassicParametricSyntax = axiom => /\(.+\)/.test(axiom);
 
 	// transforms things like 'A(1,2,5)B(2.5)' to
