@@ -49,6 +49,8 @@
 	
 </head>
 <body>
+
+	
 	<a href="https://github.com/nylki/lindenmayer"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 	<main>
 		<h1> Interactive L-System builder </h1>
@@ -106,16 +108,20 @@
 	var zPosRotation = new THREE.Quaternion();
 	var zNegRotation = new THREE.Quaternion();
 	var yReverseRotation = new THREE.Quaternion();
+	var colors = [0x8c651b, 0x7d9322, 0x3d9322];
+	var colorIndex = 0;
+	
+	var material = new THREE.MeshLambertMaterial({
+		shading: THREE.SmoothShading,
+		vertexColors: THREE.FaceColors
+	});
 	
 	function init() {
 		renderer = new THREE.WebGLRenderer({ alpha: true });
 		renderer.setSize(750, 750);
-		renderer.setClearColor( 0xffffff, 0);
 		rendercontainer.appendChild(renderer.domElement);
-		
-		console.log('init');
+
 		scene = new THREE.Scene();
-		
 		
 		let directionalLight = new THREE.DirectionalLight( 0xeefecb, 1.0 );
 		directionalLight.position.set( 0, 1, 0 );
@@ -149,6 +155,22 @@
 				'/': () => { currentSegment.quaternion.multiply(xPosRotation)},
 				'>': () => { currentSegment.quaternion.multiply(xPosRotation)},
 				'|': () => { currentSegment.quaternion.multiply(yReverseRotation)},
+				'!': () => {
+					currentSegment.scale.set(currentSegment.scale.x, currentSegment.scale.y + 0.2, currentSegment.scale.z + 0.2);
+					colorIndex = Math.min(colors.length - 1, colorIndex + 1);
+					for (let face of currentSegment.geometry.faces) {
+						face.color.setHex(colors[colorIndex]);
+					}
+					currentSegment.geometry.colorsNeedUpdate = true;
+				},
+				'\'': () => {
+					currentSegment.scale.set(currentSegment.scale.x, currentSegment.scale.y - 0.2, currentSegment.scale.z - 0.2);
+					colorIndex = Math.max(0, colorIndex - 1);
+					for (let face of currentSegment.geometry.faces) {
+						face.color.setHex(colors[colorIndex]);
+					}
+					currentSegment.geometry.colorsNeedUpdate = true;
+				},
 				'[': () => { stack.push(currentSegment.clone()) },
 				']': () => { currentSegment = stack.pop() }
 			}
@@ -181,11 +203,11 @@
 	
 	function pushSegment() {
 		let newSegment = currentSegment.clone();
+		newSegment.matrixAutoUpdate = false;
 		newSegment.updateMatrix();
 		fullModel.geometry.merge(newSegment.geometry, newSegment.matrix);
 		currentSegment.translateX(-(lineLength));
-		newSegment.matrixAutoUpdate = false;
-		newSegment.updateMatrix();
+		
 	}
 	
 	function addProductionField() {
@@ -224,10 +246,12 @@
 	// 2. Construct 3D object based on those paramters and the current (already processed) L-System and its final functions
 	// 3. Render to canvas.
 	function updateTurtleGraphics() {
+		
+		colorIndex = 0; // Reset color index
 		lineLength = lineLengthInput.value / 1000;
 		lineWidth = lineWidthInput.value / 100;
-		
 		angle = angleInput.value;
+		// Set quaternions based on angle slider
 		xPosRotation.setFromAxisAngle( X, (Math.PI / 180) * angle );
 		xNegRotation.setFromAxisAngle( X, (Math.PI / 180) * -angle );
 		
@@ -238,16 +262,19 @@
 		zNegRotation.setFromAxisAngle( Z, (Math.PI / 180) * -angle );
 		yReverseRotation.setFromAxisAngle( Z, (Math.PI / 180) * 180 );
 		
-		let geometry = new THREE.CylinderGeometry(lineWidth, lineWidth, lineLength, 6);
+		let geometry = new THREE.CylinderGeometry(lineWidth, lineWidth, lineLength, 5);
 		geometry.rotateZ((Math.PI / 180) * 90);
 		geometry.translate( -(lineLength/2), 0, 0 );
-		let material = new THREE.MeshLambertMaterial({
-			color: 0xfee47e
-		});
+		for (let face of geometry.faces) {
+			face.color.setHex(colors[colorIndex]);
+		}
+		geometry.colorsNeedUpdate = true;
 
 		currentSegment = new THREE.Mesh( geometry );
+		currentSegment.matrixAutoUpdate = false;
 		if(fullModel) scene.remove(fullModel);
 		fullModel = new THREE.Mesh(new THREE.Geometry(), material);
+		fullModel.matrixAutoUpdate = false;
 		scene.add(fullModel);
 		
 		lsystem.final();
