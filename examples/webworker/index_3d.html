@@ -257,12 +257,12 @@
 		
 		yPosRotation.setFromAxisAngle( Y, (Math.PI / 180) * angle );
 		yNegRotation.setFromAxisAngle( Y, (Math.PI / 180) * -angle );
+		yReverseRotation.setFromAxisAngle( Y, (Math.PI / 180) * 180 );
 		
 		zPosRotation.setFromAxisAngle( Z, (Math.PI / 180) * angle );
 		zNegRotation.setFromAxisAngle( Z, (Math.PI / 180) * -angle );
-		yReverseRotation.setFromAxisAngle( Z, (Math.PI / 180) * 180 );
 		
-		let geometry = new THREE.CylinderGeometry(lineWidth, lineWidth, lineLength, 5);
+		let geometry = new THREE.CylinderGeometry(lineWidth, lineWidth, lineLength, 3);
 		geometry.rotateZ((Math.PI / 180) * 90);
 		geometry.translate( -(lineLength/2), 0, 0 );
 		for (let face of geometry.faces) {
@@ -315,9 +315,8 @@
 	}
 	
 	function onWorkerUpdate(e) {
-		lsystem.setProductions(e.data.initial.productions);
+		// Received updated Axiom from worker (which applied productions)
 		lsystem.setAxiom(e.data.result);
-		console.log('updating turtle parameters');
 		updateTurtleGraphics();
 	}
 
