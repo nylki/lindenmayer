@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Leaf Test</title>
+	<style media="screen">
+	body, textarea {
+		background-color: rgb(44, 193, 236);
+	}
+	
+	canvas {
+		width: auto;
+		height: 600px;
+	}
+	
+	main {
+		display: flex;
+	}
+	
+	</style>
+</head>
+<body>
+	<!--
+		Load ctx.currentTransform polyfill for unsupported browsers (https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/currentTransform#Browser_compatibility)
+	Thanks to: https://github.com/goessner/canvas-currentTransform) -->
+	<script src="third_party_libraries/currentTransform.js"></script>
+	<script src="lindenmayer.js"></script>
+	
+	<h1>Stochastic L-System Tree (line width difference in branches)</h1>
+	<main>
+		<canvas id="canvas" width="2000" height="1900"></canvas>
+		
+	</main>
+	
+	<script type="text/javascript">
+	function randomInt(min, max) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	// First init the canvas to draw the Tree on.
+	var canvas = document.getElementById('canvas');
+	var leafCanvas = document.createElement('canvas');
+	leafCanvas.height = canvas.height;
+	leafCanvas.width = canvas.width;
+	var ctx = canvas.getContext("2d");
+	var leafCtx = leafCanvas.getContext("2d");
+	
+	
+	lineLength = randomInt(100, 200);
+	lineWidth = lineLength / randomInt(8, 10);
+	ctx.lineWidth = lineWidth;
+	var branchingAngle = randomInt(10,20);
+	var stumpiness = randomInt(0, 4);
+	var branchThinningRate = randomInt(35, 85) * 0.01;
+	var frothiness = randomInt(0, 10);
+	var maxCurliness = 0; // 0.5 for CRAZY curly trees
+	var curliness = Math.random() * maxCurliness;
+	var chanceToMakeSpindlyAssTree = Math.random() * 0.4;
+	var chanceToBearFruit = 0;
+	var maxLeafSize = randomInt(40,100);
+	
+	var r = randomInt(60, 80);
+	var g = randomInt(0, 20) - 10;
+	var b = randomInt(0, 20) - 10;
+	ctx.strokeStyle = 'rgb(' + [r, r-g, r-g-b].join(',') + ')';
+	
+	var tree = new LSystem({
+		axiom: 'X',
+		productions: {
+			'X': () => Math.random() < 0.7 ? 'FFF-[[X]+X]+F[+FX]-X' : 'FF-[X+]+FF[-FX]-XF', // was 0.7
+			'F': () => {
+				let r = Math.random();
+				if (r < chanceToMakeSpindlyAssTree)
+				return 'F-+F+++---';
+				if (r < 0.8 - curliness) return 'F' // was 0.8, F, but try F-F+ with curliness 0.5 for crazy twisty vines
+				if (r < 0.97 - curliness) return 'FF' // was 0.97, FF
+				if (r < 1.0) return 'FF+' // was 1.0, FF+
+				
+			}
+		},
+		finals: {
+			'F': () => {
+				
+				ctx.lineWidth += (Math.random() - 0.5) * 0.01;
+				ctx.beginPath()
+				ctx.moveTo(0, 0)
+				ctx.lineTo(0, lineLength / (tree.iterations + 1))
+				ctx.stroke()
+				
+				//======= DRAW LEAVES ========/
+				if (ctx.lineWidth < lineWidth * 0.2) {
+					
+					// Copy matrix from regular ctx to leafCtx.
+					leafCtx.currentTransform = ctx.currentTransform;
+					
+					var previousAlpha = ctx.globalAlpha;
+					leafCtx.globalAlpha = 0.5;
+					var rb = randomInt(50, 150);
+					var g = randomInt(20, 50);
+					leafCtx.fillStyle = 'red';
+					
+					var leafSize = (Math.random() / 2 + 0.5) * maxLeafSize;
+					leafCtx.fillRect(0,0,leafSize * (Math.random() / 2 + 0.5),leafSize / 2);
+					
+					leafSize = (Math.random() / 2 + 0.5) * maxLeafSize;
+					leafCtx.fillRect(-leafSize,leafSize,leafSize * (Math.random() / 2 + 0.5),leafSize / 2);
+					leafCtx.globalAlpha = previousAlpha;
+				}
+				//======= END DRAWING LEAVES ========/
+				
+				ctx.translate(0, (lineLength / (tree.iterations + 1)) - stumpiness) // stumpiness was 1.5
+			},
+			'+': () => { ctx.rotate((Math.PI / 180) * (branchingAngle + randomInt(0, 10))) }, // was 22.5
+			'-': () => { ctx.rotate((Math.PI / 180) * (-branchingAngle - randomInt(0, 10))) }, // was 22.5
+			'[': () => {
+				ctx.save();
+				ctx.lineWidth *= branchThinningRate; // was 0.65
+				// Make strokes lighter in branches
+				// to simulate depth
+				ctx.globalAlpha *= Math.random() * (1.0 - 0.6) + 0.6;
+				lineLength -= (frothiness); // was 10
+			},
+			']': () => {
+				ctx.restore();
+				ctx.lineWidth*=0.9;
+				lineLength += (frothiness); // was 10
+			}
+		}
+	});
+	
+	tree.iterate(5);
+	
+	ctx.translate(800, 1400);
+	ctx.rotate(180);
+	// Copy matrix from regular ctx to leafCtx.
+	leafCtx.currentTransform = ctx.currentTransform;
+	tree.final();
+	
+
+	ctx.resetTransform();
+	// After branches got drawn, draw (already, offpage drawn) leaves on top of branches.
+	// Try to uncomment the following lines to see the result.
+	ctx.drawImage(leafCanvas, 0, 0);
+	</script>
+</body>
+</html>
