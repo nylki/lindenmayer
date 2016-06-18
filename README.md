@@ -15,7 +15,7 @@ Most stuff should work. I am currently working on parametric L-System support.
 
 ## Install
 ### Direct download
-- [Download `lindenmayer.js`](https://github.com/nylki/lindenmayer/releases/download/1.0/lindenmayer.js):
+- [Download `lindenmayer.js`](https://github.com/nylki/lindenmayer/releases/download/1.0.1/lindenmayer.js):
 - Then in your `index.html`:
 
 ```.html
