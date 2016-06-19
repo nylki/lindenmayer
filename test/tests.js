@@ -94,7 +94,7 @@ describe('Correct behavior of L-Systems', function() {
     let cs_LSystem = new LSystem({
       axiom: 'ACBC[-Q]D--[A[FDQ]]E-+FC++G',
       productions: {
-        'C': ({index, axiom}) => (cs_LSystem.match({direction: 'right', match: 'DEF', index})) ? 'Z' : 'C'
+        'C': ({index, axiom}) => (cs_LSystem.match({direction: 'right', match: 'DEF', index}).result) ? 'Z' : 'C'
       },
       branchSymbols: '[]',
       ignoredSymbols: '+-/'
@@ -110,10 +110,8 @@ describe('Correct behavior of L-Systems', function() {
       axiom: 'ABC[DE][SG[HI[JK]L]MNO]',
       productions: {
         'S': ({index, axiom}) =>
-        (
-          cs_LSystem3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}) &&
-          cs_LSystem3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']})
-        ) ? 'Z' : 'S'
+          (cs_LSystem3.match({direction: 'right', match: 'G[H]M', index, branchSymbols: ['[', ']']}).result &&
+          cs_LSystem3.match({direction: 'left', match: 'BC', index, branchSymbols: ['[', ']']}).result) ? 'Z' : 'S'
       }
     });
     expect(cs_LSystem3.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
@@ -123,7 +121,7 @@ describe('Correct behavior of L-Systems', function() {
       axiom: 'ABC[DE][FG[HI[JK]L]MNO]',
       productions: {
         'H': ({index, axiom}) =>  (
-          cs_LSystem4.match({direction: 'right', match: 'I[K]L', index, branchSymbols: '[]'}))
+          cs_LSystem4.match({direction: 'right', match: 'I[K]L', index, branchSymbols: '[]'}).result)
           ? 'Z' : 'H'
         }
 
@@ -135,7 +133,7 @@ describe('Correct behavior of L-Systems', function() {
       let cs_LSystem5 = new LSystem({
         axiom: 'S][ED]CBA',
         productions: {
-          'S': ({index}) =>  ( cs_LSystem5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'})) ? 'Z' : 'S'
+          'S': ({index}) =>  ( cs_LSystem5.match({direction: 'right', match: 'CB', index, branchSymbols: '[]'}).result) ? 'Z' : 'S'
         }
 
       });
@@ -152,7 +150,7 @@ describe('Correct behavior of L-Systems', function() {
         axiom: 'A+++C-DE-+F&GH++-',
         productions: {
           'C': ({index}) =>
-          (cs_LSystem6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'})) ? 'Z' : 'C'
+          (cs_LSystem6.match({direction: 'right', match: 'DEFG', index, ignoredSymbols: '+-&'}).result) ? 'Z' : 'C'
 
       }
     });
@@ -219,13 +217,48 @@ describe('Correct behavior of L-Systems', function() {
         {symbol: 'G', mehh:'foo'}
       ],
       productions: {
-        'C': ({index, axiom, params:[x]}) => (x===3) ? {symbol: 'Z'} : {symbol: 'C'},
-        'D': ({index, axiom, params:[x, y, z]}) => (y===42) ? {symbol: 'Z'} : {symbol: 'D'}
+        'C': ({part, index, params:[x]}) => (x===3) ? {symbol: 'Z'} : part,
+        'D': ({part, index, params:[x, y, z]}) => (y===42) ? {symbol: 'Z'} : part
       }
     });
 
     para_LSystem1.iterate();
     expect(para_LSystem1.getString()).to.equal('ABZZEFG');
+  });
+  
+  
+  it('Basic (normalized) parametric L-System structure should be useable with context sensitive match() function and return matched symbol objects. Manipulation of other symbols inside productions should (and can) only work for right side, as left side is already processed.', function() {
+    let para_LSystem2 = new LSystem({
+      axiom: [
+        {symbol: 'A'},
+        {symbol: 'B'},
+        {symbol: 'C', params: [3]},
+        {symbol: 'D', params: [23, 42, 5]},
+        {symbol: 'E'},
+        {symbol: 'F'},
+        {symbol: 'G', mehh:'foo'}
+      ],
+      productions: {
+        'B<C>D': ({index, currentAxiom, params:[x], leftMatchIndices, rightMatchIndices}) => {
+          
+          // Directly manipulating the matches (neighbors of current symbol) should work
+          // by editing the symbol parameter of a neighbor. ONLY WORKS  ON THE RIGHT SIDE!
+          
+          // rightMatches[0].symbol = 'Z';
+          currentAxiom[rightMatchIndices[0]] = {symbol: 'Z'};
+
+          // The following manipulation should have no effect(!) as left
+          // side has naturally already been processed by L-System:
+          currentAxiom[leftMatchIndices[0]] = {symbol: 'X'};
+
+          return {symbol: 'Y'};
+        }
+      }
+    });
+
+    para_LSystem2.iterate(5);
+
+    expect(para_LSystem2.getString()).to.equal('ABYZEFG');
   });
   
   // When using functions, all additional info should be usable (index, part, currentAxiom, params)
