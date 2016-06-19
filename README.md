@@ -5,7 +5,6 @@ Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library usi
 The library can also parse to some extent classic L-System syntax as defined in Aristid Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. For example branches: `[]` or context sensitive productions: `<>`.
 Most stuff should work. I am currently working on parametric L-System support.
 
-*Please note, that this library is still under heavy development, so names etc. are subject to change.**
 **Better docs and more examples are coming soon** :)
 
 ## Examples
