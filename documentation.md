@@ -43,35 +43,35 @@ You also have always access to object that is being given to the production func
 	// The index is used to only change B's into C's if they are in the first half of the axiom
 	```
 
-- `part`: the part the production is currently working on. This is the letter most of the time, therefore not useful as you already know the letter. `part` will be useful for more complex operations, like parametric L-Systems, we will discuss later.
+- `part`: the part the production is currently working on. This is the symbol most of the time, therefore not useful as you already know the symbol. `part` will be useful for more complex operations, like parametric L-Systems, we will discuss later.
 
 ## Parametric L-System
 
-**Important: You _must_ always provide `letter` to your custom parametric objects (that make up a axiom). Otherwise it won't be parsed properly, and in effect productions won't trigger.**
+**Important: You _must_ always provide `symbol` to your custom parametric objects (that make up a axiom). Otherwise it won't be parsed properly, and in effect productions won't trigger.**
 
 ```.js
 let lsys = new lsys.LSystem({
 	axiom: [
-		{letter: 'A', x:1, y:0.5},
-		{letter: 'B', x:0, y:5},
-		{letter: 'C', x:0, y:2, foo: 'bar'},
-		{letter: 'C', x:0, y:2, foo: 'notbar'}
+		{symbol: 'A', x:1, y:0.5},
+		{symbol: 'B', x:0, y:5},
+		{symbol: 'C', x:0, y:2, foo: 'bar'},
+		{symbol: 'C', x:0, y:2, foo: 'notbar'}
 	],
 	productions: {
-		'A': ({part}) => (part.x===1) ? {letter: 'Z'} : part,
-		'B': ({part}) => (part.y===5) ? {letter: 'Z'} : part,
-		'C': ({part}) => (part.foo === 'bar') ? {letter: 'Z'} : part
+		'A': ({part}) => (part.x===1) ? {symbol: 'Z'} : part,
+		'B': ({part}) => (part.y===5) ? {symbol: 'Z'} : part,
+		'C': ({part}) => (part.foo === 'bar') ? {symbol: 'Z'} : part
 	}
 
 	let result = lsys.iterate()
 	/* result === [
 		{ letter: 'A' },
-  	{ letter: 'B' },
-  	{ letter: 'C', params: [ 3 ] },
-  	{ letter: 'D', params: [ 23, 42, 5 ] },
-  	{ letter: 'E' },
-  	{ letter: 'F' },
-  	{ letter: 'G', mehh: 'foo' }
+  	{ symbol: 'B' },
+  	{ symbol: 'C', params: [ 3 ] },
+  	{ symbol: 'D', params: [ 23, 42, 5 ] },
+  	{ symbol: 'E' },
+  	{ symbol: 'F' },
+  	{ symbol: 'G', mehh: 'foo' }
 	]
 	*/
 
