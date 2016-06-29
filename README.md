@@ -11,6 +11,7 @@ Most stuff should work. I am currently working on parametric L-System support.
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
 -  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
+[![3D Hilbert Curve rendered in Interactive L-System builder.](https://cloud.githubusercontent.com/assets/1710598/16453037/a9016230-3e0b-11e6-8268-762437de3c29.png)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
 
 ## Install
 ### Direct download
