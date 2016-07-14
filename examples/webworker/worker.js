@@ -1,4 +1,4 @@
-importScripts('../lindenmayer.js');
+importScripts('../lindenmayer.browser.js');
 var lsystem = new LSystem({});
 var timeout = {};
 

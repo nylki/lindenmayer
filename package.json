@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "npm run build && mocha",
-    "build": "rollup -c; rollup -c -f iife -o dist/lindenmayer.browser.js && cp dist/lindenmayer.js examples/lindenmayer.js",
+    "build": "rollup -c; rollup -c -f iife -o dist/lindenmayer.browser.js && cp dist/lindenmayer.browser.js examples/lindenmayer.browser.js",
     "prepublish": "npm test && npm run build",
     "sync-ghpages": "git checkout gh-pages && git checkout master examples && git commit -a -m \"added/checkout out examples from master branch to ghpages branch.\" && git push; git checkout master"
   },
