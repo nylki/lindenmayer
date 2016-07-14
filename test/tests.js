@@ -5,7 +5,7 @@ let chaiAsPromised = require('chai-as-promised');
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let LSystem = require('../dist/lindenmayer.nodejs');
+let LSystem = require('../dist/lindenmayer.js');
 
 let test = new LSystem({
   axiom: 'F++F++F',

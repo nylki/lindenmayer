@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "npm run build && mocha",
-    "build": "rollup -c; rollup -c -f iife -o dist/lindenmayer.js && cp dist/lindenmayer.js examples/lindenmayer.js",
+    "build": "rollup -c; rollup -c -f iife -o dist/lindenmayer.browser.js && cp dist/lindenmayer.js examples/lindenmayer.js",
     "prepublish": "npm test && npm run build",
     "sync-ghpages": "git checkout gh-pages && git checkout master examples && git commit -a -m \"added/checkout out examples from master branch to ghpages branch.\" && git push; git checkout master"
   },
@@ -19,9 +19,10 @@
   "dependencies": {},
   "name": "lindenmayer",
   "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "dist/lindenmayer.js",
   "files": [
+    "dist/lindenmayer.browser.js",
     "dist/lindenmayer.js",
     "README.md",
     "LICENSE"
