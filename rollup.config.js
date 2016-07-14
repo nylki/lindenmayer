@@ -5,6 +5,6 @@ export default {
   entry: 'lindenmayer.js',
   format: 'cjs',
   plugins: [ babel(), /*uglify()*/ ],
-  dest: 'dist/lindenmayer.nodejs.js',
+  dest: 'dist/lindenmayer.node.js',
   moduleName: 'LSystem'
 };

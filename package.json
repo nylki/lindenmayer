@@ -6,7 +6,6 @@
     "sync-ghpages": "git checkout gh-pages && git checkout master examples && git commit -a -m \"added/checkout out examples from master branch to ghpages branch.\" && git push; git checkout master"
   },
   "devDependencies": {
-    "babel-cli": "^6.8.0",
     "babel-preset-es2015-rollup": "^1.1.1",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
