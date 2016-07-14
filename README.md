@@ -16,18 +16,18 @@ Most stuff should work. I am currently working on parametric L-System support.
 
 ## Install
 ### Direct download
-- [Download `lindenmayer.js`](https://github.com/nylki/lindenmayer/releases/download/1.1.0/lindenmayer.js):
+- [Download `lindenmayer.js`](https://github.com/nylki/lindenmayer/releases/latest):
 - Then in your `index.html`:
 
 ```.html
-<script src="lindenmayer.js"></script>
+<script src="lindenmayer.browser.js"></script>
 ```
 ### npm
 ```.sh
 npm install --save lindenmayer
 ```
 
-Then in your Node.js/browserify/… script:
+Then in your Node.js script:
 
 ```.js
 var LSystem = require('lindenmayer');
@@ -36,7 +36,7 @@ var LSystem = require('lindenmayer');
 Or in your `index.html`:
 
 ```.html
-<script src="node_modules/lindenmayer/dist/lindenmayer.js"></script>
+<script src="node_modules/lindenmayer/dist/lindenmayer.browser.js"></script>
 ```
 
 
