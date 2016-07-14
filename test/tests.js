@@ -1,9 +1,12 @@
+'use strict'
+
 let chai = require('chai');
 let chaiAsPromised = require('chai-as-promised');
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let LSystem = require('../dist/lindenmayer');
+let LSystem = require('../dist/lindenmayer.nodejs');
+
 let test = new LSystem({
   axiom: 'F++F++F',
   productions: {
@@ -225,8 +228,8 @@ describe('Correct behavior of L-Systems', function() {
     para_LSystem1.iterate();
     expect(para_LSystem1.getString()).to.equal('ABZZEFG');
   });
-  
-  
+
+
   it('Basic (normalized) parametric L-System structure should be useable with context sensitive match() function and return matched symbol objects. Manipulation of other symbols inside productions should (and can) only work for right side, as left side is already processed.', function() {
     let para_LSystem2 = new LSystem({
       axiom: [
@@ -240,10 +243,10 @@ describe('Correct behavior of L-Systems', function() {
       ],
       productions: {
         'B<C>D': ({index, currentAxiom, params:[x], leftMatchIndices, rightMatchIndices}) => {
-          
+
           // Directly manipulating the matches (neighbors of current symbol) should work
           // by editing the symbol parameter of a neighbor. ONLY WORKS  ON THE RIGHT SIDE!
-          
+
           // rightMatches[0].symbol = 'Z';
           currentAxiom[rightMatchIndices[0]] = {symbol: 'Z'};
 
@@ -260,7 +263,7 @@ describe('Correct behavior of L-Systems', function() {
 
     expect(para_LSystem2.getString()).to.equal('ABYZEFG');
   });
-  
+
   // When using functions, all additional info should be usable (index, part, currentAxiom, params)
 
   // it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {

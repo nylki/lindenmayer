@@ -1,6 +1,8 @@
 'use strict'
 
-function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax}) {
+import {transformClassicStochasticProductions} from './classicLSystemSyntax';
+
+export default function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax}) {
 
 	// faking default values until better support lands in all browser
 	axiom = typeof axiom !== 'undefined' ? axiom : '';
@@ -23,7 +25,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 			return JSON.stringify(this.axiom);
 		}
 	};
-	
+
 	this.setAxiom = function (axiom) {
 		this.axiom = axiom;
 	};
@@ -52,7 +54,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 			  }
 			}
 	};
-	
+
 	this.clearProductions = function () {
 		this.productions = new Map();
 	};
@@ -129,7 +131,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 		// get it either from left side or right side if left is nonexistent
 		let indexSymbol = (left !== null) ? left[2] : right[1];
 
-		
+
 		// double check: make sure that the right and left match got the same indexSymbol (B)
 		if(left !== null && right !== null && left[2] !== right[1]) {
 			throw	new Error('index symbol differs in context sensitive production from left to right check.',
@@ -159,7 +161,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 				if(right !== null) {
 					rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'});
 				}
-				
+
 				// Match! On a match return either the result of given production function
 				// or simply return the symbol itself if its no function.
 				if((leftMatch.result && rightMatch.result)) {
@@ -334,7 +336,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 
 		for (;axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
 			// FIXME: what about objects with .symbol
-			
+
 			let axiomSymbol = axiom_[axiomIndex];
 			// For objects match for objects `symbol`
 			if(typeof axiomSymbol === 'object') axiomSymbol = axiomSymbol.symbol;
@@ -358,7 +360,7 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 						// only increase match if we are out of explicit branch
 
 						if(explicitBranchCount === 0){
-							
+
 							matchIndex += matchIndexChange;
 						}
 
@@ -392,6 +394,11 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 
 	};
 
+	if(this.classicParametricSyntax === true) {
+
+		console.log(transformClassicStochasticProductions);
+	}
+
 
 	// finally init stuff
 	this.parameters = {
@@ -408,12 +415,4 @@ function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, cla
 
 	this.iterationCount = 0;
 	return this;
-}
-
-
-// Try to export to be used via require in NodeJS.
-if (typeof module !== 'undefined') {
-	module.exports = LSystem;
-	// module.exports.matchRight = matchRight;
-	// module.exports.matchLeft = matchLeft;
 }
