@@ -179,7 +179,48 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	};
 
 
+	this.getProductionResult = function (p, index, part, params) {
+		
+		let result;
+		
+		// if p is a function, execute function and append return value
+		if (typeof p === 'function') {
+			result = p({index, currentAxiom: this.axiom, part, params});
 
+			/* if p is no function and no iterable, then
+			it should be a string (regular) or object
+			directly return it then as result */
+		} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
+			result = p;
+
+			// if p is a list/iterable
+		} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
+			/*
+			go through the list and use
+			the first valid production in that list. (that returns true)
+			This assumes, it's a list of functions.
+			*/
+			for (let _p of p) {
+				let _result;
+				if (_p[Symbol.iterator] !== undefined && typeof _p !== 'string' && !(_p instanceof String)) {
+					// If _p is itself also an Array, recursively get the result
+					console.log('_p is list', _p);
+					_result = this.getProductionResult(_p);
+					console.log('recursive result', _result);
+				} else {
+					_result = (typeof _p === 'function') ? _p({index, currentAxiom: this.axiom, part, params}) : _p;
+				}
+				
+				if (_result !== undefined && _result !== false) {
+					result = _result;
+					break;
+				}
+
+			}
+		}
+		
+		return result;
+	}
 
 	this.applyProductions = function() {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
@@ -195,40 +236,12 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 			if(typeof part === 'object' && part.symbol) symbol = part.symbol;
 			if(typeof part === 'object' && part.params) params = part.params;
 
-
-			// default production result is just the original part itself
 			let result = part;
-
 			if (this.productions.has(symbol)) {
 				let p = this.productions.get(symbol);
-
-				// if p is a function, execute function and append return value
-				if (typeof p === 'function') {
-					result = p({index, currentAxiom: this.axiom, part, params});
-
-					/* if p is no function and no iterable, then
-					it should be a string (regular) or object
-					directly return it then as result */
-				} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
-
-					result = p;
-
-					// if p is a list/iterable
-				} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
-					/*
-					go through the list and use
-					the first valid production in that list. (that returns true)
-					This assumes, it's a list of functions.
-					*/
-					for (let _p of p) {
-						let _result = (typeof _p === 'function') ? _p({index, currentAxiom: newAxiom, part, params}) : _p;
-						if (_result !== undefined && _result !== false) {
-							result = _result;
-							break;
-						}
-					}
-				}
+				result = this.getProductionResult(p, index, part, params);
 			}
+			
 			// finally add result to new axiom
 			if(typeof newAxiom === 'string') {
 				newAxiom += result;
@@ -394,12 +407,6 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 
 	};
 
-	if(this.classicParametricSyntax === true) {
-
-		console.log(transformClassicStochasticProductions);
-	}
-
-
 	// finally init stuff
 	this.parameters = {
 		allowClassicSyntax: true
@@ -416,3 +423,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	this.iterationCount = 0;
 	return this;
 }
+
+// Set classic syntax helpers to library scope to be used outside of library context
+// for users eg.
+LSystem.transformClassicStochasticProductions = transformClassicStochasticProductions;

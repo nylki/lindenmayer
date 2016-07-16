@@ -144,6 +144,30 @@ describe('Correct behavior of L-Systems', function() {
       expect(cs_LSystem5.iterate()).to.equal('Z][ED]CBA');
 
     });
+    
+    it('Lists as productions should work', function () {
+      let cs_LSystemMulti = new LSystem({
+            axiom: 'ABCDEFGHI',
+            productions: {
+              'E': ['X', 'Y', 'Z'],
+              'B': [
+                () => false,
+                () => false,
+                () => 'X',
+                () => false
+              ],
+              'C': [
+                () => false,
+                [() => false, false, 'X', false]
+              ]
+          }
+          });
+      expect(cs_LSystemMulti.iterate()).to.equal('AXXDXFGHI');
+      
+      
+    });
+    
+
 
 
 
@@ -179,6 +203,22 @@ describe('Correct behavior of L-Systems', function() {
     });
     expect(cs_LSystem8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
   });
+  
+  it('multiple CS production on the same base symbol should work.', function () {
+    let cs_LSystemMulti = new LSystem({
+          axiom: 'ABCDEFGHI',
+          productions: {
+            'B<B>C': 'X',
+            'A<B>C': 'Y',
+            'A<B>D': 'Z',
+        }
+        });
+    expect(cs_LSystemMulti.iterate()).to.equal('AYCDEFGHI');
+    
+    
+  });
+  
+
 
   it('right side, classic CS should work.', function() {
     let cs_LSystem8 = new LSystem({
@@ -332,6 +372,43 @@ describe('Correct behavior of L-Systems', function() {
   //   para_LSystem1.iterate()
   //   expect(para_LSystem1.getString()).to.equal('ABZDEFG')
   // })
+  
+  it('should transform classic stochastic syntax on demand.', function() {
+    let productions = [
+      ['F', 'F-'],
+      ['F', 'F+'],
+      ['F', 'FF']
+    ];
+
+    let stepCount = 10000000;
+    let p = LSystem.transformClassicStochasticProductions(productions);
+    let sampleSums = new Array(productions.length).fill(0);
+
+    for (let step = 0; step < stepCount; step++) {
+      let result = p('F');
+      // console.log(result);
+      for (let i = 0; i < productions.length; i++) {
+        if (result[1] === productions[i][1]) {
+          sampleSums[i]++;
+        }
+      }
+    }
+    
+    // sum of all distributions should equal stepCount
+    expect(sampleSums.reduce((pre, cur) => pre + cur)).to.equal(stepCount);
+    
+    // Its impossible to really test stochastic functions, as we cant set the seed from
+    // inside the test.
+    
+    // So we can atleast expect, that it is very improbable,
+    // that a result gets never randomnly choosen.
+    // in a stepcount of 10000000. BUT it is possible, so better do a rerun if this test fails :)
+    for (let sum of sampleSums) {
+      expect(sum).to.be.least(1);
+    }
+    // Print the result, so the tester can check the numbers.
+    console.log('random distribution of classic stochastic transformed productions:', sampleSums);
+  });
 
   it('should handle UTF8', function() {
     let test = new LSystem({

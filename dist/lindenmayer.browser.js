@@ -4,17 +4,19 @@ var LSystem = (function () {
 	// Get a list of productions that have identical initiators,
 	// Output a single stochastic production. Probability per production
 	// is defined by amount of input productions (4 => 25% each, 2 => 50% etc.)
+
 	function transformClassicStochasticProductions(productions) {
 
-	  var transformedProduction = function transformedProduction() {
+	  return function transformedProduction() {
 	    var resultList = productions; // the parser for productions shall create this list
 	    var count = resultList.length;
-	    var range = 0;
+
 	    var r = Math.random();
-	    for (var i = 1; i <= count; i++) {
-	      range += i / count;
+	    for (var i = 0; i < count; i++) {
+	      var range = (i + 1) / count;
 	      if (r <= range) return resultList[i];
 	    }
+
 	    console.error('Should have returned a result of the list, something is wrong here with the random numbers?.');
 	  };
 	};
@@ -250,18 +252,81 @@ var LSystem = (function () {
 			return transformedProduction;
 		};
 
+		this.getProductionResult = function (p, index, part, params) {
+
+			var result = void 0;
+
+			// if p is a function, execute function and append return value
+			if (typeof p === 'function') {
+				result = p({ index: index, currentAxiom: this.axiom, part: part, params: params });
+
+				/* if p is no function and no iterable, then
+	   it should be a string (regular) or object
+	   directly return it then as result */
+			} else if (typeof p === 'string' || p instanceof String || (typeof p === 'undefined' ? 'undefined' : _typeof(p)) === 'object' && p[Symbol.iterator] === undefined) {
+					result = p;
+
+					// if p is a list/iterable
+				} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
+						/*
+	     go through the list and use
+	     the first valid production in that list. (that returns true)
+	     This assumes, it's a list of functions.
+	     */
+						var _iteratorNormalCompletion = true;
+						var _didIteratorError = false;
+						var _iteratorError = undefined;
+
+						try {
+							for (var _iterator = p[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+								var _p = _step.value;
+
+								var _result = void 0;
+								if (_p[Symbol.iterator] !== undefined && typeof _p !== 'string' && !(_p instanceof String)) {
+									// If _p is itself also an Array, recursively get the result
+									console.log('_p is list', _p);
+									_result = this.getProductionResult(_p);
+									console.log('recursive result', _result);
+								} else {
+									_result = typeof _p === 'function' ? _p({ index: index, currentAxiom: this.axiom, part: part, params: params }) : _p;
+								}
+
+								if (_result !== undefined && _result !== false) {
+									result = _result;
+									break;
+								}
+							}
+						} catch (err) {
+							_didIteratorError = true;
+							_iteratorError = err;
+						} finally {
+							try {
+								if (!_iteratorNormalCompletion && _iterator.return) {
+									_iterator.return();
+								}
+							} finally {
+								if (_didIteratorError) {
+									throw _iteratorError;
+								}
+							}
+						}
+					}
+
+			return result;
+		};
+
 		this.applyProductions = function () {
 			// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 			var newAxiom = typeof this.axiom === 'string' ? '' : [];
 			var index = 0;
 			// iterate all symbols/characters of the axiom and lookup according productions
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
 
 			try {
-				for (var _iterator = this.axiom[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var part = _step.value;
+				for (var _iterator2 = this.axiom[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var part = _step2.value;
 
 					var symbol = part;
 
@@ -271,60 +336,12 @@ var LSystem = (function () {
 					if ((typeof part === 'undefined' ? 'undefined' : _typeof(part)) === 'object' && part.symbol) symbol = part.symbol;
 					if ((typeof part === 'undefined' ? 'undefined' : _typeof(part)) === 'object' && part.params) params = part.params;
 
-					// default production result is just the original part itself
 					var result = part;
-
 					if (this.productions.has(symbol)) {
 						var p = this.productions.get(symbol);
-
-						// if p is a function, execute function and append return value
-						if (typeof p === 'function') {
-							result = p({ index: index, currentAxiom: this.axiom, part: part, params: params });
-
-							/* if p is no function and no iterable, then
-	      it should be a string (regular) or object
-	      directly return it then as result */
-						} else if (typeof p === 'string' || p instanceof String || (typeof p === 'undefined' ? 'undefined' : _typeof(p)) === 'object' && p[Symbol.iterator] === undefined) {
-
-								result = p;
-
-								// if p is a list/iterable
-							} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
-									/*
-	        go through the list and use
-	        the first valid production in that list. (that returns true)
-	        This assumes, it's a list of functions.
-	        */
-									var _iteratorNormalCompletion2 = true;
-									var _didIteratorError2 = false;
-									var _iteratorError2 = undefined;
-
-									try {
-										for (var _iterator2 = p[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-											var _p = _step2.value;
-
-											var _result = typeof _p === 'function' ? _p({ index: index, currentAxiom: newAxiom, part: part, params: params }) : _p;
-											if (_result !== undefined && _result !== false) {
-												result = _result;
-												break;
-											}
-										}
-									} catch (err) {
-										_didIteratorError2 = true;
-										_iteratorError2 = err;
-									} finally {
-										try {
-											if (!_iteratorNormalCompletion2 && _iterator2.return) {
-												_iterator2.return();
-											}
-										} finally {
-											if (_didIteratorError2) {
-												throw _iteratorError2;
-											}
-										}
-									}
-								}
+						result = this.getProductionResult(p, index, part, params);
 					}
+
 					// finally add result to new axiom
 					if (typeof newAxiom === 'string') {
 						newAxiom += result;
@@ -341,16 +358,16 @@ var LSystem = (function () {
 
 				// finally set new axiom and also return for convenience
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator.return) {
-						_iterator.return();
+					if (!_iteratorNormalCompletion2 && _iterator2.return) {
+						_iterator2.return();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError2) {
+						throw _iteratorError2;
 					}
 				}
 			}
@@ -548,11 +565,6 @@ var LSystem = (function () {
 			}
 		};
 
-		if (this.classicParametricSyntax === true) {
-
-			console.log(transformClassicStochasticProductions);
-		}
-
 		// finally init stuff
 		this.parameters = {
 			allowClassicSyntax: true
@@ -569,6 +581,10 @@ var LSystem = (function () {
 		this.iterationCount = 0;
 		return this;
 	}
+
+	// Set classic syntax helpers to library scope to be used outside of library context
+	// for users eg.
+	LSystem.transformClassicStochasticProductions = transformClassicStochasticProductions;
 
 	return LSystem;
 
