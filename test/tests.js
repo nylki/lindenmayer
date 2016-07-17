@@ -208,12 +208,17 @@ describe('Correct behavior of L-Systems', function() {
     let cs_LSystemMulti = new LSystem({
           axiom: 'ABCDEFGHI',
           productions: {
-            'B<B>C': 'X',
+            'B<B>C': 'N',
             'A<B>C': 'Y',
-            'A<B>D': 'Z',
+            'A<B>D': 'N',
+            'G>HIJ': 'N',
+            'G>HI': 'Y',
+            'A<A': 'N',
+            'A>C': 'N',
+            'A': 'Y'
         }
         });
-    expect(cs_LSystemMulti.iterate()).to.equal('AYCDEFGHI');
+    expect(cs_LSystemMulti.iterate()).to.equal('YYCDEFYHI');
     
     
   });

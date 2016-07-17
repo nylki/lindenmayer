@@ -89,12 +89,14 @@ function transformClassicCSProduction(p) {
     var rightMatch = { result: true };
 
     // this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
+    //
+
     if (left !== null) {
       leftMatch = _this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
     }
 
     // don't match with right side if left already false or no right match necessary
-    if (leftMatch.result === false || leftMatch.result === true && right === null) return leftMatch.result ? p[1] : _part;
+    if (leftMatch.result === false || leftMatch.result === true && right === null) return leftMatch.result ? p[1] : false;
 
     // see left!== null. could be optimized. Creating 3 variations of function
     // so left/right are not checked here, which improves speed, as left/right
@@ -108,7 +110,7 @@ function transformClassicCSProduction(p) {
     if (leftMatch.result && rightMatch.result) {
       return typeof p[1] === 'function' ? p[1]({ index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices }) : p[1];
     } else {
-      return _part;
+      return false;
     }
   };
 
@@ -199,12 +201,24 @@ function LSystem(_ref) {
 	};
 
 	this.setProduction = function (A, B) {
+		var doAppend = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
 		var newProduction = [A, B];
 		if (newProduction === undefined) throw new Error('no production specified.');
 
 		if (this.parameters.allowClassicSyntax === true) {
-			var transformedProduction = transformClassicCSProduction.bind(this)(newProduction);
-			this.productions.set(transformedProduction[0], transformedProduction[1]);
+			newProduction = transformClassicCSProduction.bind(this)(newProduction);
+		}
+		var symbol = newProduction[0];
+
+		if (doAppend === true && this.productions.has(symbol)) {
+
+			var existingProduction = this.productions.get(symbol);
+			// If existing production results already in an array use this, otherwise
+			// create new array to append to.
+			var productionList = existingProduction[Symbol.iterator] !== undefined && typeof existingProduction !== 'string' && !(existingProduction instanceof String) ? this.productions.get(symbol) : [this.productions.get(symbol)];
+			productionList.push(newProduction[1]);
+			this.productions.set(symbol, productionList);
 		} else {
 			this.productions.set(newProduction[0], newProduction[1]);
 		}
@@ -218,7 +232,7 @@ function LSystem(_ref) {
 		// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
 		for (var condition in newProductions) {
 			if (newProductions.hasOwnProperty(condition)) {
-				this.setProduction(condition, newProductions[condition]);
+				this.setProduction(condition, newProductions[condition], true);
 			}
 		}
 	};
@@ -555,6 +569,8 @@ function LSystem(_ref) {
 				return { result: false, matchIndices: returnMatchIndices };
 			}
 		}
+
+		return { result: false, matchIndices: returnMatchIndices };
 	};
 
 	// finally init stuff

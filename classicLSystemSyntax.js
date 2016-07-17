@@ -92,13 +92,16 @@ export function transformClassicCSProduction (p) {
       let rightMatch = {result: true};
 
       // this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
+      //
+      
+      
       if(left !== null){
         leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'});
       }
 
       // don't match with right side if left already false or no right match necessary
       if(leftMatch.result === false || (leftMatch.result === true && right === null))
-        return leftMatch.result ? p[1] : _part;
+        return leftMatch.result ? p[1] : false;
 
       // see left!== null. could be optimized. Creating 3 variations of function
       // so left/right are not checked here, which improves speed, as left/right
@@ -112,7 +115,7 @@ export function transformClassicCSProduction (p) {
       if((leftMatch.result && rightMatch.result)) {
           return (typeof p[1] === 'function') ? p[1]({index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices}) : p[1];
       } else {
-        return _part;
+        return false;
       }
 
     };

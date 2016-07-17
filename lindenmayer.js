@@ -29,17 +29,30 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	this.setAxiom = function (axiom) {
 		this.axiom = axiom;
 	};
+	
 
-	this.setProduction = function (A, B) {
+	this.setProduction = function (A, B, doAppend = false) {
 		let newProduction = [A, B];
 		if(newProduction === undefined) throw	new Error('no production specified.');
-
+		
 		if(this.parameters.allowClassicSyntax === true) {
-			let transformedProduction = transformClassicCSProduction.bind(this)(newProduction);
-			this.productions.set(transformedProduction[0], transformedProduction[1]);
+			newProduction = transformClassicCSProduction.bind(this)(newProduction);
+		}
+		let symbol = newProduction[0];
+		
+		if(doAppend === true && this.productions.has(symbol)) {
+
+			let existingProduction = this.productions.get(symbol);
+			// If existing production results already in an array use this, otherwise
+			// create new array to append to.
+			let productionList = (existingProduction[Symbol.iterator] !== undefined && typeof existingProduction !== 'string' && !(existingProduction instanceof String)) ? this.productions.get(symbol) : [this.productions.get(symbol)];
+			productionList.push(newProduction[1]);
+			this.productions.set(symbol, productionList);
 		} else {
 			this.productions.set(newProduction[0], newProduction[1]);
 		}
+		
+
 	};
 
 	// set multiple productions from name:value Object
@@ -50,7 +63,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 			// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
 			for (let condition in newProductions) {
 			  if( newProductions.hasOwnProperty( condition ) ) {
-					this.setProduction(condition, newProductions[condition]);
+					this.setProduction(condition, newProductions[condition], true);
 			  }
 			}
 	};
@@ -302,6 +315,8 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 				return {result: false, matchIndices: returnMatchIndices};
 			}
 		}
+		
+		return {result: false, matchIndices: returnMatchIndices};
 
 	};
 
