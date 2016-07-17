@@ -20,6 +20,103 @@ function transformClassicStochasticProductions(productions) {
   };
 };
 
+// TODO: Scaffold classic parametric and context sensitive stuff out of main file
+// And simply require it here, eg:
+// this.testClassicParametricSyntax = require(classicSyntax.testParametric)??
+function testClassicParametricSyntax(axiom) {
+  return (/\(.+\)/.test(axiom)
+  );
+};
+
+// transforms things like 'A(1,2,5)B(2.5)' to
+// [ {symbol: 'A', params: [1,2,5]}, {symbol: 'B', params:[25]} ]
+// strips spaces
+function transformClassicParametricAxiom(axiom) {
+
+  // Replace whitespaces, then split between square brackets.
+  var splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
+  // console.log('parts:', splitAxiom)
+  var newAxiom = [];
+  // Construct new axiom by getting the params and symbol.
+  for (var i = 0; i < splitAxiom.length - 1; i += 2) {
+    var params = splitAxiom[i + 1].split(',').map(Number);
+    newAxiom.push({ symbol: splitAxiom[i], params: params });
+  }
+  // console.log('parsed axiom:', newAxiom)
+};
+
+// transform a classic syntax production into valid JS production
+// TODO: Only work on first part pf production P[0]
+// -> this.transformClassicCSCondition
+function transformClassicCSProduction(p) {
+  var _this = this;
+
+  // before continuing, check if classic syntax actually there
+  // example: p = ['A<B>C', 'Z']
+
+  // left should be ['A', 'B']
+  var left = p[0].match(/(\w+)<(\w)/);
+
+  // right should be ['B', 'C']
+  var right = p[0].match(/(\w)>(\w+)/);
+
+  // Not a CS-Production (no '<' or '>'),
+  //return original production.
+  if (left === null && right === null) {
+    return p;
+  }
+
+  // indexSymbol should be 'B' in A<B>C
+  // get it either from left side or right side if left is nonexistent
+  var indexSymbol = left !== null ? left[2] : right[1];
+
+  // double check: make sure that the right and left match got the same indexSymbol (B)
+  if (left !== null && right !== null && left[2] !== right[1]) {
+    throw new Error('index symbol differs in context sensitive production from left to right check.', left[2], '!==', right[1]);
+  }
+
+  // finally build the new (valid JS) production
+  // (that is being executed instead of the classic syntax,
+  //  which can't be interpreted by the JS engine)
+  var transformedFunction = function transformedFunction(_ref) {
+    var _index = _ref.index;
+    var _part = _ref.part;
+    var _axiom = _ref.currentAxiom;
+    var _params = _ref.params;
+
+
+    var leftMatch = { result: true };
+    var rightMatch = { result: true };
+
+    // this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
+    if (left !== null) {
+      leftMatch = _this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
+    }
+
+    // don't match with right side if left already false or no right match necessary
+    if (leftMatch.result === false || leftMatch.result === true && right === null) return leftMatch.result ? p[1] : _part;
+
+    // see left!== null. could be optimized. Creating 3 variations of function
+    // so left/right are not checked here, which improves speed, as left/right
+    // are in a scope above.
+    if (right !== null) {
+      rightMatch = _this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
+    }
+
+    // Match! On a match return either the result of given production function
+    // or simply return the symbol itself if its no function.
+    if (leftMatch.result && rightMatch.result) {
+      return typeof p[1] === 'function' ? p[1]({ index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices }) : p[1];
+    } else {
+      return _part;
+    }
+  };
+
+  var transformedProduction = [indexSymbol, transformedFunction];
+
+  return transformedProduction;
+};
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
@@ -106,7 +203,7 @@ function LSystem(_ref) {
 		if (newProduction === undefined) throw new Error('no production specified.');
 
 		if (this.parameters.allowClassicSyntax === true) {
-			var transformedProduction = this.transformClassicCSProduction.bind(this)(newProduction);
+			var transformedProduction = transformClassicCSProduction.bind(this)(newProduction);
 			this.productions.set(transformedProduction[0], transformedProduction[1]);
 		} else {
 			this.productions.set(newProduction[0], newProduction[1]);
@@ -149,108 +246,6 @@ function LSystem(_ref) {
 		}
 	};
 
-	// TODO: implement it!
-	this.transformClassicParametricProduction = function (p) {
-		return p;
-	};
-
-	// TODO: Scaffold classic parametric and context sensitive stuff out of main file
-	// And simply require it here, eg:
-	// this.testClassicParametricSyntax = require(classicSyntax.testParametric)??
-	this.testClassicParametricSyntax = function (axiom) {
-		return (/\(.+\)/.test(axiom)
-		);
-	};
-
-	// transforms things like 'A(1,2,5)B(2.5)' to
-	// [ {symbol: 'A', params: [1,2,5]}, {symbol: 'B', params:[25]} ]
-	// strips spaces
-	this.transformClassicParametricAxiom = function (axiom) {
-
-		// Replace whitespaces, then split between square brackets.
-		var splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
-		// console.log('parts:', splitAxiom)
-		var newAxiom = [];
-		// Construct new axiom by getting the params and symbol.
-		for (var i = 0; i < splitAxiom.length - 1; i += 2) {
-			var params = splitAxiom[i + 1].split(',').map(Number);
-			newAxiom.push({ symbol: splitAxiom[i], params: params });
-		}
-		// console.log('parsed axiom:', newAxiom)
-	};
-
-	// transform a classic syntax production into valid JS production
-	// TODO: Only work on first part pf production P[0]
-	// -> this.transformClassicCSCondition
-	this.transformClassicCSProduction = function (p) {
-		var _this = this;
-
-		// before continuing, check if classic syntax actually there
-		// example: p = ['A<B>C', 'Z']
-
-		// left should be ['A', 'B']
-		var left = p[0].match(/(\w+)<(\w)/);
-
-		// right should be ['B', 'C']
-		var right = p[0].match(/(\w)>(\w+)/);
-
-		// Not a CS-Production (no '<' or '>'),
-		//return original production.
-		if (left === null && right === null) {
-			return p;
-		}
-
-		// indexSymbol should be 'B' in A<B>C
-		// get it either from left side or right side if left is nonexistent
-		var indexSymbol = left !== null ? left[2] : right[1];
-
-		// double check: make sure that the right and left match got the same indexSymbol (B)
-		if (left !== null && right !== null && left[2] !== right[1]) {
-			throw new Error('index symbol differs in context sensitive production from left to right check.', left[2], '!==', right[1]);
-		}
-
-		// finally build the new (valid JS) production
-		// (that is being executed instead of the classic syntax,
-		//  which can't be interpreted by the JS engine)
-		var transformedFunction = function transformedFunction(_ref2) {
-			var _index = _ref2.index;
-			var _part = _ref2.part;
-			var _axiom = _ref2.currentAxiom;
-			var _params = _ref2.params;
-
-
-			var leftMatch = { result: true };
-			var rightMatch = { result: true };
-
-			// this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
-			if (left !== null) {
-				leftMatch = _this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
-			}
-
-			// don't match with right side if left already false or no right match necessary
-			if (leftMatch.result === false || leftMatch.result === true && right === null) return leftMatch.result ? p[1] : _part;
-
-			// see left!== null. could be optimized. Creating 3 variations of function
-			// so left/right are not checked here, which improves speed, as left/right
-			// are in a scope above.
-			if (right !== null) {
-				rightMatch = _this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
-			}
-
-			// Match! On a match return either the result of given production function
-			// or simply return the symbol itself if its no function.
-			if (leftMatch.result && rightMatch.result) {
-				return typeof p[1] === 'function' ? p[1]({ index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices }) : p[1];
-			} else {
-				return _part;
-			}
-		};
-
-		var transformedProduction = [indexSymbol, transformedFunction];
-
-		return transformedProduction;
-	};
-
 	this.getProductionResult = function (p, index, part, params) {
 
 		var result = void 0;
@@ -282,10 +277,8 @@ function LSystem(_ref) {
 
 							var _result = void 0;
 							if (_p[Symbol.iterator] !== undefined && typeof _p !== 'string' && !(_p instanceof String)) {
-								// If _p is itself also an Array, recursively get the result
-								console.log('_p is list', _p);
+								// If _p is itself also an Array, recursively get the result.
 								_result = this.getProductionResult(_p);
-								console.log('recursive result', _result);
 							} else {
 								_result = typeof _p === 'function' ? _p({ index: index, currentAxiom: this.axiom, part: part, params: params }) : _p;
 							}
@@ -455,13 +448,13 @@ function LSystem(_ref) {
  	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
 
-	this.match = function (_ref3) {
-		var axiom_ = _ref3.axiom_;
-		var match = _ref3.match;
-		var ignoredSymbols = _ref3.ignoredSymbols;
-		var branchSymbols = _ref3.branchSymbols;
-		var index = _ref3.index;
-		var direction = _ref3.direction;
+	this.match = function (_ref2) {
+		var axiom_ = _ref2.axiom_;
+		var match = _ref2.match;
+		var ignoredSymbols = _ref2.ignoredSymbols;
+		var branchSymbols = _ref2.branchSymbols;
+		var index = _ref2.index;
+		var direction = _ref2.direction;
 
 		var branchCount = 0;
 		var explicitBranchCount = 0;
@@ -584,5 +577,8 @@ function LSystem(_ref) {
 // Set classic syntax helpers to library scope to be used outside of library context
 // for users eg.
 LSystem.transformClassicStochasticProductions = transformClassicStochasticProductions;
+LSystem.transformClassicCSProduction = transformClassicCSProduction;
+LSystem.transformClassicParametricAxiom = transformClassicParametricAxiom;
+LSystem.testClassicParametricSyntax = testClassicParametricSyntax;
 
 module.exports = LSystem;

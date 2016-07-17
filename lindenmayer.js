@@ -1,6 +1,6 @@
 'use strict'
 
-import {transformClassicStochasticProductions} from './classicLSystemSyntax';
+import {transformClassicStochasticProductions, transformClassicCSProduction, transformClassicParametricAxiom, testClassicParametricSyntax} from './classicLSystemSyntax';
 
 export default function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax}) {
 
@@ -35,7 +35,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 		if(newProduction === undefined) throw	new Error('no production specified.');
 
 		if(this.parameters.allowClassicSyntax === true) {
-			let transformedProduction = this.transformClassicCSProduction.bind(this)(newProduction);
+			let transformedProduction = transformClassicCSProduction.bind(this)(newProduction);
 			this.productions.set(transformedProduction[0], transformedProduction[1]);
 		} else {
 			this.productions.set(newProduction[0], newProduction[1]);
@@ -79,106 +79,6 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	};
 
 
-	// TODO: implement it!
-	this.transformClassicParametricProduction = function (p) {
-		return p;
-	};
-
-	// TODO: Scaffold classic parametric and context sensitive stuff out of main file
-	// And simply require it here, eg:
-	// this.testClassicParametricSyntax = require(classicSyntax.testParametric)??
-	this.testClassicParametricSyntax = (axiom) => (/\(.+\)/).test(axiom);
-
-	// transforms things like 'A(1,2,5)B(2.5)' to
-	// [ {symbol: 'A', params: [1,2,5]}, {symbol: 'B', params:[25]} ]
-	// strips spaces
-	this.transformClassicParametricAxiom = function (axiom) {
-
-		// Replace whitespaces, then split between square brackets.
-		let splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
-		// console.log('parts:', splitAxiom)
-		let newAxiom = [];
-		// Construct new axiom by getting the params and symbol.
-		for (let i = 0; i < splitAxiom.length-1; i+=2) {
-			let params = splitAxiom[i+1].split(',').map(Number);
-			newAxiom.push({symbol: splitAxiom[i], params:params});
-		}
-		// console.log('parsed axiom:', newAxiom)
-	};
-
-	// transform a classic syntax production into valid JS production
-	// TODO: Only work on first part pf production P[0]
-	// -> this.transformClassicCSCondition
-	this.transformClassicCSProduction = function (p) {
-
-
-		// before continuing, check if classic syntax actually there
-		// example: p = ['A<B>C', 'Z']
-
-		// left should be ['A', 'B']
-		let left = p[0].match(/(\w+)<(\w)/);
-
-		// right should be ['B', 'C']
-		let right = p[0].match(/(\w)>(\w+)/);
-
-		// Not a CS-Production (no '<' or '>'),
-		//return original production.
-		if(left === null && right === null) {
-			return p
-		}
-
-		// indexSymbol should be 'B' in A<B>C
-		// get it either from left side or right side if left is nonexistent
-		let indexSymbol = (left !== null) ? left[2] : right[1];
-
-
-		// double check: make sure that the right and left match got the same indexSymbol (B)
-		if(left !== null && right !== null && left[2] !== right[1]) {
-			throw	new Error('index symbol differs in context sensitive production from left to right check.',
-			left[2], '!==', right[1])
-		}
-
-			// finally build the new (valid JS) production
-			// (that is being executed instead of the classic syntax,
-			//  which can't be interpreted by the JS engine)
-			let transformedFunction = ({index: _index, part: _part, currentAxiom: _axiom, params: _params}) => {
-
-				let leftMatch = {result: true};
-				let rightMatch = {result: true};
-
-				// this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
-				if(left !== null){
-					leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'});
-				}
-
-				// don't match with right side if left already false or no right match necessary
-				if(leftMatch.result === false || (leftMatch.result === true && right === null))
-					return leftMatch.result ? p[1] : _part;
-
-				// see left!== null. could be optimized. Creating 3 variations of function
-				// so left/right are not checked here, which improves speed, as left/right
-				// are in a scope above.
-				if(right !== null) {
-					rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'});
-				}
-
-				// Match! On a match return either the result of given production function
-				// or simply return the symbol itself if its no function.
-				if((leftMatch.result && rightMatch.result)) {
-						return (typeof p[1] === 'function') ? p[1]({index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices}) : p[1];
-				} else {
-					return _part;
-				}
-
-			};
-
-			let transformedProduction = [indexSymbol, transformedFunction];
-
-			return transformedProduction;
-
-	};
-
-
 	this.getProductionResult = function (p, index, part, params) {
 		
 		let result;
@@ -203,10 +103,8 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 			for (let _p of p) {
 				let _result;
 				if (_p[Symbol.iterator] !== undefined && typeof _p !== 'string' && !(_p instanceof String)) {
-					// If _p is itself also an Array, recursively get the result
-					console.log('_p is list', _p);
+					// If _p is itself also an Array, recursively get the result.
 					_result = this.getProductionResult(_p);
-					console.log('recursive result', _result);
 				} else {
 					_result = (typeof _p === 'function') ? _p({index, currentAxiom: this.axiom, part, params}) : _p;
 				}
@@ -427,3 +325,6 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 // Set classic syntax helpers to library scope to be used outside of library context
 // for users eg.
 LSystem.transformClassicStochasticProductions = transformClassicStochasticProductions;
+LSystem.transformClassicCSProduction = transformClassicCSProduction;
+LSystem.transformClassicParametricAxiom = transformClassicParametricAxiom;
+LSystem.testClassicParametricSyntax = testClassicParametricSyntax;

@@ -12,7 +12,7 @@ let test = new LSystem({
   productions: {
     'F': 'F-F++F-F'
   }});
-test.transformClassicParametricAxiom('A (1, 2.5, 1234)  B(2, 3, 5)');
+LSystem.transformClassicParametricAxiom('A (1, 2.5, 1234)  B(2, 3, 5)');
 
 describe('Correct behavior of L-Systems', function() {
 
