@@ -5,12 +5,14 @@ Lindenmayer is  a [L-System](https://en.wikipedia.org/wiki/L-system) library usi
 The library can also parse to some extent classic L-System syntax as defined in Aristid Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. For example branches: `[]` or context sensitive productions: `<>`.
 Most stuff should work. I am currently working on parametric L-System support.
 
-**Better docs and more examples are coming soon** :)
+
+If you simply want to work with L-System in 3D without defining your own draw methods, you may want to check out the [A-Frame](http://aframe.io/) component of *lindenmayer.js* to easily render L-Systems in 3D and WebVR in the browser: https://github.com/nylki/aframe-lsystem-component
 
 ## Examples
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
 -  [Interactive L-System builder (2D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker)
 -  [Interactive L-System builder (3D turtle graphics)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
+-  [Examples for the A-Frame component of this library](http://nylki.github.io/aframe-lsystem-component/)
 
 [![3D Hilbert Curve rendered in Interactive L-System builder.](https://cloud.githubusercontent.com/assets/1710598/16453037/a9016230-3e0b-11e6-8268-762437de3c29.png)](http://nylki.github.io/lindenmayer/examples/webworker/index_3d.html)
 
