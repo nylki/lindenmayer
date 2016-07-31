@@ -6,7 +6,7 @@ The library can also parse to some extent classic L-System syntax as defined in 
 Most stuff should work. I am currently working on parametric L-System support.
 
 
-If you simply want to work with L-System in 3D without defining your own draw methods, you may want to check out the [A-Frame](http://aframe.io/) component of *lindenmayer.js* to easily render L-Systems in 3D and WebVR in the browser: https://github.com/nylki/aframe-lsystem-component
+If you simply want to work with L-Systems in 3D and VR without defining your own draw methods, you can check out [aframe-lsystem-component](https://github.com/nylki/aframe-lsystem-component).
 
 ## Examples
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
