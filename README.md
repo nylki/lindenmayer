@@ -184,7 +184,7 @@ lsys.setProduction('F', (parameters) => {
 
 For a shorter notation you could use the ES6 feature of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Object_destructuring) (has support in most modern browsers):
 ```.js
-lsys.setProduction('F', ({index}) => index === 2  ? 'X' : undefined);
+lsys.setProduction('F', ({index}) => index === 2  ? 'X' : false);
 ```
 
 If `undefined` or `false` is returned in a production function, as above, the initiating symbol or symbol object is returned (in aboves example, that would be`'F'`).
