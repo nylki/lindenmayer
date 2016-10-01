@@ -277,6 +277,8 @@ And the result:
 
 [![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
 
+But because the library is not opinionated about what your resuts should be like you can write your own `final` functions.
+Therefore you can draw 2D turtle graphics as seen above, but also 3D ones with WebGL/three.js, or even do other things like creating sound!
 
 ## Advanced Usage
 ### Parametric L-Systems
