@@ -25,6 +25,8 @@ If you simply want to work with L-Systems in 3D and VR without defining your own
 <script src="lindenmayer.browser.js"></script>
 ```
 ### npm
+IF you would like to use npm instead of directly downloading:
+
 ```.sh
 npm install --save lindenmayer
 ```
