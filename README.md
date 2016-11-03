@@ -61,28 +61,28 @@ console.log(result)
 There are multiple ways to set productions, including javascript functions:
 
 ```.js
-let myLsys = new LSystem({
+let lsystem = new LSystem({
   axiom: 'ABC',
   /* Directly when initializing a new L-System object: */
   productions: { 'B': 'BB' }
 })
 
 // After initialization:
-myLsys.setProduction('B', 'F+F')
+lsystem.setProduction('B', 'F+F')
 
 // You can also use ES6 arrow functions (same result as above):
-myLsys.setProduction('B', () => 'F+F')
+lsystem.setProduction('B', () => 'F+F')
 
 // Simple stochastic production, producing `F` with 10% probability, `B` with 90%
-myLSys.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
+lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
 
 // Simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
-myLsys.setProduction('B',
+lsystem.setProduction('B',
   ({index, currentAxiom}) => (currentAxiom[index-1] === 'A') && (currentAxiom[index+1] === 'C') ? 'Z' : 'B'
 )
 
 // or if you prefer the concise *classic* syntax for context sensitive productions:
-myLsys.setProduction('A<B>C', 'Z')
+lsystem.setProduction('A<B>C', 'Z')
 ```
 
 # Documentation
@@ -90,7 +90,7 @@ myLsys.setProduction('A<B>C', 'Z')
 
 You can init a L-System object with the `new` keyword:
 ```.js
-let someNewLsystem = new LSystem(options)
+let lsystem = new LSystem(options)
 ```
 
 `options` may contain:
@@ -110,7 +110,7 @@ Most often you will find yourself only setting `axiom`, `productions` and `final
 As seen in the first section you can simply set your axiom when you init your L-System.
 
 ```.js
-let lsys = new LSystem({
+let lsystem = new LSystem({
       axiom: 'F++F++F'
 })
 ```
@@ -118,10 +118,10 @@ let lsys = new LSystem({
 You can also set an axiom after initialization:
 
 ```.js
-let lsys = new LSystem({
+let lsystem = new LSystem({
       axiom: 'F++F++F'
 })
-lsys.setAxiom('F-F-F')
+lsystem.setAxiom('F-F-F')
 ```
 
 
@@ -152,10 +152,10 @@ let lsystem = new LSystem({
 You could also start with an empty L-System object, and use `setAxiom()` and `setProduction()` to edit the L-System later:
 
 ```.js
-let lsys = new LSystem()
-lsys.setAxiom('ABC')
-lsys.setProduction('A', 'AAB')
-lsys.setProduction('B', 'CB')
+let lsystem = new LSystem()
+lsystem.setAxiom('ABC')
+lsystem.setProduction('A', 'AAB')
+lsystem.setProduction('B', 'CB')
 ```
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
@@ -164,7 +164,7 @@ A major feature of this library is the possibility to use functions as productio
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
-let lsys = new LSystem({
+let lsystem = new LSystem({
       axiom: 'F++F++F',
       productions: {'F': () => (Math.random() <= 0.7) ? 'F+' : 'F-'}
 })
@@ -204,24 +204,24 @@ Now that we have set up our L-System set, we want to generate new axioms with `i
 
 ```.js
 // Iterate once
-lsys.iterate();
+lsystem.iterate();
 
 // Iterate n-times
-lsys.iterate(5);
+lsystem.iterate(5);
 ```
 
 ### Getting Results
 `iterate()` conveniently returns the resulting string:
 
 ```.js
-console.log(lsys.iterate())
+console.log(lsystem.iterate())
 ```
 
 If you want to fetch the result later, use `getString()`:
 
 ```.js
-lsys.iterate()
-console.log(lsys.getString())
+lsystem.iterate()
+console.log(lsystem.getString())
 ```
 
 
