@@ -8,14 +8,14 @@ export function transformClassicStochasticProductions(productions) {
   return function transformedProduction () {
     let resultList = productions; // the parser for productions shall create this list
     let count = resultList.length;
-    
+
     let r = Math.random();
     for(let i= 0; i < count; i++) {
       let range = (i+1) / count;
       if( r <= range) return resultList[i];
-      
+
     }
-    
+
     console.error('Should have returned a result of the list, something is wrong here with the random numbers?.');
   }
 
@@ -54,22 +54,22 @@ export function transformClassicParametricAxiom (axiom) {
 // transform a classic syntax production into valid JS production
 // TODO: Only work on first part pf production P[0]
 // -> this.transformClassicCSCondition
-export function transformClassicCSProduction (p) {
-
+export function transformClassicCSProduction (p, ignoredSymbols) {
 
   // before continuing, check if classic syntax actually there
   // example: p = ['A<B>C', 'Z']
 
   // left should be ['A', 'B']
-  let left = p[0].match(/(\w+)<(\w)/);
+  let left = p[0].match(/(.+)<(.)/);
 
   // right should be ['B', 'C']
-  let right = p[0].match(/(\w)>(\w+)/);
+  let right = p[0].match(/(.)>(.+)/);
+
 
   // Not a CS-Production (no '<' or '>'),
   //return original production.
   if(left === null && right === null) {
-    return p
+    return p;
   }
 
   // indexSymbol should be 'B' in A<B>C
@@ -93,10 +93,10 @@ export function transformClassicCSProduction (p) {
 
       // this can possibly be optimized (see: https://developers.google.com/speed/articles/optimizing-javascript#avoiding-pitfalls-with-closures)
       //
-      
-      
+
+
       if(left !== null){
-        leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'});
+        leftMatch = this.match({direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: ignoredSymbols});
       }
 
       // don't match with right side if left already false or no right match necessary
@@ -107,13 +107,13 @@ export function transformClassicCSProduction (p) {
       // so left/right are not checked here, which improves speed, as left/right
       // are in a scope above.
       if(right !== null) {
-        rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&'});
+        rightMatch = this.match({direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: ignoredSymbols});
       }
 
       // Match! On a match return either the result of given production function
       // or simply return the symbol itself if its no function.
       if((leftMatch.result && rightMatch.result)) {
-          return (typeof p[1] === 'function') ? p[1]({index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices}) : p[1];
+          return (typeof p[1] === 'function') ? p[1]({index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices, ignoredSymbols: ignoredSymbols}) : p[1];
       } else {
         return false;
       }

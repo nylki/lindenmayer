@@ -48,17 +48,17 @@ function transformClassicParametricAxiom(axiom) {
 // transform a classic syntax production into valid JS production
 // TODO: Only work on first part pf production P[0]
 // -> this.transformClassicCSCondition
-function transformClassicCSProduction(p) {
+function transformClassicCSProduction(p, ignoredSymbols) {
   var _this = this;
 
   // before continuing, check if classic syntax actually there
   // example: p = ['A<B>C', 'Z']
 
   // left should be ['A', 'B']
-  var left = p[0].match(/(\w+)<(\w)/);
+  var left = p[0].match(/(.+)<(.)/);
 
   // right should be ['B', 'C']
-  var right = p[0].match(/(\w)>(\w+)/);
+  var right = p[0].match(/(.)>(.+)/);
 
   // Not a CS-Production (no '<' or '>'),
   //return original production.
@@ -92,7 +92,7 @@ function transformClassicCSProduction(p) {
     //
 
     if (left !== null) {
-      leftMatch = _this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
+      leftMatch = _this.match({ direction: 'left', match: left[1], index: _index, branchSymbols: '[]', ignoredSymbols: ignoredSymbols });
     }
 
     // don't match with right side if left already false or no right match necessary
@@ -102,13 +102,13 @@ function transformClassicCSProduction(p) {
     // so left/right are not checked here, which improves speed, as left/right
     // are in a scope above.
     if (right !== null) {
-      rightMatch = _this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: '+-&' });
+      rightMatch = _this.match({ direction: 'right', match: right[2], index: _index, branchSymbols: '[]', ignoredSymbols: ignoredSymbols });
     }
 
     // Match! On a match return either the result of given production function
     // or simply return the symbol itself if its no function.
     if (leftMatch.result && rightMatch.result) {
-      return typeof p[1] === 'function' ? p[1]({ index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices }) : p[1];
+      return typeof p[1] === 'function' ? p[1]({ index: _index, part: _part, currentAxiom: _axiom, params: _params, leftMatchIndices: leftMatch.matchIndices, rightMatchIndices: rightMatch.matchIndices, ignoredSymbols: ignoredSymbols }) : p[1];
     } else {
       return false;
     }
@@ -171,11 +171,10 @@ function LSystem(_ref) {
 	var ignoredSymbols = _ref.ignoredSymbols;
 	var classicParametricSyntax = _ref.classicParametricSyntax;
 
-
 	// faking default values until better support lands in all browser
 	axiom = typeof axiom !== 'undefined' ? axiom : '';
-	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : [];
-	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : [];
+	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : "";
+	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : "";
 	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false';
 
 	// if using objects in axioms, as used in parametric L-Systems
@@ -207,7 +206,7 @@ function LSystem(_ref) {
 		if (newProduction === undefined) throw new Error('no production specified.');
 
 		if (this.parameters.allowClassicSyntax === true) {
-			newProduction = transformClassicCSProduction.bind(this)(newProduction);
+			newProduction = transformClassicCSProduction.bind(this)(newProduction, this.ignoredSymbols);
 		}
 		var symbol = newProduction[0];
 
@@ -318,7 +317,7 @@ function LSystem(_ref) {
 					}
 				}
 
-		return result;
+		return result === false ? part : result;
 	};
 
 	this.applyProductions = function () {
@@ -578,12 +577,15 @@ function LSystem(_ref) {
 		allowClassicSyntax: true
 	};
 
+	this.ignoredSymbols = ignoredSymbols;
 	this.setAxiom(axiom);
 	this.productions = new Map();
-	if (productions) this.setProductions(productions);
+
 	this.branchSymbols = branchSymbols;
-	this.ignoredSymbols = ignoredSymbols;
+
 	this.classicParametricSyntax = classicParametricSyntax;
+
+	if (productions) this.setProductions(productions);
 	if (finals) this.setFinals(finals);
 
 	this.iterationCount = 0;

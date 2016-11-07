@@ -7,6 +7,8 @@ chai.use(chaiAsPromised);
 
 let LSystem = require('../dist/lindenmayer.js');
 
+
+
 let test = new LSystem({
   axiom: 'F++F++F',
   productions: {
@@ -144,7 +146,7 @@ describe('Correct behavior of L-Systems', function() {
       expect(cs_LSystem5.iterate()).to.equal('Z][ED]CBA');
 
     });
-    
+
     it('Lists as productions should work', function () {
       let cs_LSystemMulti = new LSystem({
             axiom: 'ABCDEFGHI',
@@ -163,10 +165,10 @@ describe('Correct behavior of L-Systems', function() {
           }
           });
       expect(cs_LSystemMulti.iterate()).to.equal('AXXDXFGHI');
-      
-      
+
+
     });
-    
+
 
 
 
@@ -185,8 +187,6 @@ describe('Correct behavior of L-Systems', function() {
   });
 
 
-
-
   it('Classic context sensitive syntax should work.', function() {
     let cs_LSystem7 = new LSystem({
       axiom: 'A[X]BC',
@@ -196,14 +196,28 @@ describe('Correct behavior of L-Systems', function() {
     expect(cs_LSystem7.iterate()).to.equal('A[X]ZC');
   });
 
+  it('Classic context sensitive syntax should work when not ignoring them', function() {
+    let cs_LSystem7b = new LSystem({
+      axiom: 'FFB-+FF',
+      productions: {
+        'B-<F': 'Z'
+        },
+      ignoredSymbols: '+'
+    });
+
+    expect(cs_LSystem7b.iterate()).to.equal('FFB-+ZF');
+  });
+
+
   it('Left side, classic CS should work.', function() {
     let cs_LSystem8 = new LSystem({
-      axiom: 'ABC[DE][SG[HI[JK]L]MNO]',
-      productions: {'BC<S': 'Z'}
+      axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
+      productions: {'BC<S': 'Z'},
+      ignoredSymbols: '+-'
     });
-    expect(cs_LSystem8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+    expect(cs_LSystem8.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
   });
-  
+
   it('multiple CS production on the same base symbol should work.', function () {
     let cs_LSystemMulti = new LSystem({
           axiom: 'ABCDEFGHI',
@@ -219,10 +233,10 @@ describe('Correct behavior of L-Systems', function() {
         }
         });
     expect(cs_LSystemMulti.iterate()).to.equal('YYCDEFYHI');
-    
-    
+
+
   });
-  
+
 
 
   it('right side, classic CS should work.', function() {
@@ -377,7 +391,7 @@ describe('Correct behavior of L-Systems', function() {
   //   para_LSystem1.iterate()
   //   expect(para_LSystem1.getString()).to.equal('ABZDEFG')
   // })
-  
+
   it('should transform classic stochastic syntax on demand.', function() {
     let productions = [
       ['F', 'F-'],
@@ -398,13 +412,13 @@ describe('Correct behavior of L-Systems', function() {
         }
       }
     }
-    
+
     // sum of all distributions should equal stepCount
     expect(sampleSums.reduce((pre, cur) => pre + cur)).to.equal(stepCount);
-    
+
     // Its impossible to really test stochastic functions, as we cant set the seed from
     // inside the test.
-    
+
     // So we can atleast expect, that it is very improbable,
     // that a result gets never randomnly choosen.
     // in a stepcount of 10000000. BUT it is possible, so better do a rerun if this test fails :)

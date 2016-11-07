@@ -3,11 +3,10 @@
 import {transformClassicStochasticProductions, transformClassicCSProduction, transformClassicParametricAxiom, testClassicParametricSyntax} from './classicLSystemSyntax';
 
 export default function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax}) {
-
 	// faking default values until better support lands in all browser
 	axiom = typeof axiom !== 'undefined' ? axiom : '';
-	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : [];
-	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : [];
+	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : "";
+	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : "";
 	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false';
 
 	// if using objects in axioms, as used in parametric L-Systems
@@ -29,17 +28,17 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	this.setAxiom = function (axiom) {
 		this.axiom = axiom;
 	};
-	
+
 
 	this.setProduction = function (A, B, doAppend = false) {
 		let newProduction = [A, B];
 		if(newProduction === undefined) throw	new Error('no production specified.');
-		
+
 		if(this.parameters.allowClassicSyntax === true) {
-			newProduction = transformClassicCSProduction.bind(this)(newProduction);
+			newProduction = transformClassicCSProduction.bind(this)(newProduction, this.ignoredSymbols);
 		}
 		let symbol = newProduction[0];
-		
+
 		if(doAppend === true && this.productions.has(symbol)) {
 
 			let existingProduction = this.productions.get(symbol);
@@ -51,7 +50,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 		} else {
 			this.productions.set(newProduction[0], newProduction[1]);
 		}
-		
+
 
 	};
 
@@ -93,9 +92,9 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 
 
 	this.getProductionResult = function (p, index, part, params) {
-		
+
 		let result;
-		
+
 		// if p is a function, execute function and append return value
 		if (typeof p === 'function') {
 			result = p({index, currentAxiom: this.axiom, part, params});
@@ -121,7 +120,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 				} else {
 					_result = (typeof _p === 'function') ? _p({index, currentAxiom: this.axiom, part, params}) : _p;
 				}
-				
+
 				if (_result !== undefined && _result !== false) {
 					result = _result;
 					break;
@@ -129,8 +128,8 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 
 			}
 		}
-		
-		return result;
+
+		return (result === false) ? part : result;
 	}
 
 	this.applyProductions = function() {
@@ -152,7 +151,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 				let p = this.productions.get(symbol);
 				result = this.getProductionResult(p, index, part, params);
 			}
-			
+
 			// finally add result to new axiom
 			if(typeof newAxiom === 'string') {
 				newAxiom += result;
@@ -315,7 +314,7 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 				return {result: false, matchIndices: returnMatchIndices};
 			}
 		}
-		
+
 		return {result: false, matchIndices: returnMatchIndices};
 
 	};
@@ -325,12 +324,16 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 		allowClassicSyntax: true
 	};
 
+	this.ignoredSymbols = ignoredSymbols;
 	this.setAxiom(axiom);
 	this.productions = new Map();
-	if(productions) this.setProductions(productions);
+
 	this.branchSymbols = branchSymbols;
-	this.ignoredSymbols = ignoredSymbols;
+
 	this.classicParametricSyntax = classicParametricSyntax;
+
+
+	if(productions) this.setProductions(productions);
 	if (finals) this.setFinals(finals);
 
 	this.iterationCount = 0;
