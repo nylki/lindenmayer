@@ -182,25 +182,27 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	};
 
 	this.final = function() {
+		let index = 0;
 		for (let part of this.axiom) {
 
 			// if we have objects for each symbol, (when using parametric L-Systems)
 			// get actual identifiable symbol character
-			let symbol = part
-			if(typeof part === 'object' && part.symbol) symbol = part.symbol
+			let symbol = part;
+			if(typeof part === 'object' && part.symbol) symbol = part.symbol;
 
 			if (this.finals.has(symbol)) {
-				var finalFunction = this.finals.get(symbol)
-				var typeOfFinalFunction = typeof finalFunction
+				var finalFunction = this.finals.get(symbol);
+				let typeOfFinalFunction = typeof finalFunction;
 				if ((typeOfFinalFunction !== 'function')) {
-					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
+					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
 				// execute symbols function
-				finalFunction()
+				finalFunction({index: index, part: part});
 
 			} else {
 				// symbol has no final function
 			}
+			index++;
 		}
 	}
 
