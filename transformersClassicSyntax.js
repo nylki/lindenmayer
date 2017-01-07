@@ -62,7 +62,7 @@ export function transformClassicParametricAxiom (axiom) {
 };
 
 
-export function transformClassicCSProduction (p, ignoredSymbols) {
+export function transformClassicCSProduction (p) {
 
   // before continuing, check if classic syntax actually there
   // example: p = ['A<B>C', 'Z']

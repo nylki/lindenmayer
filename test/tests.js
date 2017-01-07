@@ -323,6 +323,26 @@ describe('Correct behavior of L-Systems', function() {
     expect(para_LSystem2.getString()).to.equal('ABYZEFG');
   });
 
+
+
+
+// NEW OBJECT BASED PRODUCTIONS SHOULD WORK
+it('Object based production that support context sensitivity, stochastic and conditions should work', function() {
+  let lsystem = new LSystem({
+    axiom:'⚣⚤●',
+    productions: {
+      '⚣': '♂♂',
+      '⚤': '♀♂',
+      '●': '○◐◑'
+    }
+  })
+  expect(test.iterate()).to.equal('♂♂♀♂○◐◑')
+})
+
+
+
+
+
   // When using functions, all additional info should be usable (index, part, currentAxiom, params)
 
   // it('Classic Parametric L-Systems should get parsed properly (strip whitespaces, tokenize into JS objects)', function() {

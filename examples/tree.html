@@ -6,27 +6,27 @@
 
 </head>
 <body>
-	
+
 	<h1>a tree (5 iterations)</h1>
 	<canvas id="canvas" width="700" height="600"></canvas>
 	<label for="textresult">string result:</label>
 	<textarea id="textresult" rows="40" cols="80"></textarea>
-	
+
 	<script src="lindenmayer.js"></script>
 	<script type="text/javascript">
 
-	
+
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext("2d");
 		var textresult = document.getElementById('textresult');
 		var iterations = 5;
-	
+
 		// translate so that tree is in center
 		// also rotate
 		ctx.translate(canvas.width/2, canvas.height/1.5);
 		ctx.rotate(Math.PI);
-		
-	
+
+
 		var tree = new LSystem({
 			axiom: 'X',
 			productions: {
