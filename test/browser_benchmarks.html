@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <button type="button" name="button" onclick="setTimeout(benchmark, 500)">Start Benchmark (before: open dev tools in browser!)</button>
+
+    <script type="text/javascript">
+
+
+
+    function benchmark() {
+
+      console.log('Starting benchmark. Please wait...');
+      var myWorker = new Worker("browser_benchmarks_worker.js");
+    }
+    </script>
+
+  </body>
+</html>
