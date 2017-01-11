@@ -6,12 +6,14 @@
     "sync-ghpages": "git checkout gh-pages && git checkout master examples && git commit -a -m \"added/checkout out examples from master branch to ghpages branch.\" && git push; git checkout master"
   },
   "devDependencies": {
-    "babel-preset-es2015-rollup": "^1.1.1",
+    "babel-preset-env": "^1.1.8",
     "benchmark": "^2.1.2",
+    "microtime": "^2.1.1",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "expect": "^1.20.0",
     "install": "^0.8.1",
+    "marky": "^1.1.1",
     "mocha": "^2.4.5",
     "rollup": "^0.34.1",
     "rollup-plugin-babel": "^2.6.1",
@@ -20,14 +22,16 @@
     "uglify-js": "^2.6.2"
   },
   "dependencies": {
-    "microtime": "^2.1.1"
+    
   },
   "name": "lindenmayer",
   "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
   "version": "1.2.3",
   "main": "dist/lindenmayer.js",
+  "module": "dist/lindenmayer.es.js",
   "files": [
     "dist/lindenmayer.browser.js",
+    "dist/lindenmayer.es.js",
     "dist/lindenmayer.js",
     "README.md",
     "LICENSE"
