@@ -436,45 +436,6 @@ describe('Parametric L-Systems: custom Objects as symbols with function producti
   // })
 
 
-describe('Additional tests', function () {
-
-  it('should transform classic stochastic syntax on demand.', function() {
-    let productions = [
-      ['F', 'F-'],
-      ['F', 'F+'],
-      ['F', 'FF']
-    ];
-
-    let stepCount = 10000000;
-    let p = LSystem.transformClassicStochasticProductions(productions);
-    let sampleSums = new Array(productions.length).fill(0);
-
-    for (let step = 0; step < stepCount; step++) {
-      let result = p('F');
-      // console.log(result);
-      for (let i = 0; i < productions.length; i++) {
-        if (result[1] === productions[i][1]) {
-          sampleSums[i]++;
-        }
-      }
-    }
-
-    // sum of all distributions should equal stepCount
-    expect(sampleSums.reduce((pre, cur) => pre + cur)).to.equal(stepCount);
-
-    // Its impossible to really test stochastic functions, as we cant set the seed from
-    // inside the test.
-
-    // So we can atleast expect, that it is very improbable,
-    // that a result gets never randomnly choosen.
-    // in a stepcount of 10000000. BUT it is possible, so better do a rerun if this test fails :)
-    for (let sum of sampleSums) {
-      expect(sum).to.be.at.least(1);
-    }
-    // Print the result, so the tester can check the numbers.
-    console.log('     test log: random distribution of classic stochastic transformed productions:', sampleSums);
-  });
-});
 
 describe('L-Systems with Object based productions', function() {
 
@@ -582,32 +543,6 @@ describe('L-Systems with Object based productions', function() {
     expect(lsystem.getString()).to.equal('F+XYZ');
   });
   
-  // it('Stochastic production should work', (done) => {
-  //   let lsystem = new LSystem({
-  //     axiom: 'X',
-  //     productions: {
-  //       'X': {
-  //         successors: [
-  //           {weight: 1, successor: 'A'},
-  //           {weight: 1, successor: 'B'},
-  //           {weight: 1, successor: 'C'}
-  //         ]
-  //       },
-  //       'Y': {
-  //         successors: [
-  //           {weight: 10, successor: 'L'},
-  //           {weight: 100, successor: 'M'},
-  //           {weight: 890, successor: 'H'}
-  //         ]
-  //       },
-  //     }
-  //   });
-  //
-  //   lsystem.iterate(1000);
-  //   console.log(lsystem.getString());
-  //
-  // });
-
 
 });
 
