@@ -40,6 +40,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 		if(this.allowClassicSyntax === true) {
 			newProduction = transformClassicCSProduction(newProduction, this.ignoredSymbols);
 		}
+
 		newProduction = normalizeProduction(newProduction, this.forceObjects);
 		
 		// check wether production is stochastic

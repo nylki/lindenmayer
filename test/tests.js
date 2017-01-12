@@ -487,7 +487,7 @@ describe('L-Systems with Object based productions', function() {
   });
 
   it('Axiom === Object; Production LHS === String; Production RHS === Object', function() {
-    let lsystem = new LSystem({axiom: [{symbol: 'F'}]});
+    let lsystem = new LSystem({axiom: [{symbol: 'F'}], forceObjects: true});
     lsystem.setProduction('F', {successor: 'FF'});
     lsystem.iterate(2);
     console.log(lsystem.getString());
