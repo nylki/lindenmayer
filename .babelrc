@@ -2,14 +2,16 @@
   "presets": [
     ["env", {
       "targets": {
-        "chrome": 50,
+        "chrome": 51,
         "firefox": 45,
         "safari": 10,
-        "edge": 13
-        
+        "edge": 14
       },
+      
       "modules": false,
-      "loose": true
+      "loose": false
     }]
   ]
 }
+
+/*"exclude": ["transform-es2015-for-of"],*/

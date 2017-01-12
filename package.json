@@ -1,4 +1,39 @@
-{
+{"name": "lindenmayer",
+  "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
+  "version": "1.2.3",
+  "author": "Tom Brewe <info@nylkiway.net>",
+  "license": "MIT",
+  "keywords": [
+    "L-System",
+    "LSystem",
+    "turtle",
+    "graphics",
+    "fractal"
+  ],
+  "homepage": "https://github.com/nylki/lindenmayer",
+  "bugs": {
+    "url": "https://github.com/nylki/lindenmayer/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nylki/lindenmayer.git"
+  },
+  
+  "main": "dist/lindenmayer.js",
+  "module": "dist/lindenmayer.es.js",
+  "files": [
+    "dist/lindenmayer.browser.js",
+    "dist/lindenmayer.es.js",
+    "dist/lindenmayer.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "directories": {
+    "lib": "dist",
+    "example": "examples",
+    "test": "test"
+  },
+
   "scripts": {
     "test": "npm run build && mocha test/tests_new.js",
     "build": "rollup -c; rollup -c -f iife -o dist/lindenmayer.browser.js && cp dist/lindenmayer.browser.js examples/lindenmayer.js",
@@ -23,39 +58,6 @@
   },
   "dependencies": {
     
-  },
-  "name": "lindenmayer",
-  "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
-  "version": "1.2.3",
-  "main": "dist/lindenmayer.js",
-  "module": "dist/lindenmayer.es.js",
-  "files": [
-    "dist/lindenmayer.browser.js",
-    "dist/lindenmayer.es.js",
-    "dist/lindenmayer.js",
-    "README.md",
-    "LICENSE"
-  ],
-  "directories": {
-    "dist": "dist",
-    "example": "examples",
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nylki/lindenmayer.git"
-  },
-  "keywords": [
-    "L-System",
-    "LSystem",
-    "turtle",
-    "graphics",
-    "fractal"
-  ],
-  "author": "Tom Brewe <info@nylkiway.net>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/nylki/lindenmayer/issues"
-  },
-  "homepage": "https://github.com/nylki/lindenmayer#readme"
+  }
+  
 }

@@ -91,21 +91,31 @@ function transformClassicCSProduction(p) {
 function stringToObjects(string) {
   if (typeof string !== 'string' && string instanceof String === false) return string;
   var transformed = [];
-  for (var _iterator = string, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-    var _ref;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
 
-    if (_isArray) {
-      if (_i >= _iterator.length) break;
-      _ref = _iterator[_i++];
-    } else {
-      _i = _iterator.next();
-      if (_i.done) break;
-      _ref = _i.value;
+  try {
+    for (var _iterator = string[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var symbol = _step.value;
+      transformed.push({ symbol });
     }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
 
-    var symbol = _ref;
-    transformed.push({ symbol });
-  }return transformed;
+  return transformed;
 }
 
 // transform p to {successor: p}
@@ -114,23 +124,21 @@ function stringToObjects(string) {
 function normalizeProductionRightSide(p, forceObject) {
 
   if (p.hasOwnProperty('successors')) {
-    console.log('has successors');
     for (var i = 0; i < p.successors.length; i++) {
       p.successors[i] = normalizeProductionRightSide(p.successors[i], forceObject);
     }
   } else if (p.hasOwnProperty('successor') === false) {
-    console.log(p);
     p = { successor: forceObject ? stringToObjects(p) : p };
   }
-  // console.log(p);
   return p;
 }
 
 function normalizeProduction(p, forceObject) {
   p[1] = normalizeProductionRightSide(p[1]);
-  console.log(p);
   return p;
 }
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 function LSystem(_ref) {
 	var _ref$axiom = _ref.axiom,
@@ -174,34 +182,68 @@ function LSystem(_ref) {
 	};
 
 	this.setProduction = function (from, to) {
-		var doAppend = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+		var allowAppendingMultiSuccessors = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
 		var newProduction = [from, to];
 		if (newProduction === undefined) throw new Error('no production specified.');
+
+		if (to.successor && to.successors) {
+			throw new Error('You can not have both a "successor" and a "successors" field in your production!');
+		}
 
 		// Apply production transformers and normalizations
 		if (this.allowClassicSyntax === true) {
 			newProduction = transformClassicCSProduction(newProduction, this.ignoredSymbols);
 		}
-		console.log(to);
 		newProduction = normalizeProduction(newProduction, this.forceObjects);
 
-		var symbol = newProduction[0];
+		// check wether production is stochastic
+		newProduction[1].isStochastic = newProduction[1].successors !== undefined && newProduction[1].successors.every(successor => successor.weight !== undefined);
 
-		if (doAppend === true && this.productions.has(symbol)) {
+		if (newProduction[1].isStochastic) {
+			// calculate weight sum
+			newProduction[1].weightSum = 0;
+			var _iteratorNormalCompletion = true;
+			var _didIteratorError = false;
+			var _iteratorError = undefined;
+
+			try {
+				for (var _iterator = newProduction[1].successors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var s = _step.value;
+
+					newProduction[1].weightSum += s.weight;
+				}
+			} catch (err) {
+				_didIteratorError = true;
+				_iteratorError = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion && _iterator.return) {
+						_iterator.return();
+					}
+				} finally {
+					if (_didIteratorError) {
+						throw _iteratorError;
+					}
+				}
+			}
+		}
+
+		var symbol = newProduction[0];
+		if (allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
 
 			var existingProduction = this.productions.get(symbol);
-			var succ = existingProduction.successor;
+			var singleSuccessor = existingProduction.successor;
+			var multiSuccessors = existingProduction.successors;
 
-			// Make succesor an array if it not already is
-			if (succ[Symbol.iterator] === undefined || typeof succ === 'string' || succ instanceof String) {
-				succ = [succ];
+			if (singleSuccessor && !multiSuccessors) {
+				// replace existing prod with new obj and add previous successor as first elem
+				// to new successors field.
+				existingProduction = { successors: [singleSuccessor] };
 			}
-			succ.push(newProduction[1]);
-			existingProduction.successor = succ;
+			existingProduction.successors.push(newProduction[1]);
 			this.productions.set(symbol, existingProduction);
 		} else {
-
 			this.productions.set(symbol, newProduction[1]);
 		}
 	};
@@ -211,10 +253,33 @@ function LSystem(_ref) {
 		if (newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
 
-		// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
-		for (var condition in newProductions) {
-			if (newProductions.hasOwnProperty(condition)) {
-				this.setProduction(condition, newProductions[condition], true);
+		var _iteratorNormalCompletion2 = true;
+		var _didIteratorError2 = false;
+		var _iteratorError2 = undefined;
+
+		try {
+			for (var _iterator2 = Object.entries(newProductions)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+				var _ref2 = _step2.value;
+
+				var _ref3 = _slicedToArray(_ref2, 2);
+
+				var from = _ref3[0];
+				var to = _ref3[1];
+
+				this.setProduction(from, to, true);
+			}
+		} catch (err) {
+			_didIteratorError2 = true;
+			_iteratorError2 = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion2 && _iterator2.return) {
+					_iterator2.return();
+				}
+			} finally {
+				if (_didIteratorError2) {
+					throw _iteratorError2;
+				}
 			}
 		}
 	};
@@ -250,13 +315,12 @@ function LSystem(_ref) {
 		var successor = p.successor;
 		var contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
 		var conditional = p.condition !== undefined;
-		var multipleSuccessors = p.successors !== undefined; // TODO: make check that p.successor does not exist, and error/warn then
 		var stochastic = false;
 		var result = false;
 		var precheck = true;
 
 		// Check if condition is true, only then continue to check left and right contexts
-		if (conditional && p.condition() === false) {
+		if (conditional && p.condition({ index, currentAxiom: this.axiom, part, params }) === false) {
 			precheck = false;
 		} else if (contextSensitive) {
 			if (p.leftCtx !== undefined && p.rightCtx !== undefined) {
@@ -273,52 +337,60 @@ function LSystem(_ref) {
 			result = false;
 		}
 
-		// This could be stochastic successors or multiple functions
-		// Tread every element in the list as an individual production object
-		// For stochastic productions (if all prods in the list have a 'weight' property)
-		// Get a random number then pick a production from the list according to their weight
+		// If p has multiple successors
+		else if (p.successors) {
+				// This could be stochastic successors or multiple functions
+				// Tread every element in the list as an individual production object
+				// For stochastic productions (if all prods in the list have a 'weight' property)
+				// Get a random number then pick a production from the list according to their weight
 
-		else if (multipleSuccessors) {
-
+				var currentWeight, threshWeight;
 				if (p.isStochastic) {
-					var _threshWeight = Math.random() * p.weightSum;
-					var _currentWeight = 0;
+					threshWeight = Math.random() * p.weightSum;
+					currentWeight = 0;
 				}
-
 				/*
     go through the list and use
     the first valid production in that list. (that returns true)
     This assumes, it's a list of functions.
     No recursion here: no successors inside successors.
     */
-				for (var _iterator = p.successors, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-					var _ref2;
+				var _iteratorNormalCompletion3 = true;
+				var _didIteratorError3 = false;
+				var _iteratorError3 = undefined;
 
-					if (_isArray) {
-						if (_i >= _iterator.length) break;
-						_ref2 = _iterator[_i++];
-					} else {
-						_i = _iterator.next();
-						if (_i.done) break;
-						_ref2 = _i.value;
+				try {
+					for (var _iterator3 = p.successors[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+						var _p = _step3.value;
+
+						if (p.isStochastic) {
+							currentWeight += _p.weight;
+							if (currentWeight < threshWeight) continue;
+						}
+						// If currentWeight >= thresWeight, a production is choosen stochastically
+						// and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
+
+						// last true is for recursiv call
+						// TODO: refactor getProductionResult to use an object
+						var _result = this.getProductionResult(_p, index, part, params, true);
+
+						if (_result !== undefined && _result !== false) {
+							result = _result;
+							break;
+						}
 					}
-
-					var _p = _ref2;
-
-					if (p.isStochastic) {
-						currentWeight += _p.weight;
-						if (currentWeight < threshWeight) continue;
-					}
-					// If currentWeight >= thresWeight, a production is choosen stochastically
-					// and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
-
-					// last true is for recursiv call
-					// TODO: refactor getProductionResult to use an object
-					var _result = this.getProductionResult(_p, index, part, params, true);
-
-					if (_result !== undefined && _result !== false) {
-						result = _result;
-						break;
+				} catch (err) {
+					_didIteratorError3 = true;
+					_iteratorError3 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion3 && _iterator3.return) {
+							_iterator3.return();
+						}
+					} finally {
+						if (_didIteratorError3) {
+							throw _iteratorError3;
+						}
 					}
 				}
 			}
@@ -326,16 +398,7 @@ function LSystem(_ref) {
 			else if (typeof successor === 'function') {
 
 					result = successor({ index, currentAxiom: this.axiom, part, params });
-
-					/* if p is no function and no iterable, then
-     it should be a string (regular) or object
-     directly return it then as result */
-				} else if (typeof successor === 'string' || successor instanceof String || typeof successor === 'object' && successor[Symbol.iterator] === undefined) {
-					result = successor;
-
-					// if p is a list/iterable
-				} else if (successor[Symbol.iterator] !== undefined && typeof successor !== 'string' && !(successor instanceof String)) {
-
+				} else {
 					result = successor;
 				}
 
@@ -350,62 +413,67 @@ function LSystem(_ref) {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 		var newAxiom = typeof this.axiom === 'string' ? '' : [];
 		var index = 0;
+
 		// iterate all symbols/characters of the axiom and lookup according productions
-		for (var _iterator2 = this.axiom, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-			var _ref3;
+		var _iteratorNormalCompletion4 = true;
+		var _didIteratorError4 = false;
+		var _iteratorError4 = undefined;
 
-			if (_isArray2) {
-				if (_i2 >= _iterator2.length) break;
-				_ref3 = _iterator2[_i2++];
-			} else {
-				_i2 = _iterator2.next();
-				if (_i2.done) break;
-				_ref3 = _i2.value;
-			}
-
-			var part = _ref3;
+		try {
+			for (var _iterator4 = this.axiom[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+				var part = _step4.value;
 
 
-			var symbol = part;
+				// Stuff for classic parametric L-Systems: get actual symbol and possible parameters
+				// params will be given the production function, if applicable.
 
-			// Stuff for classic parametric L-Systems: get actual symbol and possible parameters
-			// params will be given the production function, if applicable.
-			var params = [];
-			if (typeof part === 'object' && part.symbol) symbol = part.symbol;
-			if (typeof part === 'object' && part.params) params = part.params;
+				var symbol = part.symbol || part;
+				var params = part.params || [];
 
-			var result = part;
-			if (this.productions.has(symbol)) {
-				var p = this.productions.get(symbol);
-				result = this.getProductionResult(p, index, part, params);
-			}
+				var result = part;
+				if (this.productions.has(symbol)) {
+					var p = this.productions.get(symbol);
+					result = this.getProductionResult(p, index, part, params);
+				}
 
-			// finally add result to new axiom
-			if (typeof newAxiom === 'string') {
-				newAxiom += result;
-			} else {
-				// If result is an array, merge result into new axiom instead of pushing.
-				if (result.constructor === Array) {
+				// Got result. Now add result to new axiom.
+				if (typeof newAxiom === 'string') {
+					newAxiom += result;
+				} else if (result instanceof Array) {
+					// If result is an array, merge result into new axiom instead of pushing.
 					Array.prototype.push.apply(newAxiom, result);
 				} else {
 					newAxiom.push(result);
 				}
+				index++;
 			}
-			index++;
+
+			// finally set new axiom and also return it for convenience.
+		} catch (err) {
+			_didIteratorError4 = true;
+			_iteratorError4 = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion4 && _iterator4.return) {
+					_iterator4.return();
+				}
+			} finally {
+				if (_didIteratorError4) {
+					throw _iteratorError4;
+				}
+			}
 		}
 
-		// finally set new axiom and also return for convenience
 		this.axiom = newAxiom;
 		return newAxiom;
 	};
 
-	// iterate n times
 	this.iterate = function () {
 		var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
 		this.iterations = n;
 		var lastIteration = void 0;
-		for (var iteration = 0; iteration < n; iteration++, this.iterationCount++) {
+		for (var iteration = 0; iteration < n; iteration++) {
 			lastIteration = this.applyProductions();
 		}
 		return lastIteration;
@@ -413,38 +481,46 @@ function LSystem(_ref) {
 
 	this.final = function () {
 		var index = 0;
-		for (var _iterator3 = this.axiom, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-			var _ref4;
+		var _iteratorNormalCompletion5 = true;
+		var _didIteratorError5 = false;
+		var _iteratorError5 = undefined;
 
-			if (_isArray3) {
-				if (_i3 >= _iterator3.length) break;
-				_ref4 = _iterator3[_i3++];
-			} else {
-				_i3 = _iterator3.next();
-				if (_i3.done) break;
-				_ref4 = _i3.value;
-			}
-
-			var part = _ref4;
+		try {
+			for (var _iterator5 = this.axiom[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+				var part = _step5.value;
 
 
-			// if we have objects for each symbol, (when using parametric L-Systems)
-			// get actual identifiable symbol character
-			var symbol = part;
-			if (typeof part === 'object' && part.symbol) symbol = part.symbol;
+				// if we have objects for each symbol, (when using parametric L-Systems)
+				// get actual identifiable symbol character
+				var symbol = part;
+				if (typeof part === 'object' && part.symbol) symbol = part.symbol;
 
-			if (this.finals.has(symbol)) {
-				var finalFunction = this.finals.get(symbol);
-				var typeOfFinalFunction = typeof finalFunction;
-				if (typeOfFinalFunction !== 'function') {
-					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
+				if (this.finals.has(symbol)) {
+					var finalFunction = this.finals.get(symbol);
+					var typeOfFinalFunction = typeof finalFunction;
+					if (typeOfFinalFunction !== 'function') {
+						throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
+					}
+					// execute symbols function
+					finalFunction({ index, part });
+				} else {
+					// symbol has no final function
 				}
-				// execute symbols function
-				finalFunction({ index, part });
-			} else {
-				// symbol has no final function
+				index++;
 			}
-			index++;
+		} catch (err) {
+			_didIteratorError5 = true;
+			_iteratorError5 = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion5 && _iterator5.return) {
+					_iterator5.return();
+				}
+			} finally {
+				if (_didIteratorError5) {
+					throw _iteratorError5;
+				}
+			}
 		}
 	};
 
@@ -473,13 +549,13 @@ function LSystem(_ref) {
  	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
 
-	this.match = function (_ref5) {
-		var axiom_ = _ref5.axiom_,
-		    match = _ref5.match,
-		    ignoredSymbols = _ref5.ignoredSymbols,
-		    branchSymbols = _ref5.branchSymbols,
-		    index = _ref5.index,
-		    direction = _ref5.direction;
+	this.match = function (_ref4) {
+		var axiom_ = _ref4.axiom_,
+		    match = _ref4.match,
+		    ignoredSymbols = _ref4.ignoredSymbols,
+		    branchSymbols = _ref4.branchSymbols,
+		    index = _ref4.index,
+		    direction = _ref4.direction;
 
 
 		var branchCount = 0;
@@ -506,8 +582,11 @@ function LSystem(_ref) {
 			if (branchSymbols.length > 0) {
 				;
 				var _branchSymbols = branchSymbols;
-				branchStart = _branchSymbols[0];
-				branchEnd = _branchSymbols[1];
+
+				var _branchSymbols2 = _slicedToArray(_branchSymbols, 2);
+
+				branchStart = _branchSymbols2[0];
+				branchEnd = _branchSymbols2[1];
 			}
 		} else if (direction === 'left') {
 			loopIndexChange = matchIndexChange = -1;
@@ -516,19 +595,20 @@ function LSystem(_ref) {
 			matchIndexOverflow = -1;
 			if (branchSymbols.length > 0) {
 				;
-				var _branchSymbols2 = branchSymbols;
-				branchEnd = _branchSymbols2[0];
-				branchStart = _branchSymbols2[1];
+				var _branchSymbols3 = branchSymbols;
+
+				var _branchSymbols4 = _slicedToArray(_branchSymbols3, 2);
+
+				branchEnd = _branchSymbols4[0];
+				branchStart = _branchSymbols4[1];
 			}
 		} else {
 			throw Error(direction, 'is not a valid direction for matching.');
 		}
 
 		for (; axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
-			// FIXME: what about objects with .symbol
-			var axiomSymbol = axiom_[axiomIndex];
-			// For objects match for objects `symbol`
-			if (typeof axiomSymbol === 'object') axiomSymbol = axiomSymbol.symbol;
+
+			var axiomSymbol = axiom_[axiomIndex].symbol || axiom_[axiomIndex];
 			var matchSymbol = match[matchIndex];
 
 			// compare current symbol of axiom with current symbol of match
@@ -592,7 +672,6 @@ function LSystem(_ref) {
 	if (productions) this.setProductions(productions);
 	if (finals) this.setFinals(finals);
 
-	this.iterationCount = 0;
 	return this;
 }
 

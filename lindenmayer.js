@@ -28,36 +28,51 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 
 
 
-	this.setProduction = function (A, B, doAppend = false) {
-		let newProduction = [A, B];
+	this.setProduction = function (from, to, allowAppendingMultiSuccessors = false) {
+		let newProduction = [from, to];
 		if(newProduction === undefined) throw	new Error('no production specified.');
+
+		if (to.successor && to.successors) {
+			throw new Error('You can not have both a "successor" and a "successors" field in your production!');
+		}
 
 		// Apply production transformers and normalizations
 		if(this.allowClassicSyntax === true) {
 			newProduction = transformClassicCSProduction(newProduction, this.ignoredSymbols);
 		}
 		newProduction = normalizeProduction(newProduction, this.forceObjects);
+		
+		// check wether production is stochastic
+		newProduction[1].isStochastic = newProduction[1].successors !== undefined && newProduction[1].successors.every(successor => successor.weight !== undefined);
+		
+		if(newProduction[1].isStochastic) {
+			// calculate weight sum
+			newProduction[1].weightSum = 0;
+			for (let s of newProduction[1].successors) {
+				newProduction[1].weightSum += s.weight;
+			}
+		}
 
+
+		
 		let symbol = newProduction[0];
-
-		if(doAppend === true && this.productions.has(symbol)) {
+		if(allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
 
 			let existingProduction = this.productions.get(symbol);
-			let succ = existingProduction.successor;
-
-			// Make succesor an array if it not already is
-			if(succ[Symbol.iterator] === undefined || typeof succ === 'string' || succ instanceof String) {
-				succ = [succ];
+			let singleSuccessor = existingProduction.successor;
+			let multiSuccessors = existingProduction.successors;
+			
+			if(singleSuccessor && !multiSuccessors) {
+				// replace existing prod with new obj and add previous successor as first elem
+				// to new successors field.
+				existingProduction = {successors: [singleSuccessor]};
 			}
-			succ.push(newProduction[1]);
-			existingProduction.successor = succ;
+			existingProduction.successors.push(newProduction[1]);
 			this.productions.set(symbol, existingProduction);
 
 		} else {
-
 			this.productions.set(symbol, newProduction[1]);
 		}
-
 
 	};
 
@@ -66,12 +81,10 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 		if(newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
 
-			// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
-			for (let condition in newProductions) {
-			  if( newProductions.hasOwnProperty( condition ) ) {
-					this.setProduction(condition, newProductions[condition], true);
-			  }
-			}
+		for (let [from, to] of Object.entries(newProductions)) {
+			this.setProduction(from, to, true);
+		}
+
 	};
 
 	this.clearProductions = function () {
@@ -97,18 +110,18 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 			}
 	};
 
-
-	var hasWeight = el => el.weight !== undefined;
-	this.getProductionResult = function (p, index, part, params) {
-		let precheck = true;
+	//var hasWeight = el => el.weight !== undefined;
+	this.getProductionResult = function (p, index, part, params, recursive = false) {
+		
 		let successor = p.successor;
 		let contextSensitive = (p.leftCtx !== undefined || p.rightCtx !== undefined);
 		let conditional = p.condition !== undefined;
 		let stochastic = false;
 		let result = false;
+		let precheck = true;
 
 		// Check if condition is true, only then continue to check left and right contexts
-		if(conditional && p.condition() === false) {
+		if(conditional && p.condition({index, currentAxiom: this.axiom, part, params}) === false) {
 			precheck = false;
 		}
 		else if(contextSensitive) {
@@ -122,108 +135,108 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 
 		}
 
-		// If conditions and context don't allow product, use fallback
+		// If conditions and context don't allow product, keep result = false
 		if(precheck === false) {
 			result = false;
+		}
+		
+		// If p has multiple successors
+		else if (p.successors) {
+			// This could be stochastic successors or multiple functions
+			// Tread every element in the list as an individual production object
+			// For stochastic productions (if all prods in the list have a 'weight' property)
+			// Get a random number then pick a production from the list according to their weight
+
+			var currentWeight, threshWeight;
+			if(p.isStochastic) {
+				threshWeight = Math.random() * p.weightSum;
+				currentWeight = 0;
+			}
+			/*
+			go through the list and use
+			the first valid production in that list. (that returns true)
+			This assumes, it's a list of functions.
+			No recursion here: no successors inside successors.
+			*/
+			for (let _p of p.successors) {
+				if(p.isStochastic) {
+					currentWeight += _p.weight;
+					if (currentWeight < threshWeight) continue;
+				}
+				// If currentWeight >= thresWeight, a production is choosen stochastically
+				// and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
+				
+				// last true is for recursiv call
+				// TODO: refactor getProductionResult to use an object
+				let _result = this.getProductionResult(_p, index, part, params, true);
+					
+				if (_result !== undefined && _result !== false) {
+					result = _result;
+					break;
+				}
+			}
+
+
+				
 		}
 		// if successor is a function, execute function and append return value
 		else if (typeof successor === 'function') {
 
 			result = successor({index, currentAxiom: this.axiom, part, params});
 
-			/* if p is no function and no iterable, then
-			it should be a string (regular) or object
-			directly return it then as result */
-		} else if (typeof successor === 'string' || successor instanceof String || (typeof successor === 'object' && successor[Symbol.iterator] === undefined) ) {
+		} else  {
 			result = successor;
-
-			// if p is a list/iterable
-		} else if (successor[Symbol.iterator] !== undefined && typeof successor !== 'string' && !(successor instanceof String)) {
-
-			if(stochastic) {
-
-			} else {
-
-
-				/*
-				go through the list and use
-				the first valid production in that list. (that returns true)
-				This assumes, it's a list of functions.
-				*/
-
-				result = successor;
-
-
-				// for (let _succ of successor) {
-				// 	let _result;
-				// 	if (_succ[Symbol.iterator] !== undefined && typeof _succ !== 'string' && !(_succ instanceof String)) {
-				// 		// If _p is itself also an Array, recursively get the result.
-				// 		_result = this.getProductionResult(_succ);
-				// 	} else {
-				// 		_result = (typeof _succ === 'function') ? _succ({index, currentAxiom: this.axiom, part, params}) : _succ;
-				// 	}
-				//
-				// 	if (_result !== undefined && _result !== false) {
-				// 		result = _result;
-				// 		break;
-				// 	}
-				//
-				// }
-			}
-
-
 		}
 
-		return (result === false) ? part : result;
-
-
+		if(!result) {
+			// Allow undefined or false results for recursive calls of this func
+			return recursive ? result : part;
+		}
+		return result;
 	}
 
 	this.applyProductions = function() {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 		let newAxiom = (typeof this.axiom === 'string') ? '' : [];
 		let index = 0;
+		
 		// iterate all symbols/characters of the axiom and lookup according productions
 		for (let part of this.axiom) {
-
-			let symbol = part;
-
+			
 			// Stuff for classic parametric L-Systems: get actual symbol and possible parameters
 			// params will be given the production function, if applicable.
-			let params = [];
-			if(typeof part === 'object' && part.symbol) symbol = part.symbol;
-			if(typeof part === 'object' && part.params) params = part.params;
-
+			
+			let symbol = part.symbol || part;
+			let params = part.params || [];
+			
 			let result = part;
 			if (this.productions.has(symbol)) {
 				let p = this.productions.get(symbol);
 				result = this.getProductionResult(p, index, part, params);
 			}
-
-			// finally add result to new axiom
+			
+			// Got result. Now add result to new axiom.
 			if(typeof newAxiom === 'string') {
 				newAxiom += result;
-			} else {
+			} else if (result instanceof Array){
 				// If result is an array, merge result into new axiom instead of pushing.
-				if(result.constructor === Array) {
-					Array.prototype.push.apply(newAxiom, result);
-				} else {
-					newAxiom.push(result);
-				}
+				Array.prototype.push.apply(newAxiom, result);
+			} else {
+				newAxiom.push(result);
 			}
 			index++;
 		}
-
-		// finally set new axiom and also return for convenience
+		
+		// finally set new axiom and also return it for convenience.
 		this.axiom = newAxiom;
 		return newAxiom;
 	};
 
-	// iterate n times
+
 	this.iterate = function(n = 1) {
 		this.iterations = n;
 		let lastIteration;
-		for (let iteration = 0; iteration < n; iteration++, this.iterationCount++) {
+		for (let iteration = 0; iteration < n; iteration++) {
 			lastIteration = this.applyProductions();
 		}
 		return lastIteration;
@@ -311,10 +324,8 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 
 
 		for (;axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
-			// FIXME: what about objects with .symbol
-			let axiomSymbol = axiom_[axiomIndex];
-			// For objects match for objects `symbol`
-			if(typeof axiomSymbol === 'object') axiomSymbol = axiomSymbol.symbol;
+			
+			let axiomSymbol = axiom_[axiomIndex].symbol || axiom_[axiomIndex];
 			let matchSymbol = match[matchIndex];
 
 			// compare current symbol of axiom with current symbol of match
@@ -385,7 +396,6 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 	if(productions) this.setProductions(productions);
 	if (finals) this.setFinals(finals);
 
-	this.iterationCount = 0;
 	return this;
 }
 
