@@ -2,8 +2,11 @@
 
 import {transformClassicStochasticProductions, transformClassicCSProduction, transformClassicParametricAxiom, testClassicParametricSyntax} from './transformersClassicSyntax';
 import {stringToObjects, normalizeProduction} from './transformers.js';
+
 export default function LSystem({axiom = '', productions, finals, branchSymbols='', ignoredSymbols='', allowClassicSyntax=true, classicParametricSyntax=false, forceObjects=false, debug=false}) {
 
+
+// TODO: forceObject to be more intelligent based on other productions??
 
 	this.setAxiom = function (axiom) {
 		this.axiom = (this.forceObjects) ? stringToObjects(axiom) : axiom;

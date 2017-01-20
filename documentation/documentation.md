@@ -70,7 +70,7 @@ let myLsystem = new LSystem({
 
 ## Productions (#productions)
 
-You can set productions in three ways.
+You can set productions in two ways.
 
 Multiple productions via constructor:
 ```.js
@@ -96,8 +96,12 @@ myLsystem.setProductions({
 })
 ```
 
+- `symbol`: A one symbol String, eg. 'F'.
 
-Furthermore, productions in Lindenmayer come in different flavours suited for different situations.
+- `production`: Either the result of a production (String, Array), a production Object or a production Function. How a *production* can exactly look like will be explained below.
+
+
+Productions in lindenmayer.js come in different flavours suited for different situations:
 
 ### String-Based Productions
 The most basic production consists of a single String, representing the result of a production.
@@ -123,7 +127,7 @@ myLsystem.setProduction('F', [
 ]);
 ```
 
-If you want to learn more about parametric L-Systems take a look at the **HOW TO LINK TO OTHER FILES IN MD?**  [Getting Started Guide for Parametric L-Systems]() or read further on here too as well.
+If you want to learn more about parametric L-Systems take a look at the   [Getting Started Guide for Parametric L-Systems](gettingStartedParametric.md) or read further on here too as well.
  
 
 ### Object-Based Productions
@@ -171,13 +175,79 @@ myLsystem.setProduction('F',
 
 #### Stochastic
 
-
-
-
 Array-Based production are useful if your L-System uses parametric productions
 
-#### Function-Based Productions
-Instead
+
+
+
+
+
+
+
+### Function-Based Productions
+
+Besides Strings, Arrays and (wrapping) Objects you can also define functions as productions for complete flexibilty. Each production function has also access to an info object.
+
+```.js
+myLsystem.setProduction([symbol], [Function(info)])
+```
+
+**info object**:
+
+- `index`: The current index of the symbol inside the whole axiom.
+
+- `part`: The current symbol part. Not very useful for String based L-Systems. But for Array based ones, this lets you access the whole symbol object, including any custom parameters you added. eg.: part = {symbol: 'F', food: 4, myCustomParameter: true, params: [1,2]}
+
+- `params`: This is a shorthand for `part.params` (see above)
+
+- `currentAxiom`: Reference to the current axiom/word. Useful in combination with `index`.
+
+
+A production function returns a valid successor, like a String or Array. If nothing or `false` is returned, the symbol will not replaced.
+
+#### Usage examples:
+
+
+Replace 'F' with 'A' if it is at least at index 3 (4th position) inside the current axiom, otherwise return 'B':
+
+```.js
+myLsystem.setAxiom('FFFFFFF');
+myLsystem.setProduction('F', ({index}) => index >= 3 ? 'A' : 'B');
+myLsystem.iterate(); // FFFFFF results in -> BBBAAAA
+```
+
+Replace any occurrence of 'F' with a random amount (but max. 5) of 'F':
+
+```.js
+myLsystem.setProduction('F', () => {
+	let result = '';
+	let n = Math.ceil(Math.random() * 5);
+	for (let i = 0; i < n; i++) result += 'F';
+	return result;
+})
+```
+
+
+Replace 'F' with 'FM' on mondays and with 'FT' on tuesdays. Otherwise nothing is returned, therefore 'F' stays 'F'.
+
+```.js
+myLsystem.setProduction('F', () => {
+	let day = new Date().getDay();
+	if (day === 1) return 'FM';
+	if (day === 2) return 'FT';
+});
+```
+
+Parametric usage:
+
+```.js
+// Duplicate each F but reduce custom `size` parameter for new children by 50%.
+myLsystem.setProduction('F', ({part}) =>
+	[{symbol: 'F', food: part.size / 2},
+	 {symbol: 'F', food: part.size / 2}
+  ]
+);
+```
 
 
 
@@ -218,6 +288,76 @@ You can see more examples in the examples folder or take a look at the tests.
 ```.js
 myLsystem.setAxiom([axiom])
 ```
+
+**axiom**: String or Array of Objects.
+
+Usage examples:
+
+```.js
+myLsystem.setAxiom('F+G')
+```
+
+```.js
+myLsystem.setAxiom([
+	{symbol: 'F', food: 1, size: 2, color: 'rgb(255, 0, 0)'},
+	{symbol: '+'},
+	{symbol: 'G', food: 2, size: 2, color: 'rgb(0, 255, 0)' }
+])
+```
+
+
+## Finals
+
+To visualize or post-process your L-System you can define final functions for each symbol. They function similar to productions, but instead of replacing the existing axiom/word, finals are used to draw for example different lines for different symbols. All finals are executed by calling `lsystem.final()`.
+
+A very common application for finals would be the creation of turtle graphics.
+Below is an example on how to use finals to draw turtle graphics like the *Koch Snowflake* on the [Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) HTML element.
+
+You can fiddle with the following example in [this codepen](http://codepen.io/nylki/pen/QNYqzd)!
+
+```.html
+<body>
+	<canvas id="canvas" width="1000" height="1000"></canvas>
+</body>
+
+<script>
+var canvas = document.getElementById('canvas')
+var ctx = canvas.getContext("2d")
+
+// translate to center of canvas
+ctx.translate(canvas.width / 2, canvas.height / 4)
+
+// initialize a koch curve L-System that uses final functions
+// to draw the fractal onto a Canvas element.
+// F: draw a line with length relative to the current iteration (half the previous length for each step)
+//    and translates the current position to the end of the line
+// +: rotates the canvas 60 degree
+// -: rotates the canvas -60 degree
+
+var koch = new LSystem({
+	axiom: 'F++F++F',
+	productions: {'F': 'F-F++F-F'},
+	finals: {
+		'+': () => { ctx.rotate((Math.PI/180) * 60) },
+		'-': () => { ctx.rotate((Math.PI/180) * -60) },
+		'F': () => {
+			ctx.beginPath()
+			ctx.moveTo(0,0)
+			ctx.lineTo(0, 40/(koch.iterations + 1))
+			ctx.stroke()
+			ctx.translate(0, 40/(koch.iterations + 1))
+		}
+	}
+})
+
+koch.iterate(3)
+koch.final()
+</script>
+
+```
+
+
+Lindenmayer.js is not opinionated on what you do with your L-System, so you can draw 2D turtle graphics like above, but may also [draw 3D ones](https://nylki.github.io/aframe-lsystem-component/) or even do entirely different things, like creating sound and music, simply by defining your own `final` functions.
 
 
 ## Classic Syntax Features (#classic-syntax-features)

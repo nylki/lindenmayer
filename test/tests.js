@@ -185,7 +185,7 @@ describe('Final functions', function() {
           'C': ({index, axiom}) => (cs_LSystem.match({direction: 'right', match: 'DEF', index}).result) ? 'Z' : 'C'
         },
         branchSymbols: '[]',
-        ignoredSymbols: '+-/'
+        ignoredSymbols: '+-'
       });
 
       expect(cs_LSystem.iterate()).to.equal('ACBZ[-Q]D--[A[FDQ]]E-+FC++G');

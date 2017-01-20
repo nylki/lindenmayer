@@ -2,14 +2,14 @@
   "presets": [
     ["env", {
       "targets": {
-        "chrome": 51,
+        "chrome": 55,
         "firefox": 45,
         "safari": 10,
         "edge": 14
       },
       
       "modules": false,
-      "loose": false
+      "loose": true
     }]
   ]
 }

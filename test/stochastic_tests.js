@@ -37,9 +37,9 @@ describe('Stochastic tests. These tests could potentially fail, because of their
     console.log(sampleSums);
     expect(sampleSums.get('A') + sampleSums.get('B') + sampleSums.get('C')).to.equal(10000);
     
-    expect(sampleSums.get('A')).to.be.at.within(8000, 9900);
-    expect(sampleSums.get('B')).to.be.at.within(900, 1100);
-    expect(sampleSums.get('C')).to.be.at.within(90, 110);
+    expect(sampleSums.get('A')).to.be.at.within(7500, 9950);
+    expect(sampleSums.get('B')).to.be.at.within(800, 1200);
+    expect(sampleSums.get('C')).to.be.at.within(80, 120);
     expect(sampleSums.get('F')).to.equal(1);
     
   });
