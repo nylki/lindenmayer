@@ -1,9 +1,9 @@
-importScripts('../lindenmayer.browser.js');
+importScripts('../lindenmayer.js');
 var lsystem = new LSystem({});
 var timeout = {};
 
 onmessage = function(e) {
-  
+
   // wait a few ms to start thread, to be able to cancel old tasks
   clearTimeout(timeout);
   timeout = setTimeout(function() {
@@ -23,7 +23,7 @@ onmessage = function(e) {
         result: lsystem.getString(),
         initial: e.data
       });
-      
+
   }, 20);
 
 };

@@ -1,5 +1,3 @@
-'use strict';
-
 // Get a list of productions that have identical initiators,
 // Output a single stochastic production. Probability per production
 // is defined by amount of input productions (4 => 25% each, 2 => 50% etc.)
@@ -634,4 +632,4 @@ LSystem.transformClassicCSProduction = transformClassicCSProduction;
 LSystem.transformClassicParametricAxiom = transformClassicParametricAxiom;
 LSystem.testClassicParametricSyntax = testClassicParametricSyntax;
 
-module.exports = LSystem;
+export default LSystem;

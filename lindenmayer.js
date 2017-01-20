@@ -1,13 +1,22 @@
 'use strict'
 
-import {transformClassicStochasticProductions, transformClassicCSProduction, transformClassicParametricAxiom, testClassicParametricSyntax} from './classicLSystemSyntax';
+import {transformClassicStochasticProductions, transformClassicCSProduction, transformClassicParametricAxiom, testClassicParametricSyntax} from './transformersClassicSyntax';
+import {stringToObjects, normalizeProduction} from './transformers.js';
 
-export default function LSystem({axiom, productions, finals, branchSymbols, ignoredSymbols, classicParametricSyntax}) {
-	// faking default values until better support lands in all browser
-	axiom = typeof axiom !== 'undefined' ? axiom : '';
-	branchSymbols = typeof branchSymbols !== 'undefined' ? branchSymbols : "";
-	ignoredSymbols = typeof ignoredSymbols !== 'undefined' ? ignoredSymbols : "";
-	classicParametricSyntax = typeof classicParametricSyntax !== 'undefined' ? classicParametricSyntax : 'false';
+export default function LSystem({axiom = '', productions, finals, branchSymbols='', ignoredSymbols='', allowClassicSyntax=true, classicParametricSyntax=false, forceObjects=false, debug=false}) {
+
+
+// TODO: forceObject to be more intelligent based on other productions??
+
+	this.setAxiom = function (axiom) {
+		this.axiom = (this.forceObjects) ? stringToObjects(axiom) : axiom;
+	};
+	
+	
+	this.getRaw = function () {
+		return this.axiom;
+	}
+	
 
 	// if using objects in axioms, as used in parametric L-Systems
 	this.getString = function(onlySymbols = true) {
@@ -24,33 +33,59 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 			return JSON.stringify(this.axiom);
 		}
 	};
+	
+	
+	this.getStringResult = this.getString;
 
-	this.setAxiom = function (axiom) {
-		this.axiom = axiom;
-	};
 
 
-	this.setProduction = function (A, B, doAppend = false) {
-		let newProduction = [A, B];
+
+	this.setProduction = function (from, to, allowAppendingMultiSuccessors = false) {
+		let newProduction = [from, to];
 		if(newProduction === undefined) throw	new Error('no production specified.');
 
-		if(this.parameters.allowClassicSyntax === true) {
-			newProduction = transformClassicCSProduction.bind(this)(newProduction, this.ignoredSymbols);
+		if (to.successor && to.successors) {
+			throw new Error('You can not have both a "successor" and a "successors" field in your production!');
 		}
-		let symbol = newProduction[0];
 
-		if(doAppend === true && this.productions.has(symbol)) {
+		// Apply production transformers and normalizations
+		if(this.allowClassicSyntax === true) {
+			newProduction = transformClassicCSProduction(newProduction, this.ignoredSymbols);
+		}
+
+		newProduction = normalizeProduction(newProduction, this.forceObjects);
+		
+		// check wether production is stochastic
+		newProduction[1].isStochastic = newProduction[1].successors !== undefined && newProduction[1].successors.every(successor => successor.weight !== undefined);
+		
+		if(newProduction[1].isStochastic) {
+			// calculate weight sum
+			newProduction[1].weightSum = 0;
+			for (let s of newProduction[1].successors) {
+				newProduction[1].weightSum += s.weight;
+			}
+		}
+
+
+		
+		let symbol = newProduction[0];
+		if(allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
 
 			let existingProduction = this.productions.get(symbol);
-			// If existing production results already in an array use this, otherwise
-			// create new array to append to.
-			let productionList = (existingProduction[Symbol.iterator] !== undefined && typeof existingProduction !== 'string' && !(existingProduction instanceof String)) ? this.productions.get(symbol) : [this.productions.get(symbol)];
-			productionList.push(newProduction[1]);
-			this.productions.set(symbol, productionList);
-		} else {
-			this.productions.set(newProduction[0], newProduction[1]);
-		}
+			let singleSuccessor = existingProduction.successor;
+			let multiSuccessors = existingProduction.successors;
+			
+			if(singleSuccessor && !multiSuccessors) {
+				// replace existing prod with new obj and add previous successor as first elem
+				// to new successors field.
+				existingProduction = {successors: [singleSuccessor]};
+			}
+			existingProduction.successors.push(newProduction[1]);
+			this.productions.set(symbol, existingProduction);
 
+		} else {
+			this.productions.set(symbol, newProduction[1]);
+		}
 
 	};
 
@@ -59,12 +94,10 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 		if(newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
 
-			// TODO: once Object.entries() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries) is stable, use that in combo instead of awkward for…in.
-			for (let condition in newProductions) {
-			  if( newProductions.hasOwnProperty( condition ) ) {
-					this.setProduction(condition, newProductions[condition], true);
-			  }
-			}
+		for (let [from, to] of Object.entries(newProductions)) {
+			this.setProduction(from, to, true);
+		}
+
 	};
 
 	this.clearProductions = function () {
@@ -90,117 +123,160 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 			}
 	};
 
+	//var hasWeight = el => el.weight !== undefined;
+	this.getProductionResult = function (p, index, part, params, recursive = false) {
+		
+		let successor = p.successor;
+		let contextSensitive = (p.leftCtx !== undefined || p.rightCtx !== undefined);
+		let conditional = p.condition !== undefined;
+		let stochastic = false;
+		let result = false;
+		let precheck = true;
 
-	this.getProductionResult = function (p, index, part, params) {
+		// Check if condition is true, only then continue to check left and right contexts
+		if(conditional && p.condition({index, currentAxiom: this.axiom, part, params}) === false) {
+			precheck = false;
+		}
+		else if(contextSensitive) {
+			if(p.leftCtx !== undefined && p.rightCtx !== undefined){
+				precheck = this.match({direction: 'left', match: p.leftCtx, index: index, branchSymbols: '[]'}).result && this.match({direction: 'right', match: p.rightCtx, index: index, branchSymbols: '[]', ignoredSymbols: ignoredSymbols}).result;
+			} else if (p.leftCtx !== undefined) {
+				precheck = this.match({direction: 'left', match: p.leftCtx, index: index, branchSymbols: '[]'}).result;
+			} else if (p.rightCtx !== undefined) {
+				precheck = this.match({direction: 'right', match: p.rightCtx, index: index, branchSymbols: '[]'}).result;
+			}
 
-		let result;
+		}
 
-		// if p is a function, execute function and append return value
-		if (typeof p === 'function') {
-			result = p({index, currentAxiom: this.axiom, part, params});
+		// If conditions and context don't allow product, keep result = false
+		if(precheck === false) {
+			result = false;
+		}
+		
+		// If p has multiple successors
+		else if (p.successors) {
+			// This could be stochastic successors or multiple functions
+			// Tread every element in the list as an individual production object
+			// For stochastic productions (if all prods in the list have a 'weight' property)
+			// Get a random number then pick a production from the list according to their weight
 
-			/* if p is no function and no iterable, then
-			it should be a string (regular) or object
-			directly return it then as result */
-		} else if (typeof p === 'string' || p instanceof String || (typeof p === 'object' && p[Symbol.iterator] === undefined) ) {
-			result = p;
-
-			// if p is a list/iterable
-		} else if (p[Symbol.iterator] !== undefined && typeof p !== 'string' && !(p instanceof String)) {
+			var currentWeight, threshWeight;
+			if(p.isStochastic) {
+				threshWeight = Math.random() * p.weightSum;
+				currentWeight = 0;
+			}
 			/*
 			go through the list and use
 			the first valid production in that list. (that returns true)
 			This assumes, it's a list of functions.
+			No recursion here: no successors inside successors.
 			*/
-			for (let _p of p) {
-				let _result;
-				if (_p[Symbol.iterator] !== undefined && typeof _p !== 'string' && !(_p instanceof String)) {
-					// If _p is itself also an Array, recursively get the result.
-					_result = this.getProductionResult(_p);
-				} else {
-					_result = (typeof _p === 'function') ? _p({index, currentAxiom: this.axiom, part, params}) : _p;
+			for (let _p of p.successors) {
+				if(p.isStochastic) {
+					currentWeight += _p.weight;
+					if (currentWeight < threshWeight) continue;
 				}
-
+				// If currentWeight >= thresWeight, a production is choosen stochastically
+				// and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
+				
+				// last true is for recursiv call
+				// TODO: refactor getProductionResult to use an object
+				let _result = this.getProductionResult(_p, index, part, params, true);
+					
 				if (_result !== undefined && _result !== false) {
 					result = _result;
 					break;
 				}
-
 			}
+
+
+				
+		}
+		// if successor is a function, execute function and append return value
+		else if (typeof successor === 'function') {
+
+			result = successor({index, currentAxiom: this.axiom, part, params});
+
+		} else  {
+			result = successor;
 		}
 
-		return (result === false) ? part : result;
+		if(!result) {
+			// Allow undefined or false results for recursive calls of this func
+			return recursive ? result : part;
+		}
+		return result;
 	}
 
 	this.applyProductions = function() {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 		let newAxiom = (typeof this.axiom === 'string') ? '' : [];
 		let index = 0;
+		
 		// iterate all symbols/characters of the axiom and lookup according productions
 		for (let part of this.axiom) {
-			let symbol = part;
-
+			
 			// Stuff for classic parametric L-Systems: get actual symbol and possible parameters
 			// params will be given the production function, if applicable.
-			let params = [];
-			if(typeof part === 'object' && part.symbol) symbol = part.symbol;
-			if(typeof part === 'object' && part.params) params = part.params;
-
+			
+			let symbol = part.symbol || part;
+			let params = part.params || [];
+			
 			let result = part;
 			if (this.productions.has(symbol)) {
 				let p = this.productions.get(symbol);
 				result = this.getProductionResult(p, index, part, params);
 			}
-
-			// finally add result to new axiom
+			
+			// Got result. Now add result to new axiom.
 			if(typeof newAxiom === 'string') {
 				newAxiom += result;
-			} else {
+			} else if (result instanceof Array){
 				// If result is an array, merge result into new axiom instead of pushing.
-				if(result.constructor === Array) {
-					Array.prototype.push.apply(newAxiom, result);
-				} else {
-					newAxiom.push(result);
-				}
+				Array.prototype.push.apply(newAxiom, result);
+			} else {
+				newAxiom.push(result);
 			}
 			index++;
 		}
-
-		// finally set new axiom and also return for convenience
+		
+		// finally set new axiom and also return it for convenience.
 		this.axiom = newAxiom;
 		return newAxiom;
 	};
 
-	// iterate n times
+
 	this.iterate = function(n = 1) {
 		this.iterations = n;
 		let lastIteration;
-		for (let iteration = 0; iteration < n; iteration++, this.iterationCount++) {
+		for (let iteration = 0; iteration < n; iteration++) {
 			lastIteration = this.applyProductions();
 		}
 		return lastIteration;
 	};
 
 	this.final = function() {
+		let index = 0;
 		for (let part of this.axiom) {
 
 			// if we have objects for each symbol, (when using parametric L-Systems)
 			// get actual identifiable symbol character
-			let symbol = part
-			if(typeof part === 'object' && part.symbol) symbol = part.symbol
+			let symbol = part;
+			if(typeof part === 'object' && part.symbol) symbol = part.symbol;
 
 			if (this.finals.has(symbol)) {
-				var finalFunction = this.finals.get(symbol)
-				var typeOfFinalFunction = typeof finalFunction
+				let finalFunction = this.finals.get(symbol);
+				let typeOfFinalFunction = typeof finalFunction;
 				if ((typeOfFinalFunction !== 'function')) {
-					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!')
+					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
 				// execute symbols function
-				finalFunction()
+				finalFunction({index, part});
 
 			} else {
 				// symbol has no final function
 			}
+			index++;
 		}
 	}
 
@@ -231,15 +307,17 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 	*/
 
 	this.match = function({axiom_, match, ignoredSymbols, branchSymbols, index, direction}) {
+
 		let branchCount = 0;
 		let explicitBranchCount = 0;
-		axiom_ = axiom || this.axiom;
+		axiom_ = axiom_ || this.axiom;
 		if(branchSymbols === undefined) branchSymbols = (this.branchSymbols !== undefined) ? this.branchSymbols : [];
 		if(ignoredSymbols === undefined) ignoredSymbols = (this.ignoredSymbols !== undefined) ? this.ignoredSymbols : [];
 		let returnMatchIndices = [];
 
 		let branchStart, branchEnd, axiomIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow;
 		// set some variables depending on the direction to match
+
 			if (direction === 'right') {
 				loopIndexChange = matchIndexChange = +1;
 				axiomIndex = index + 1;
@@ -257,12 +335,10 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 			}
 
 
-		for (;axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
-			// FIXME: what about objects with .symbol
 
-			let axiomSymbol = axiom_[axiomIndex];
-			// For objects match for objects `symbol`
-			if(typeof axiomSymbol === 'object') axiomSymbol = axiomSymbol.symbol;
+		for (;axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
+			
+			let axiomSymbol = axiom_[axiomIndex].symbol || axiom_[axiomIndex];
 			let matchSymbol = match[matchIndex];
 
 			// compare current symbol of axiom with current symbol of match
@@ -319,24 +395,20 @@ export default function LSystem({axiom, productions, finals, branchSymbols, igno
 
 	};
 
-	// finally init stuff
-	this.parameters = {
-		allowClassicSyntax: true
-	};
 
 	this.ignoredSymbols = ignoredSymbols;
-	this.setAxiom(axiom);
-	this.productions = new Map();
-
+	this.debug = debug;
 	this.branchSymbols = branchSymbols;
-
+	this.allowClassicSyntax = allowClassicSyntax;
 	this.classicParametricSyntax = classicParametricSyntax;
+	this.forceObjects = forceObjects;
 
+	this.setAxiom(axiom);
 
+	this.clearProductions();
 	if(productions) this.setProductions(productions);
 	if (finals) this.setFinals(finals);
 
-	this.iterationCount = 0;
 	return this;
 }
 

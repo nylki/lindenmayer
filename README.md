@@ -301,7 +301,7 @@ let parametricLsystem = new lsys.LSystem({
     'A': ({part, index}) => {
       // split A into one A and a new B if it ate enough:
       if(part.food >= 1.0) {
-        return [{symbol: 'A', food:0}, {symbol: 'B', food:0}]        
+        return [{symbol: 'A', food:0}, {symbol: 'B', food:0}]
       } else {
         // otherwise eat a random amount of food
         part.food += Math.random() * 0.1;
