@@ -156,6 +156,10 @@ function LSystem(_ref) {
 		this.axiom = this.forceObjects ? stringToObjects(axiom) : axiom;
 	};
 
+	this.getRaw = function () {
+		return this.axiom;
+	};
+
 	// if using objects in axioms, as used in parametric L-Systems
 	this.getString = function () {
 		var onlySymbols = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -173,6 +177,8 @@ function LSystem(_ref) {
 			return JSON.stringify(this.axiom);
 		}
 	};
+
+	this.getStringResult = this.getString;
 
 	this.setProduction = function (from, to) {
 		var allowAppendingMultiSuccessors = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;

@@ -41,7 +41,7 @@ let myLsystem = new LSystem({
 })
 ```
 
-#### Context sensitive (using production objects)
+#### Context sensitive (using production objects, more below)
 ```.js
 let myLsystem = new LSystem({
 	axiom: ['ABCDE'],
@@ -67,6 +67,12 @@ let myLsystem = new LSystem({
 })
 ```
 
+### setAxiom
+You can also set/change the axiom after the initialization:
+
+```.js
+myLsystem.setAxiom([axiom])
+```
 
 ## Productions (#productions)
 
@@ -122,9 +128,20 @@ myLsystem.setProduction('F', [{symbol: 'F'}, {symbol: 'F'}]);
 
 // Or the same but with additional parameters per symbol.
 myLsystem.setProduction('F', [
-	{symbol: 'F', params:[5,6,1]},
-	{symbol: 'F', [params:[1,0,0]]}
+	{symbol: 'F', params: [5,6,1]},
+	{symbol: 'F', params: [1,0,0]]}
 ]);
+```
+
+You can define any number of custom parameters (**NOTE: Each symbol object must always posses a `symbol` property!** ):
+```.js
+myLsystem.setAxiom([{symbol: 'F', food: 10, size: 4}])
+myLsystem.setProduction('F', [
+	{symbol: 'A', food: 5, size: 2, color: 'rgb(255, 0, 0)'},
+	{symbol: '+'},
+	{symbol: 'A', food: 5, size: 2, color: 'rgb(0, 255, 0)' }
+]);
+
 ```
 
 If you want to learn more about parametric L-Systems take a look at the   [Getting Started Guide for Parametric L-Systems](gettingStartedParametric.md) or read further on here too as well.
@@ -176,10 +193,6 @@ myLsystem.setProduction('F',
 #### Stochastic
 
 Array-Based production are useful if your L-System uses parametric productions
-
-
-
-
 
 
 
@@ -319,7 +332,7 @@ result = myLsystem.getRaw(); 				// result = 'F+F'
 result = myLsystem.axiom; 					// result = 'F+F'
 ```
 
-**Array based L-System** 
+**Array based L-System**
 ```.js
 let myLsystem = new LSystem({
 	axiom: [{symbol: 'F'}],
@@ -338,32 +351,6 @@ result = myLsystem.iterate(); 			// result = 'F+F'
 result = myLsystem.getString(); 		// result = 'F+F'
 result = myLsystem.getRaw(); 				// result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
 result = myLsystem.axiom; 					// result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
-```
-
-
-
-
-
-## setAxiom
-
-```.js
-myLsystem.setAxiom([axiom])
-```
-
-**axiom**: String or Array of Objects.
-
-Usage examples:
-
-```.js
-myLsystem.setAxiom('F+G')
-```
-
-```.js
-myLsystem.setAxiom([
-	{symbol: 'F', food: 1, size: 2, color: 'rgb(255, 0, 0)'},
-	{symbol: '+'},
-	{symbol: 'G', food: 2, size: 2, color: 'rgb(0, 255, 0)' }
-])
 ```
 
 
