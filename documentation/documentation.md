@@ -279,8 +279,69 @@ console.log(result);
 // result = 'G+H-YZ-X'
 // Note that, because the production for 'X' is context-sensitive (leftCtx:F), only the first X is replacd by 'YZ'.
 ```
-
 You can see more examples in the examples folder or take a look at the tests.
+
+
+## Retrieve Results
+
+Basic usage:
+```.js
+myLsystem.iterate();
+let result = myLsystem.getString();
+// or:
+let result = myLsystem.iterate();
+```
+
+When you call `iterate()`, the reduced string result/axiom of your L-System is returned. You can also get the string result/axiom via `getString()`.
+To retrieve the raw result/axiom you can use `getRaw()` or directly access the `axiom` property.
+To get the raw axiom may be useful if you are operating with arrays/objects in your axiom and productions. For string-based L-Systems it makes no difference.
+
+To demonstrate the different behaviors, please take a look below:
+
+**String based L-System**
+```.js
+let myLsystem = new LSystem({
+	axiom: 'F',
+	productions: {'F': 'F+F'}
+});
+
+// Before calling iterate()
+let result = myLsystem.getString(); // result = 'F'
+result = myLsystem.getRaw(); 				// result = 'F'
+result = myLsystem.axiom; 					// result = 'F'
+
+// Calling iterate()
+result = myLsystem.iterate(); 			// result = 'F+F'
+
+// Getting results after calling iterate()
+result = myLsystem.getString(); 		// result = 'F+F'
+result = myLsystem.getRaw(); 				// result = 'F+F'
+result = myLsystem.axiom; 					// result = 'F+F'
+```
+
+**Array based L-System** 
+```.js
+let myLsystem = new LSystem({
+	axiom: [{symbol: 'F'}],
+	productions: {'F': 'F+F'}
+});
+
+// Before calling iterate()
+let result = myLsystem.getString(); // result = 'F'
+result = myLsystem.getRaw(); 				// result = [{symbol: 'F'}]
+result = myLsystem.axiom; 					// result = [{symbol: 'F'}]
+
+// Calling iterate()
+result = myLsystem.iterate(); 			// result = 'F+F'
+
+// Getting results after calling iterate()
+result = myLsystem.getString(); 		// result = 'F+F'
+result = myLsystem.getRaw(); 				// result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
+result = myLsystem.axiom; 					// result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
+```
+
+
+
 
 
 ## setAxiom

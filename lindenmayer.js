@@ -11,9 +11,15 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 	this.setAxiom = function (axiom) {
 		this.axiom = (this.forceObjects) ? stringToObjects(axiom) : axiom;
 	};
+	
+	
+	this.getRaw = function () {
+		return this.axiom;
+	}
+	
 
 	// if using objects in axioms, as used in parametric L-Systems
-	this.getString = function(onlySymbols = true) {
+	this.getString = function({onlySymbols = true}) {
 		if(typeof this.axiom === 'string') return this.axiom;
 		if(onlySymbols === true) {
 			return this.axiom.reduce( (prev, current) => {
@@ -27,6 +33,9 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 			return JSON.stringify(this.axiom);
 		}
 	};
+	
+	
+	this.getStringResult = this.getString;
 
 
 
