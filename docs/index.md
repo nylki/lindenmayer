@@ -3,10 +3,6 @@ title: API Documentation
 ---
 
 
-
-## Preface
-
-
 ## Create LSystem Object
 
 ```.js
