@@ -73,19 +73,26 @@ let lsystem = new LSystem({
 // After initialization:
 lsystem.setProduction('B', 'F+F')
 
-// You can also use ES6 arrow functions (same result as above):
-lsystem.setProduction('B', () => 'F+F')
 
-// Simple stochastic production, producing `F` with 10% probability, `B` with 90%
-lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'B')
+// Stochastic L-System:
+lsystem.setProduction('B', {
+  successors: [
+  {weight: 50, successor: 'X'}, // 50% probability
+  {weight: 25, successor: 'XB'},// 25% probability
+  {weight: 25, successor: 'X+B'}// 25% probability
+]})
 
-// Simple context sensitive production rule, replacing `B` with `Z` if previous character is a A and next character is 'C'
-lsystem.setProduction('B',
-  ({index, currentAxiom}) => (currentAxiom[index-1] === 'A') && (currentAxiom[index+1] === 'C') ? 'Z' : 'B'
-)
+// Context Sensitive:
+lsystem.setProduction('B', {leftCtx: 'A', successor: 'B', rightCtx: 'C'})
 
 // or if you prefer the concise *classic* syntax for context sensitive productions:
 lsystem.setProduction('A<B>C', 'Z')
+
+// You can also use ES6 arrow functions. Here, return 'B-' if 'B' is in first half of word/axiom, otherwise 'B+'
+lsystem.setProduction('B', ({index, currentAxiom}) => (currentAxiom.length / 2) <= index ? 'B-' : 'B+')
+
+// Simple stochastic production, producing `F` with 10% probability, `G` with 90%
+lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'G')
 ```
 
 # Documentation

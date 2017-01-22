@@ -72,7 +72,7 @@ function transformClassicCSProduction(p) {
 
   var predecessor = void 0;
   // create new production object _or_ use the one set by the user
-  var productionObject = p[1].hasOwnProperty('successor') ? p[1] : { successor: p[1] };
+  var productionObject = p[1].successor || p[1].successors ? p[1] : { successor: p[1] };
   if (left !== null) {
     predecessor = left[2];
     productionObject.leftCtx = left[1];

@@ -182,7 +182,14 @@ myLsystem.setProduction('F',
 
 #### Stochastic
 
-Array-Based production are useful if your L-System uses parametric productions
+```.js
+lsystem.setProduction('B', {
+  successors: [
+  {weight: 50, successor: 'X'}, // 50% probability
+  {weight: 25, successor: 'XB'},// 25% probability
+  {weight: 25, successor: 'X+B'}// 25% probability
+]})
+```
 
 
 
