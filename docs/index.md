@@ -6,7 +6,7 @@ WIP
 let myLsystem = new LSystem([options])
 ```
 
-### Options(#LSystem-options)
+**Options**
 
 - `axiom`: The initial word/string of your L-System. Sometimes also called *initiator*. This can be either a String like `'ABC'` or an Array of Objects  in the form: `[{symbol: 'A'}, {symbol: B}, {symbol: C}]`. The axiom can also bet [set later via `setAxiom`](#set-axiom).
 
