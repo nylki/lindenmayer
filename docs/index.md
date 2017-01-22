@@ -8,7 +8,7 @@ let myLsystem = new LSystem([options])
 
 **Options**
 
-- `axiom`: The initial word/string of your L-System. Sometimes also called *initiator*. This can be either a String like `'ABC'` or an Array of Objects  in the form: `[{symbol: 'A'}, {symbol: B}, {symbol: C}]`. The axiom can also bet [set later via `setAxiom`](#set-axiom).
+- `axiom`: The initial word/string of your L-System. Sometimes also called *initiator*. This can be either a String like `'ABC'` or an Array of Objects  in the form: `[{symbol: 'A'}, {symbol: B}, {symbol: C}]`. The axiom can also bet set later via `setAxiom()`.
 
 - `productions`: Key-value Object to set the productions from one symbol to its axiom. Applied when calling `iterate()`. A production can either be a String, Object, Array of Objects or a Function. [More on productions further below.](#productions)
 
@@ -62,13 +62,6 @@ let myLsystem = new LSystem({
 		'C>DE': 'ABCD'
 	}
 })
-```
-
-### setAxiom
-You can also set/change the axiom after the initialization:
-
-```.js
-myLsystem.setAxiom([axiom])
 ```
 
 ## Productions (#productions)
