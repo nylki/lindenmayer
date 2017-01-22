@@ -253,22 +253,24 @@ describe('Final functions', function() {
 describe('L-System with multiple successors in production', function () {
   it('lists in successors should work', function () {
     let cs_LSystemMulti = new LSystem({
-          axiom: 'ABCDEEEFGHI',
+          axiom: 'ABCCDEEEFGHI',
           productions: {
-            'E': {rightCtx: 'EE', successors: ['X', 'Y', 'Z']},
-            'B': {successors: [
+             /* return first non-false/non-undefined in array*/
+            'E': {rightCtx: 'EE', successors: ['X', 'Y', 'Z']}, // X
+
+            'B': {successors: [ // X
               () => false,
               () => false,
               () => 'X',
               () => false
             ]},
-            'C': {successors: [
+            'B<C': {successors: [ // X
               () => false,
               () => 'X'
             ]}
         }
         });
-    expect(cs_LSystemMulti.iterate()).to.equal('AXXDXEEFGHI');
+    expect(cs_LSystemMulti.iterate()).to.equal('AXXCDXEEFGHI');
 
 
   });
