@@ -8,6 +8,8 @@ Most stuff should work. I am currently working on parametric L-System support.
 
 If you simply want to work with L-Systems in 3D and VR without defining your own draw methods, you can check out the accompanying [aframe-lsystem-component](https://github.com/nylki/aframe-lsystem-component).
 
+[Full API doc](https://github.com/nylki/lindenmayer/blob/master/docs/index.md) | [Getting Started](https://github.com/nylki/lindenmayer/blob/master/README.md) | [A-Frame (VR) L-System component](https://github.com/nylki/aframe-lsystem-component)
+
 ## Examples
 -  [codepen collection (editable!)](https://codepen.io/collection/AVvqeg/)
 -  [Examples for the accompanying A-Frame component of this library](http://nylki.github.io/aframe-lsystem-component/)
