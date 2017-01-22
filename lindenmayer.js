@@ -70,7 +70,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 		
 		let symbol = newProduction[0];
 		if(allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
-
+			
 			let existingProduction = this.productions.get(symbol);
 			let singleSuccessor = existingProduction.successor;
 			let multiSuccessors = existingProduction.successors;
@@ -78,9 +78,10 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 			if(singleSuccessor && !multiSuccessors) {
 				// replace existing prod with new obj and add previous successor as first elem
 				// to new successors field.
-				existingProduction = {successors: [singleSuccessor]};
+				existingProduction = {successors: [existingProduction]};
+				
 			}
-			existingProduction.successors.push(newProduction[1]);
+			existingProduction.successors.push(newProduction[1]);		
 			this.productions.set(symbol, existingProduction);
 
 		} else {
@@ -126,7 +127,6 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 	//var hasWeight = el => el.weight !== undefined;
 	this.getProductionResult = function (p, index, part, params, recursive = false) {
 		
-		let successor = p.successor;
 		let contextSensitive = (p.leftCtx !== undefined || p.rightCtx !== undefined);
 		let conditional = p.condition !== undefined;
 		let stochastic = false;
@@ -182,7 +182,9 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 				// last true is for recursiv call
 				// TODO: refactor getProductionResult to use an object
 				let _result = this.getProductionResult(_p, index, part, params, true);
-					
+				// console.log(part, p.successors);
+				// console.log(result);
+				// console.log("\n");
 				if (_result !== undefined && _result !== false) {
 					result = _result;
 					break;
@@ -193,12 +195,12 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 				
 		}
 		// if successor is a function, execute function and append return value
-		else if (typeof successor === 'function') {
+		else if (typeof p.successor === 'function') {
 
-			result = successor({index, currentAxiom: this.axiom, part, params});
+			result = p.successor({index, currentAxiom: this.axiom, part, params});
 
 		} else  {
-			result = successor;
+			result = p.successor;
 		}
 
 		if(!result) {

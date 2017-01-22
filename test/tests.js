@@ -82,16 +82,18 @@ it('Classic context sensitive syntax should work.', function() {
   });
 
   it('multiple CS production on the same base symbol should work.', function () {
-    // TODO to FIX: push individual prods of one symbo into successors instead of single successor
+    // ATTENTION: Objecert order is not preserved in JS Objects
+    // If you want to rely on the order you define productions
+    // eg. one fails one not, you should define the productions iteratively via
+    // setProduction
+    
     let cs_LSystemMulti = new LSystem({
       axiom: 'ABCDEFGHI',
       productions: {
-        'B<B>C': 'N',
         'A<B>C': 'Y',
         'A<B>D': 'N',
         'G>HIJ': 'N',
         'G>HI': 'Y',
-        'A<A': 'N',
         'A>C': 'N',
         'A': 'Y'
       }
@@ -246,7 +248,6 @@ describe('Final functions', function() {
 
 
   });
-
 
 
 

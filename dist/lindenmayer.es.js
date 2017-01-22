@@ -225,16 +225,20 @@ function LSystem(_ref) {
 		if (allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
 
 			var existingProduction = this.productions.get(symbol);
+			console.log('EXISTING ', symbol, ': ', existingProduction);
+			console.log('APPEND', symbol, ':', newProduction[1]);
 			var singleSuccessor = existingProduction.successor;
 			var multiSuccessors = existingProduction.successors;
 
 			if (singleSuccessor && !multiSuccessors) {
 				// replace existing prod with new obj and add previous successor as first elem
 				// to new successors field.
-				existingProduction = { successors: [singleSuccessor] };
+				existingProduction = { successors: [existingProduction] };
 			}
 			existingProduction.successors.push(newProduction[1]);
+
 			this.productions.set(symbol, existingProduction);
+			console.log(this.productions);
 		} else {
 			this.productions.set(symbol, newProduction[1]);
 		}
@@ -293,7 +297,6 @@ function LSystem(_ref) {
 		var recursive = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
 
-		var successor = p.successor;
 		var contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
 		var conditional = p.condition !== undefined;
 		var stochastic = false;
@@ -360,7 +363,9 @@ function LSystem(_ref) {
 					// last true is for recursiv call
 					// TODO: refactor getProductionResult to use an object
 					var _result = this.getProductionResult(_p, index, part, params, true);
-
+					// console.log(part, p.successors);
+					// console.log(result);
+					// console.log("\n");
 					if (_result !== undefined && _result !== false) {
 						result = _result;
 						break;
@@ -368,11 +373,11 @@ function LSystem(_ref) {
 				}
 			}
 			// if successor is a function, execute function and append return value
-			else if (typeof successor === 'function') {
+			else if (typeof p.successor === 'function') {
 
-					result = successor({ index, currentAxiom: this.axiom, part, params });
+					result = p.successor({ index, currentAxiom: this.axiom, part, params });
 				} else {
-					result = successor;
+					result = p.successor;
 				}
 
 		if (!result) {
