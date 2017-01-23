@@ -58,7 +58,7 @@ let myLsystem = new LSystem({
 	axiom: ['ABCDE'],
 	productions: {
 		'A': 'A+AAC',
-		'A<B': 'A',
+	      'A<B': 'A',
 		'C>DE': 'ABCD'
 	}
 })
