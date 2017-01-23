@@ -139,7 +139,7 @@ If you want to learn more about parametric L-Systems take a look at the   [Getti
 
 ### Object-Based Productions
 
-To allow even more flexibility of solely String or Array based productions, you can choose to use a Object in the following form of:
+To allow even more flexibility than String or Array based productions, you can choose to use a wrapper Object in the following way to allow for stochastic, context-sensitive and conditional L-Systems:
 
 ```.js
 {successor: [String, Array, Object, Function], leftCtx: [String], rightCtx:[String], condition: [Function]}
