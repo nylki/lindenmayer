@@ -182,6 +182,8 @@ myLsystem.setProduction('F',
 
 #### Stochastic
 
+Instead of a single `successor`, a stochastic L-System defines a `successors` array which includes multiple objects with their own `successor`. The `weight` property defines the probability of each successor to be choosen. If all successors have the same weight they have an equal chance to get choosen. If one successor has a higher weight than another, it is more likely to get choosen.
+
 ```.js
 lsystem.setProduction('B', {
   successors: [
