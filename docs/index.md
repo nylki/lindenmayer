@@ -57,8 +57,8 @@ This one is semantically equivalent to the previous example, but uses the classi
 let myLsystem = new LSystem({
 	axiom: ['ABCDE'],
 	productions: {
-		'A': 'A+AAC',
-	      'A<B': 'A',
+		'A'		: 'A+AAC',
+	'A<B'		: 'A',
 		'C>DE': 'ABCD'
 	}
 })
