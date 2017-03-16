@@ -175,6 +175,31 @@ describe('Final functions', function() {
     vizsys.final();
     expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----');
   });
+  
+  it('should be possible to insert external arguments to final functions, such as a drawing target', function() {
+    let vizsys = new LSystem({
+      axiom: 'A',
+      productions: {
+        'A': 'BBACBB'
+      },
+      finals: {
+        'A': (info, target) => {target.push([1,1,1])},
+        'B': (info, target) => {target.push([1,0,1])},
+        'C': (info, target) => {target.push([0,0,0])}
+      }
+    });
+    let myFancyObject = {points:[]}
+    vizsys.iterate(1);
+    vizsys.final(myFancyObject.points);
+    expect(JSON.stringify(myFancyObject.points)).to.equal(JSON.stringify([
+      [ 1, 0, 1 ],
+      [ 1, 0, 1 ],
+      [ 1, 1, 1 ],
+      [ 0, 0, 0 ],
+      [ 1, 0, 1 ],
+      [ 1, 0, 1 ] ])
+    );
+  });
 });
 
 

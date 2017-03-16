@@ -227,8 +227,6 @@ function LSystem(_ref) {
 		if (allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
 
 			var existingProduction = this.productions.get(symbol);
-			console.log('EXISTING ', symbol, ': ', existingProduction);
-			console.log('APPEND', symbol, ':', newProduction[1]);
 			var singleSuccessor = existingProduction.successor;
 			var multiSuccessors = existingProduction.successors;
 
@@ -238,15 +236,14 @@ function LSystem(_ref) {
 				existingProduction = { successors: [existingProduction] };
 			}
 			existingProduction.successors.push(newProduction[1]);
-
 			this.productions.set(symbol, existingProduction);
-			console.log(this.productions);
 		} else {
 			this.productions.set(symbol, newProduction[1]);
 		}
 	};
 
 	// set multiple productions from name:value Object
+	// TODO: ALLOW TUPLE/ARRAY
 	this.setProductions = function (newProductions) {
 		if (newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
@@ -450,7 +447,8 @@ function LSystem(_ref) {
 		return lastIteration;
 	};
 
-	this.final = function () {
+	this.final = function (externalArg) {
+		console.log(externalArg);
 		var index = 0;
 		for (var _iterator5 = this.axiom, _isArray5 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
 			var _ref7;
@@ -479,7 +477,9 @@ function LSystem(_ref) {
 					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
 				// execute symbols function
-				finalFunction({ index, part });
+				// supply in first argument an details object with current index and part
+				// and in the first argument inject the external argument (like a render target)
+				finalFunction({ index, part }, externalArg);
 			} else {
 				// symbol has no final function
 			}

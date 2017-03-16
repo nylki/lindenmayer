@@ -81,7 +81,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 				existingProduction = {successors: [existingProduction]};
 				
 			}
-			existingProduction.successors.push(newProduction[1]);		
+			existingProduction.successors.push(newProduction[1]);
 			this.productions.set(symbol, existingProduction);
 
 		} else {
@@ -91,6 +91,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 	};
 
 	// set multiple productions from name:value Object
+	// TODO: ALLOW TUPLE/ARRAY
 	this.setProductions = function (newProductions) {
 		if(newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
@@ -257,7 +258,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 		return lastIteration;
 	};
 
-	this.final = function() {
+	this.final = function(externalArg) {
 		let index = 0;
 		for (let part of this.axiom) {
 
@@ -273,7 +274,9 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
 				// execute symbols function
-				finalFunction({index, part});
+				// supply in first argument an details object with current index and part
+				// and in the first argument inject the external argument (like a render target)
+				finalFunction({index, part}, externalArg);
 
 			} else {
 				// symbol has no final function

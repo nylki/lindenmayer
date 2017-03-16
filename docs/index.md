@@ -12,7 +12,10 @@ let myLsystem = new LSystem([options])
 
 - `productions`: Key-value Object to set the productions from one symbol to its axiom. Applied when calling `iterate()`. A production can either be a String, Object, Array of Objects or a Function. [More on productions further below.](#productions)
 
-- `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final()`.
+- `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final(<optional> arg)`. Each final function is of the form:
+`(info, arg) => {}`
+	- `info`: `{index, part}`
+	- `arg`: the optional argument supplied with `final`. Useful for referencing render targets for example.
 
 - `allowClassicSyntax`: Toggles support for [classic syntax features](#classic-syntax-features) that often are more concise and mirror examples in the book better but are also less flexible.
 default: `true`.
@@ -32,7 +35,7 @@ default: `true`.
 let myLsystem = new LSystem({
 	axiom: 'F',
 	productions: {
-		'F': 'F-A',
+		'F': 'F-A'
 		'A': 'FF++FA'
 	}
 })
