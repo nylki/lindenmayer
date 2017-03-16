@@ -60,9 +60,9 @@ This one is semantically equivalent to the previous example, but uses the classi
 let myLsystem = new LSystem({
 	axiom: ['ABCDE'],
 	productions: {
-		'A': 'A+AAC',
-		'A<B': 'A',
-		'C>DE': 'ABCD'
+		'A'	: 'A+AAC',
+		'A<B'	: 'A',
+		'C>DE'	: 'ABCD'
 	}
 })
 ```
@@ -142,24 +142,34 @@ If you want to learn more about parametric L-Systems take a look at the   [Getti
 
 ### Object-Based Productions
 
-To allow even more flexibility of solely String or Array based productions, you can choose to use a Object in the following form of:
-
 ```.js
-{successor: [String, Array, Object, Function], leftCtx: [String], rightCtx:[String], condition: [Function]}
+myLsystem.setProduction( {successor/successors: [String, Array, Function]/[Array] , leftCtx: [String], rightCtx:[String], condition: [Function]} )
 ```
-This object basically wraps around a regular Array/String-Production (that is defined in the `successor` field) and provides useful functionality
+
+To allow even more flexibility than String or Array based productions, you can choose to use a wrapper Object in the following way to allow for stochastic, context-sensitive and conditional L-Systems.
+This object basically wraps around a regular Array, String or Function Production, which are now defined in the `successor` field. In addition. The additional functionality can be used via the `leftCtx`, `rightCtx`, `successors` and `condition` properties.
+
 
 A barebone production using such a wrapper Object:
 ```.js
-// Each F will be replacd with FF.
-myLsystem.setProduction('F', {successor: 'FF'});
+// Instead of:
+myLsystem.setProduction('F', 'FF');
+
+// You would write:
+myLsystem.setProduction( 'F', {successor: 'FF'} );
 
 // Or with an Array as successor/production result.
-myLsystem.setProduction('F', {successor: [{symbol: 'F'}, {symbol: 'F'}]});
-
+myLsystem.setProduction('F', { successor: [{symbol: 'F'}, {symbol: 'F'}] });
 ```
 
-As you may probably guessed, those basic examples above does not yet make use of those extra functionality. Those (**Context-Sensitive**, **Conditional** and **Stochastic**) are explained in more detail in the following short chapters.
+The above example do not yet make use of those extra functionality.
+To add eg. a context-sensitive check you could rewrite the second one to:
+```.js
+// You would write:
+myLsystem.setProduction('F', { successor: 'FF', leftCtx: 'FB' });
+```
+
+Those extra properties are explained in more detail in the following short chapters.
 
 
 
@@ -184,6 +194,8 @@ myLsystem.setProduction('F',
 ```
 
 #### Stochastic
+
+Instead of a single `successor`, a stochastic L-System defines a `successors` array which includes multiple objects with their own `successor`. The `weight` property defines the probability of each successor to be choosen. If all successors have the same weight they have an equal chance to get choosen. If one successor has a higher weight than another, it is more likely to get choosen.
 
 ```.js
 lsystem.setProduction('B', {

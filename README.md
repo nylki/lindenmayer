@@ -91,7 +91,7 @@ lsystem.setProduction('A<B>C', 'Z')
 // You can also use ES6 arrow functions. Here, return 'B-' if 'B' is in first half of word/axiom, otherwise 'B+'
 lsystem.setProduction('B', ({index, currentAxiom}) => (currentAxiom.length / 2) <= index ? 'B-' : 'B+')
 
-// Simple stochastic production, producing `F` with 10% probability, `G` with 90%
+// Simple (custom) stochastic production, producing `F` with 10% probability, `G` with 90%
 lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'G')
 ```
 
