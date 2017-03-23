@@ -19,6 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/nylki/lindenmayer.git"
   },
+  "browser": "dist/lindenmayer.browser.js",
   "main": "dist/lindenmayer.js",
   "module": "dist/lindenmayer.es.js",
   "files": [
