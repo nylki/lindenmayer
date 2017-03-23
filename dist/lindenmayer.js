@@ -448,7 +448,6 @@ function LSystem(_ref) {
 	};
 
 	this.final = function (externalArg) {
-		console.log(externalArg);
 		var index = 0;
 		for (var _iterator5 = this.axiom, _isArray5 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
 			var _ref7;
