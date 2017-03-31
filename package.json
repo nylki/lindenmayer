@@ -37,7 +37,8 @@
   "scripts": {
     "test": "npm run build && mocha test/tests.js",
     "test-stochastic": "npm run build && mocha test/stochastic_tests.js",
-    "build": "rollup -c; rollup -c -f iife -o dist/lindenmayer.browser.js && cp dist/lindenmayer.browser.js docs/examples/lindenmayer.js",
+    "build": "rollup -c && npm run build-minified && cp dist/lindenmayer.browser.js docs/examples/lindenmayer.js",
+    "build-minified": "rollup --environment minify -c",
     "prepublish": "npm test && npm run build"
   },
   "devDependencies": {
@@ -51,8 +52,9 @@
     "marky": "^1.1.3",
     "mocha": "^2.4.5",
     "rollup": "^0.34.13",
-    "rollup-plugin-babel": "^2.7.1"
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-uglify": "^1.0.1",
+    "uglify-js": "github:mishoo/UglifyJS2#harmony"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
