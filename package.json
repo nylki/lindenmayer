@@ -37,7 +37,7 @@
   "scripts": {
     "test": "npm run build && mocha test/tests.js",
     "test-stochastic": "npm run build && mocha test/stochastic_tests.js",
-    "build": "rollup -c && npm run build-minified && cp dist/lindenmayer.browser.js docs/examples/lindenmayer.js",
+    "build": "rollup -c && npm run build-minified && cp dist/lindenmayer.browser.min.js docs/examples/lindenmayer.js",
     "build-minified": "rollup --environment minify -c",
     "prepublish": "npm test && npm run build"
   },

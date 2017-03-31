@@ -5,7 +5,7 @@ let chaiAsPromised = require('chai-as-promised');
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let LSystem = require('../dist/lindenmayer.js');
+let LSystem = require('../dist/lindenmayer.min.js');
 
 
 describe('Basic String based L-Systems', function() {
