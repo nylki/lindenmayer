@@ -184,13 +184,13 @@ let lsystem = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-If you are using functions as productions, your function can make use of a number of additional parameters:
+If you are using functions as productions, your function can make use of a number of additional values that are passed as an info object to the function (see [full docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md#function-based-productions) for more details):
 
 ```.js
 lsys.setAxiom('FFFFF')
-lsys.setProduction('F', (parameters) => {
+lsys.setProduction('F', (info) => {
   // Use the `index` to determine where inside the current axiom, the function is applied on.
-  if(parameters.index === 2) return 'X';
+  if(info.index === 2) return 'X';
 })
 // lsys.iterate() === FFXFF
 ```
