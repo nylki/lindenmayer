@@ -96,6 +96,7 @@ lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'G')
 ```
 
 # Documentation
+The following section is a quick overview. The full API docs can be found [here](https://github.com/nylki/lindenmayer/blob/master/docs/index.md).
 ## Initialization
 
 You can init a L-System object with the `new` keyword:
@@ -108,7 +109,7 @@ let lsystem = new LSystem(options)
 - `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling `iterate()`. A production can be either a String or a Function (see below.)
 - `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final(optionalArgument)`.
 
-advanced options (see [API docs](not yet created) for details):
+advanced options (see [API docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md) for details):
 
 - `branchSymbols`: A String of two characters. Only used when working with classic context sensitive productions. The first symbol is treated as start of a branch, the last symbol as end of a branch. (default: `"[]"`, but only when using classic CS syntax)
 - `ignoredSymbols`: A String of characters to ignore when using context sensitive productions. (default: `"+-&^/|\\"`, but only when using classic CS syntax)
