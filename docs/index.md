@@ -332,16 +332,16 @@ let myLsystem = new LSystem({
 
 // Before calling iterate()
 let result = myLsystem.getString(); // result = 'F'
-result = myLsystem.getRaw(); 				// result = 'F'
-result = myLsystem.axiom; 					// result = 'F'
+result = myLsystem.getRaw(); 	    // result = 'F'
+result = myLsystem.axiom; 	    // result = 'F'
 
 // Calling iterate()
-result = myLsystem.iterate(); 			// result = 'F+F'
+result = myLsystem.iterate();       // result = 'F+F'
 
 // Getting results after calling iterate()
-result = myLsystem.getString(); 		// result = 'F+F'
-result = myLsystem.getRaw(); 				// result = 'F+F'
-result = myLsystem.axiom; 					// result = 'F+F'
+result = myLsystem.getString();     // result = 'F+F'
+result = myLsystem.getRaw(); 	    // result = 'F+F'
+result = myLsystem.axiom; 	    // result = 'F+F'
 ```
 
 **Array based L-System**
@@ -353,16 +353,16 @@ let myLsystem = new LSystem({
 
 // Before calling iterate()
 let result = myLsystem.getString(); // result = 'F'
-result = myLsystem.getRaw(); 				// result = [{symbol: 'F'}]
-result = myLsystem.axiom; 					// result = [{symbol: 'F'}]
+result = myLsystem.getRaw(); 	    // result = [{symbol: 'F'}]
+result = myLsystem.axiom; 	    // result = [{symbol: 'F'}]
 
 // Calling iterate()
-result = myLsystem.iterate(); 			// result = 'F+F'
+result = myLsystem.iterate(); 	    // result = 'F+F'
 
 // Getting results after calling iterate()
-result = myLsystem.getString(); 		// result = 'F+F'
-result = myLsystem.getRaw(); 				// result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
-result = myLsystem.axiom; 					// result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
+result = myLsystem.getString();     // result = 'F+F'
+result = myLsystem.getRaw(); 	    // result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
+result = myLsystem.axiom; 	    // result = [{symbol: 'F'}, {symbol: '+'}, {symbol: 'F'}]
 ```
 
 
