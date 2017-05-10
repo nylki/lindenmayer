@@ -1,6 +1,7 @@
 import babel from 'rollup-plugin-babel';
 import uglify from 'rollup-plugin-uglify';
-import { minify } from 'uglify-js';
+import { minify } from 'uglify-js-harmony';
+// TODO: check when https://www.npmjs.com/package/uglify-es becomes usable with rollup
 
 let minifyEnv = process.env.minify || false;
 
