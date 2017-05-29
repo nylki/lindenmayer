@@ -289,13 +289,6 @@ And the result:
 
 [![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
 
-Each final has also access to the index and current part (in case of object based L-Systems).
-It is also possible to supply an additional argument to the final functions:
-
-```.js
-myLsystem.setFinal('F', ())
-```
-
 But because the library is not opinionated about what your resuts should be like you can write your own `finals`.
 Therefore you can draw 2D turtle graphics as seen above, but also 3D ones with WebGL/three.js, or even do other things like creating sound!
 
