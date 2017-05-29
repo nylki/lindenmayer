@@ -99,7 +99,6 @@ lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'G')
 The following section is a quick overview. The full API docs can be found [here](https://github.com/nylki/lindenmayer/blob/master/docs/index.md).
 ## Initialization
 
-You can init a L-System object with the `new` keyword:
 ```.js
 let lsystem = new LSystem(options)
 ```
