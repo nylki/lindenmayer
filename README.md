@@ -88,12 +88,18 @@ lsystem.setProduction('B', {leftCtx: 'A', successor: 'B', rightCtx: 'C'})
 // or if you prefer the concise *classic* syntax for context sensitive productions:
 lsystem.setProduction('A<B>C', 'Z')
 
-// You can also use ES6 arrow functions. Here, return 'B-' if 'B' is in first half of word/axiom, otherwise 'B+'
-lsystem.setProduction('B', ({index, currentAxiom}) => (currentAxiom.length / 2) <= index ? 'B-' : 'B+')
 
-// Simple (custom) stochastic production, producing `F` with 10% probability, `G` with 90%
+
+// You can also use ES6 arrow functions. Here a Simple (custom) stochastic production, producing `F` with 10% probability, `G` with 90%
 lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'G')
+
+
+//Or make use of additional info fed into production functions on runtime.
+// Here: return 'B-' if 'B' is in first half of word/axiom, otherwise 'B+'
+lsystem.setProduction('B', (info) => (info.currentAxiom.length / 2) <= info.index ? 'B-' : 'B+')
 ```
+
+
 
 # Documentation
 The following section is a quick overview. The full API docs can be found [here](https://github.com/nylki/lindenmayer/blob/master/docs/index.md).
@@ -170,7 +176,7 @@ lsystem.setProduction('B', 'CB')
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
-A major feature of this library is the possibility to use functions as productions, which is especially useful for stochastic L-Systems:
+A major feature of this library is the possibility to use functions as productions, which could be used for stochastic L-Systems:
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
@@ -183,7 +189,7 @@ let lsystem = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-If you are using functions as productions, your function can make use of a number of additional values that are passed as an info object to the function (see [full docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md#function-based-productions) for more details):
+If you are using functions as productions, your function can make use of a number of additional parameters that are passed as an info object to the function (see [full docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md#function-based-productions) for more details):
 
 ```.js
 lsys.setAxiom('FFFFF')
