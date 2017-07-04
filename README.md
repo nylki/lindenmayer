@@ -111,8 +111,8 @@ let lsystem = new LSystem(options)
 
 `options` may contain:
 - `axiom`: A String or an Array of Objects to set the initial axiom (sometimes called axiom, start or initiator).
-- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling `iterate()`. A production can be either a String or a Function (see below.)
-- `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final(optionalArgument)`.
+- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling iterate(). A production can be either a String, Object or a Function.
+- `finals`: Optional key-value Object to set functions that should be executed each symbol in sequential order when calling final(). Useful for visualization.
 
 advanced options (see [API docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md) for details):
 
