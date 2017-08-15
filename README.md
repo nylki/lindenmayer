@@ -88,26 +88,31 @@ lsystem.setProduction('B', {leftCtx: 'A', successor: 'B', rightCtx: 'C'})
 // or if you prefer the concise *classic* syntax for context sensitive productions:
 lsystem.setProduction('A<B>C', 'Z')
 
-// You can also use ES6 arrow functions. Here, return 'B-' if 'B' is in first half of word/axiom, otherwise 'B+'
-lsystem.setProduction('B', ({index, currentAxiom}) => (currentAxiom.length / 2) <= index ? 'B-' : 'B+')
 
-// Simple (custom) stochastic production, producing `F` with 10% probability, `G` with 90%
+
+// You can also use ES6 arrow functions. Here a Simple (custom) stochastic production, producing `F` with 10% probability, `G` with 90%
 lsystem.setProduction('B', () => (Math.random() < 0.1) ? 'F' : 'G')
+
+
+//Or make use of additional info fed into production functions on runtime.
+// Here: return 'B-' if 'B' is in first half of word/axiom, otherwise 'B+'
+lsystem.setProduction('B', (info) => (info.currentAxiom.length / 2) <= info.index ? 'B-' : 'B+')
 ```
+
+
 
 # Documentation
 The following section is a quick overview. The full API docs can be found [here](https://github.com/nylki/lindenmayer/blob/master/docs/index.md).
 ## Initialization
 
-You can init a L-System object with the `new` keyword:
 ```.js
 let lsystem = new LSystem(options)
 ```
 
 `options` may contain:
 - `axiom`: A String or an Array of Objects to set the initial axiom (sometimes called axiom, start or initiator).
-- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling `iterate()`. A production can be either a String or a Function (see below.)
-- `finals`: Optional key-value Object to set Functions be executed for each symbol in sequential order. Useful for visualization. Used when calling `final(optionalArgument)`.
+- `productions`: key-value Object to set the productions from one symbol to its axiom. Used when calling iterate(). A production can be either a String, Object or a Function.
+- `finals`: Optional key-value Object to set functions that should be executed each symbol in sequential order when calling final(). Useful for visualization.
 
 advanced options (see [API docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md) for details):
 
@@ -171,7 +176,7 @@ lsystem.setProduction('B', 'CB')
 
 This can be useful if you want to dynamically generate and edit L-Systems. For example, you might have a UI, where the user can add new production via a text box.
 
-A major feature of this library is the possibility to use functions as productions, which is especially useful for stochastic L-Systems:
+A major feature of this library is the possibility to use functions as productions, which could be used for stochastic L-Systems:
 
 ```.js
 // This L-System produces `F+` with a 70% probability and `F-` with 30% probability
@@ -184,7 +189,7 @@ let lsystem = new LSystem({
 lsys.setProduction('F', () => (Math.random() < 0.2) ? 'F-F++F-F' : 'F+F')
 ```
 
-If you are using functions as productions, your function can make use of a number of additional values that are passed as an info object to the function (see [full docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md#function-based-productions) for more details):
+If you are using functions as productions, your function can make use of a number of additional parameters that are passed as an info object to the function (see [full docs](https://github.com/nylki/lindenmayer/blob/master/docs/index.md#function-based-productions) for more details):
 
 ```.js
 lsys.setAxiom('FFFFF')
@@ -289,13 +294,6 @@ koch.final()
 And the result:
 
 [![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
-
-Each final has also access to the index and current part (in case of object based L-Systems).
-It is also possible to supply an additional argument to the final functions:
-
-```.js
-myLsystem.setFinal('F', ())
-```
 
 But because the library is not opinionated about what your resuts should be like you can write your own `finals`.
 Therefore you can draw 2D turtle graphics as seen above, but also 3D ones with WebGL/three.js, or even do other things like creating sound!

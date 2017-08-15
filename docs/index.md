@@ -113,7 +113,7 @@ myLsystem.setProduction('F', 'FF');
 
 ### Array-Based Production
 
-If you are reading about L-System in the classic ABOP, you may have stumbled upon parametric L-Systems. Those have optional parameters inside each symbol. Too make this possible using Lindenmayer.js, you can use Arrays of Objects `{symbol, [custom parameters]}` besides basic Strings as production results (and axioms).
+If you are reading about L-System in the classic ABOP, you may have stumbled upon parametric L-Systems. Those have optional parameters inside each symbol. To make this possible using Lindenmayer.js, you can use Arrays of Objects `{symbol, [custom parameters]}` besides basic Strings as production results (and axioms).
 
 ```.js
 // Each F will be replaced with FF
@@ -176,7 +176,7 @@ Those extra properties are explained in more detail in the following short chapt
 #### Context-Sensitive
 ```.js
 // Replace 'F' with FF only if left part is FX and the right part is 'X'
-myLsystem.setProduction('F', {successor: 'FF', leftCtx: 'FX', rightCtx. 'X'});
+myLsystem.setProduction('F', {successor: 'FF', leftCtx: 'FX', rightCtx: 'X'});
 ```
 
 See also the chapter on [classic syntax](#classic-syntax) to learn how to write more concise context sensitive productions.
