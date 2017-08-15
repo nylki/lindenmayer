@@ -15,7 +15,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 	
 	this.getRaw = function () {
 		return this.axiom;
-	}
+	};
 	
 
 	// if using objects in axioms, as used in parametric L-Systems
@@ -209,7 +209,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 			return recursive ? result : part;
 		}
 		return result;
-	}
+	};
 
 	this.applyProductions = function() {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
@@ -283,7 +283,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 			}
 			index++;
 		}
-	}
+	};
 
 
 /*

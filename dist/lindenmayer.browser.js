@@ -29,7 +29,10 @@ function transformClassicStochasticProductions(productions) {
 
     console.error('Should have returned a result of the list, something is wrong here with the random numbers?.');
   };
-};
+}
+
+// TODO: implement it!
+
 
 // TODO: Scaffold classic parametric and context sensitive stuff out of main file
 // And simply require it here, eg:
@@ -37,7 +40,7 @@ function transformClassicStochasticProductions(productions) {
 function testClassicParametricSyntax(axiom) {
   return (/\(.+\)/.test(axiom)
   );
-};
+}
 
 // transforms things like 'A(1,2,5)B(2.5)' to
 // [ {symbol: 'A', params: [1,2,5]}, {symbol: 'B', params:[25]} ]
@@ -54,7 +57,7 @@ function transformClassicParametricAxiom(axiom) {
     newAxiom.push({ symbol: splitAxiom[i], params: params });
   }
   // console.log('parsed axiom:', newAxiom)
-};
+}
 
 function transformClassicCSProduction(p) {
 
@@ -86,7 +89,7 @@ function transformClassicCSProduction(p) {
   }
 
   return [predecessor, productionObject];
-};
+}
 
 function stringToObjects(string) {
   if (typeof string !== 'string' && string instanceof String === false) return string;
@@ -107,6 +110,9 @@ function stringToObjects(string) {
     transformed.push({ symbol });
   }return transformed;
 }
+
+// TODO: continue here
+
 
 // transform p to {successor: p}
 // if applicable also transform strings into array of {symbol: String} objects
@@ -543,7 +549,7 @@ function LSystem(_ref) {
 			matchIndex = 0;
 			matchIndexOverflow = match.length;
 			if (branchSymbols.length > 0) {
-				;
+				
 				var _branchSymbols = branchSymbols;
 				branchStart = _branchSymbols[0];
 				branchEnd = _branchSymbols[1];
@@ -554,7 +560,7 @@ function LSystem(_ref) {
 			matchIndex = match.length - 1;
 			matchIndexOverflow = -1;
 			if (branchSymbols.length > 0) {
-				;
+				
 				var _branchSymbols2 = branchSymbols;
 				branchEnd = _branchSymbols2[0];
 				branchStart = _branchSymbols2[1];
