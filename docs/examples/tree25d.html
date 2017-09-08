@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Draw a simple Tree with THREE.js and lindenmay.js</title>
+	<style>
+	body { margin: 0; }
+	canvas { width: 100%; height: 100% }
+	</style>
+</head>
+<body>
+	
+	<h1>a tree (5 iterations)</h1>
+	<script src="./third_party_libraries/three.min.js" charset="utf-8"></script>
+	<script src="lindenmayer.js"></script>
+	
+	<script type="text/javascript">
+	
+	const X = new THREE.Vector3(1, 0, 0);
+	const Y = new THREE.Vector3(0, 1, 0);
+	const Z = new THREE.Vector3(0, 0, 1);
+	
+	// The stack ise used when branching via [ or ] symbols.
+	var stack = [];
+	
+	// remember current rotation and transformation.
+	var currentSegment;
+	
+	// Place all segments (F's) into fullModel for easier handling.
+	var fullModel;
+	
+	let lineWidth = 0.15;
+	let lineLength = 0.15;
+	
+	let renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	let scene = new THREE.Scene();
+	let camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+
+	
+	function init() {
+		
+		document.body.appendChild( renderer.domElement );
+		
+		camera.position.z = 15;
+		
+		let light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+		scene.add( light );
+		
+		// What does a single segment of our L-System look like?
+		let geometry = new THREE.CylinderGeometry(lineWidth, lineWidth, lineLength, 8);
+		// Make the cylinder geometry properly by rotating it 90deg
+		geometry.rotateZ(Math.PI * 0.5);
+		currentSegment = new THREE.Mesh( geometry );
+
+		// What Material would we like to ues for the full model?
+		let material = new THREE.MeshLambertMaterial({
+			color: 0x00ff00
+		});
+		
+		// Create empty fullModel container with our final material for the whole L-System
+		fullModel = new THREE.Mesh(new THREE.Geometry(), material);
+		fullModel.rotation.z = Math.PI * -0.5;
+		fullModel.position.y = -6;
+		scene.add(fullModel);
+		
+		// Define L-System variables
+		let angle = 22.5;
+		
+		// Set quaternions based on defined angle (used for final functions when rotating segments)
+		let xPosRotation = new THREE.Quaternion().setFromAxisAngle( X, (Math.PI / 180) * angle );
+		let xNegRotation = new THREE.Quaternion().setFromAxisAngle( X, (Math.PI / 180) * -angle );
+		let yPosRotation = new THREE.Quaternion().setFromAxisAngle( Y, (Math.PI / 180) * angle );
+		let yNegRotation = new THREE.Quaternion().setFromAxisAngle( Y, (Math.PI / 180) * -angle );
+		let yReverseRotation = new THREE.Quaternion().setFromAxisAngle( Y, (Math.PI / 180) * 180 );
+		let zPosRotation = new THREE.Quaternion().setFromAxisAngle( Z, (Math.PI / 180) * angle );
+		let zNegRotation = new THREE.Quaternion().setFromAxisAngle( Z, (Math.PI / 180) * -angle );
+		
+		var tree = new LSystem({
+			axiom: 'X',
+			productions: {
+				'X': 'F-[[X]+X]+F[+FX]-X',
+				'F': 'FF'
+			},
+			finals: {
+				'F': pushSegment,
+				'+': () => { currentSegment.quaternion.multiply(yPosRotation)},
+				'-': () => { currentSegment.quaternion.multiply(yNegRotation)},
+				'&': () => { currentSegment.quaternion.multiply(zNegRotation)},
+				'^': () => { currentSegment.quaternion.multiply(zPosRotation)},
+				'\\': () =>{ currentSegment.quaternion.multiply(xNegRotation)},
+				'<': () => { currentSegment.quaternion.multiply(xNegRotation)},
+				'/': () => { currentSegment.quaternion.multiply(xPosRotation)},
+				'>': () => { currentSegment.quaternion.multiply(xPosRotation)},
+				'|': () => { currentSegment.quaternion.multiply(yReverseRotation)},
+				'[': () => { stack.push(currentSegment.clone()) },
+				']': () => { currentSegment = stack.pop() }
+			}
+		});
+		tree.iterate(5);
+		console.log(tree.getString());
+		tree.final();
+		animate();
+		
+	}
+	
+	function animate () {
+		requestAnimationFrame( animate );
+		
+		fullModel.rotation.y += 0.025;
+				
+		renderer.render(scene, camera);
+	};
+	
+	
+	
+	function pushSegment() {
+		
+		let newSegment = currentSegment.clone();
+		newSegment.matrixAutoUpdate = false;
+		newSegment.updateMatrix();
+		
+		// For better performance we merge the geometry into the fullModel
+		// We could also just add each newSegment as a child to fullModel,
+		// but that performs poorly the bigger it gets.
+		fullModel.geometry.merge(newSegment.geometry, newSegment.matrix);
+		currentSegment.translateX(-(lineLength));
+	}
+	
+	
+	init();
+	
+	
+	</script>
+</body>
+</html>
