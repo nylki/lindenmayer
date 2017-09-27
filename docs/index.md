@@ -1,5 +1,3 @@
-WIP
-
 ## Create LSystem Object
 
 ```.js
