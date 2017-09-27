@@ -65,7 +65,7 @@ let myLsystem = new LSystem({
 })
 ```
 
-## Productions (#productions)
+## Productions
 
 You can set productions in two ways.
 
