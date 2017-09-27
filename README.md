@@ -119,7 +119,7 @@ advanced options (see [API docs](https://github.com/nylki/lindenmayer/blob/maste
 
 - `branchSymbols`: A String of two characters. Only used when working with classic context sensitive productions. The first symbol is treated as start of a branch, the last symbol as end of a branch. (default: `"[]"`, but only when using classic CS syntax)
 - `ignoredSymbols`: A String of characters to ignore when using context sensitive productions. (default: `"+-&^/|\\"`, but only when using classic CS syntax)
-- `classicParametricSyntax`: A Bool to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)
+<!-- `classicParametricSyntax`: A Bool to enable *experimental* parsing of parametric L-Systems as defined in Lindenmayers book *Algorithmic Beauty of Plants*. (default: `false`)-->
 
 Most often you will find yourself only setting `axiom`, `productions` and `finals`.
 
