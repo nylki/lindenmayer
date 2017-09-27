@@ -65,9 +65,9 @@ console.log(result)
 There are multiple ways to set productions, including javascript functions:
 
 ```.js
+// Directly when initializing a new L-System object:
 let lsystem = new LSystem({
   axiom: 'ABC',
-  /* Directly when initializing a new L-System object: */
   productions: { 'B': 'BB' }
 })
 
