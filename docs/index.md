@@ -42,7 +42,7 @@ let myLsystem = new LSystem({
 #### Context sensitive (using production objects, more below)
 ```.js
 let myLsystem = new LSystem({
-	axiom: ['ABCDE'],
+	axiom: 'ABCDE',
 	productions: {
 		'A': 'A+AAC',
 		'B': {leftCtx: 'A', successor: 'A'},
@@ -56,7 +56,7 @@ let myLsystem = new LSystem({
 This one is semantically equivalent to the previous example, but uses the classic syntax which is supported by default ([can be turned off](#LSystem-options)).
 ```.js
 let myLsystem = new LSystem({
-	axiom: ['ABCDE'],
+	axiom: 'ABCDE',
 	productions: {
 		'A'	: 'A+AAC',
 		'A<B'	: 'A',
