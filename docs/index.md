@@ -145,7 +145,7 @@ myLsystem.setProduction( {successor/successors: [String, Array, Function]/[Array
 ```
 
 To allow even more flexibility than String or Array based productions, you can choose to use a wrapper Object in the following way to allow for stochastic, context-sensitive and conditional L-Systems.
-This object basically wraps around a regular Array, String or Function Production, which are now defined in the `successor` field. In addition. The additional functionality can be used via the `leftCtx`, `rightCtx`, `successors` and `condition` properties.
+This object basically wraps around a regular Array, String or Function Production, which are now defined in the `successor` field. The additional functionality can be used via the `leftCtx`, `rightCtx`, `successors` and `condition` properties.
 
 
 A barebone production using such a wrapper Object:
