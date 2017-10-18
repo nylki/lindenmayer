@@ -201,6 +201,11 @@ lsys.setProduction('F', (info) => {
 // lsys.iterate() === FFXFF
 ```
 
+The `info` object includes:
+- `index`: the index inside the axiom
+- `currentAxiom`: the current full axiom/word
+- `part`: the current part (symbol or object) the production is applied on. This is especially useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
+
 For a shorter notation you could use the ES6 feature of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Object_destructuring) (has support in most modern browsers):
 ```.js
 lsys.setProduction('F', ({index}) => index === 2  ? 'X' : false);
@@ -209,14 +214,7 @@ lsys.setProduction('F', ({index}) => index === 2  ? 'X' : false);
 If `undefined` or `false` is returned in a production function, as above, the initiating symbol or symbol object is returned (in aboves example, that would be`'F'`).
 
 
-**parameters**:
-- `index`: the index inside the axiom
-- `currentAxiom`: the current full axiom/word
-- `part`: the current part (symbol or object) the production is applied on. This is especially useful if you are using parametric L-Systems (see last chapter) to have access to parameters of a symbol.
-
-
-
-### Applying Productions
+### Getting Results
 Now that we have set up our L-System set, we want to generate new axioms with `iterate()`:
 
 ```.js
@@ -227,7 +225,6 @@ lsystem.iterate();
 lsystem.iterate(5);
 ```
 
-### Getting Results
 `iterate()` conveniently returns the resulting string:
 
 ```.js
