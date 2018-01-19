@@ -293,13 +293,13 @@ And the result:
 
 [![Resulting image](https://cloud.githubusercontent.com/assets/1710598/15099304/09a530d6-1552-11e6-8261-fd302c5c89f6.png)](http://codepen.io/nylki/pen/QNYqzd)
 
-But because the library is not opinionated about what your resuts should be like you can write your own `finals`.
+As this library is not opinionated about what your results should be like, you can write your own `finals`.
 Therefore you can draw 2D turtle graphics as seen above, but also 3D ones with WebGL/three.js, or even do other things like creating sound!
 
 ## Advanced Usage
 ### Parametric L-Systems
 
-When defining axioms you may also use an Array of Objects instead of basic Strings. This makes the library very flexible because you can insert custom parameters into your symbols. Eg. a symbol like a `A` may contain a `food` variable to simulate organic growth when combined with a random() function:
+When defining axioms you may also use an Array of Objects instead of basic Strings. This makes your L-System very flexible because you can inject custom parameters into your symbols. Eg. a symbol like a `A` may contain a `food` variable to simulate organic growth:
 
 ```.js
 let parametricLsystem = new lsys.LSystem({
