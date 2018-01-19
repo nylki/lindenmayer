@@ -15,7 +15,7 @@ let myLsystem = new LSystem([options])
 	- `info`: `{index, part}`
 	- `arg`: the optional argument supplied with `final`. Useful for referencing render targets for example.
 
-- `allowClassicSyntax`: Toggles support for [classic syntax features](#classic-syntax-features) that often are more concise and mirror examples in the book better but are also less flexible.
+- `allowClassicSyntax`: Toggles support for classic syntax features that often are more concise and mirror examples in the book better but are also less flexible. At the moment only *classic context sensitive productions* is toggled by this flag (eg: `A<B>C`). See [the chapter on classic syntax features](#classic-syntax-features) for more info.
 default: `true`.
 
 - `branchSymbols`: A String tuple of the symbols treated as branches. default: `'[]'`
@@ -53,7 +53,7 @@ let myLsystem = new LSystem({
 
 
 #### Context sensitive (using classic ABOP-syntax)
-This one is semantically equivalent to the previous example, but uses the classic syntax which is supported by default ([can be turned off](#LSystem-options)).
+This one is semantically equivalent to the previous example, but uses the classic syntax which is supported by default (support can be turned of by setting `allowClassicSyntax:false`).
 ```.js
 let myLsystem = new LSystem({
 	axiom: 'ABCDE',
@@ -177,7 +177,7 @@ Those extra properties are explained in more detail in the following short chapt
 myLsystem.setProduction('F', {successor: 'FF', leftCtx: 'FX', rightCtx: 'X'});
 ```
 
-See also the chapter on [classic syntax](#classic-syntax) to learn how to write more concise context sensitive productions.
+See also the chapter on [classic syntax](#classic-syntax-features) to learn how to write more concise context sensitive productions.
 
 
 #### Conditional
@@ -418,5 +418,21 @@ koch.final()
 Lindenmayer.js is not opinionated on what you do with your L-System, so you can draw 2D turtle graphics like above, but may also [draw 3D ones](https://nylki.github.io/aframe-lsystem-component/) or even do entirely different things, like creating sound and music, simply by defining your own `final` functions.
 
 
-## Classic Syntax Features (#classic-syntax-features)
-- To be done
+## Classic Syntax Features
+Currently supported:
+- [ ] Classic syntax for parametric L-Systems. Please use the libraries native implementation for parametric L-Systems instead (consult chapter on [Array-Based Productions](#array-based-production) and [Function-Based Productions](#function-based-productions)
+
+- [ ] Classic syntax for stochastic productions. Please use the libraries [native implementation for stochastic L-Systems](#stochastic) instead. 
+
+- [x] Classic syntax for context sensitive L-Systems. At the moment, only the classic syntax for context sensitive productions is supported.
+```.js
+// instead of:
+
+myLsystem.setProduction('B', {leftCtx: 'A', rightCtx: 'C', successor: 'X'}  
+
+// you can write the following production if `allowClassicSyntax` is set to `true`:
+
+myLsystem.setProduction('A<B>C', 'X')  
+```
+
+
