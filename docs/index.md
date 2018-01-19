@@ -420,11 +420,11 @@ Lindenmayer.js is not opinionated on what you do with your L-System, so you can 
 
 ## Classic Syntax Features
 Currently supported:
-- [ ] Classic syntax for parametric L-Systems. Please use the libraries native implementation for parametric L-Systems instead (consult chapter on [Array-Based Productions](#array-based-production) and [Function-Based Productions](#function-based-productions)
+- [ ] Classic syntax for **parametric**. Please use the libraries native implementation for parametric L-Systems instead (consult chapter on [Array-Based Productions](#array-based-production) and [Function-Based Productions](#function-based-productions)
 
-- [ ] Classic syntax for stochastic productions. Please use the libraries [native implementation for stochastic L-Systems](#stochastic) instead. 
+- [ ] Classic syntax for **stochastic**. Please use the libraries [native implementation for stochastic L-Systems](#stochastic) instead. 
 
-- [x] Classic syntax for context sensitive L-Systems can be used in the following way:
+- [x] Classic syntax for **context sensitive** productions can be used in the following way:
 ```.js
 // instead of:
 
