@@ -424,7 +424,7 @@ Currently supported:
 
 - [ ] Classic syntax for stochastic productions. Please use the libraries [native implementation for stochastic L-Systems](#stochastic) instead. 
 
-- [x] Classic syntax for context sensitive L-Systems. At the moment, only the classic syntax for context sensitive productions is supported.
+- [x] Classic syntax for context sensitive L-Systems can be used in the following way:
 ```.js
 // instead of:
 
