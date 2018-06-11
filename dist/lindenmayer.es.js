@@ -15,12 +15,12 @@
 function transformClassicStochasticProductions(productions) {
 
   return function transformedProduction() {
-    var resultList = productions; // the parser for productions shall create this list
-    var count = resultList.length;
+    let resultList = productions; // the parser for productions shall create this list
+    let count = resultList.length;
 
-    var r = Math.random();
-    for (var i = 0; i < count; i++) {
-      var range = (i + 1) / count;
+    let r = Math.random();
+    for (let i = 0; i < count; i++) {
+      let range = (i + 1) / count;
       if (r <= range) return resultList[i];
     }
 
@@ -45,12 +45,12 @@ function testClassicParametricSyntax(axiom) {
 function transformClassicParametricAxiom(axiom) {
 
   // Replace whitespaces, then split between square brackets.
-  var splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
+  let splitAxiom = axiom.replace(/\s+/g, '').split(/[\(\)]/);
   // console.log('parts:', splitAxiom)
-  var newAxiom = [];
+  let newAxiom = [];
   // Construct new axiom by getting the params and symbol.
-  for (var i = 0; i < splitAxiom.length - 1; i += 2) {
-    var params = splitAxiom[i + 1].split(',').map(Number);
+  for (let i = 0; i < splitAxiom.length - 1; i += 2) {
+    let params = splitAxiom[i + 1].split(',').map(Number);
     newAxiom.push({ symbol: splitAxiom[i], params: params });
   }
   // console.log('parsed axiom:', newAxiom)
@@ -62,10 +62,10 @@ function transformClassicCSProduction(p) {
   // example: p = ['A<B>C', 'Z']
 
   // left should be ['A', 'B']
-  var left = p[0].match(/(.+)<(.)/);
+  let left = p[0].match(/(.+)<(.)/);
 
   // right should be ['B', 'C']
-  var right = p[0].match(/(.)>(.+)/);
+  let right = p[0].match(/(.)>(.+)/);
 
   // Not a CS-Production (no '<' or '>'),
   //return original production.
@@ -73,9 +73,9 @@ function transformClassicCSProduction(p) {
     return p;
   }
 
-  var predecessor = void 0;
+  let predecessor;
   // create new production object _or_ use the one set by the user
-  var productionObject = p[1].successor || p[1].successors ? p[1] : { successor: p[1] };
+  let productionObject = p[1].successor || p[1].successors ? p[1] : { successor: p[1] };
   if (left !== null) {
     predecessor = left[2];
     productionObject.leftCtx = left[1];
@@ -90,22 +90,9 @@ function transformClassicCSProduction(p) {
 
 function stringToObjects(string) {
   if (typeof string !== 'string' && string instanceof String === false) return string;
-  var transformed = [];
-  for (var _iterator = string, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-    var _ref;
-
-    if (_isArray) {
-      if (_i >= _iterator.length) break;
-      _ref = _iterator[_i++];
-    } else {
-      _i = _iterator.next();
-      if (_i.done) break;
-      _ref = _i.value;
-    }
-
-    var symbol = _ref;
-    transformed.push({ symbol });
-  }return transformed;
+  let transformed = [];
+  for (let symbol of string) transformed.push({ symbol });
+  return transformed;
 }
 
 // TODO: continue here
@@ -137,24 +124,7 @@ function normalizeProduction(p, forceObjects) {
   return p;
 }
 
-function LSystem(_ref) {
-	var _ref$axiom = _ref.axiom,
-	    axiom = _ref$axiom === undefined ? '' : _ref$axiom,
-	    productions = _ref.productions,
-	    finals = _ref.finals,
-	    _ref$branchSymbols = _ref.branchSymbols,
-	    branchSymbols = _ref$branchSymbols === undefined ? '' : _ref$branchSymbols,
-	    _ref$ignoredSymbols = _ref.ignoredSymbols,
-	    ignoredSymbols = _ref$ignoredSymbols === undefined ? '' : _ref$ignoredSymbols,
-	    _ref$allowClassicSynt = _ref.allowClassicSyntax,
-	    allowClassicSyntax = _ref$allowClassicSynt === undefined ? true : _ref$allowClassicSynt,
-	    _ref$classicParametri = _ref.classicParametricSyntax,
-	    classicParametricSyntax = _ref$classicParametri === undefined ? false : _ref$classicParametri,
-	    _ref$forceObjects = _ref.forceObjects,
-	    forceObjects = _ref$forceObjects === undefined ? false : _ref$forceObjects,
-	    _ref$debug = _ref.debug,
-	    debug = _ref$debug === undefined ? false : _ref$debug;
-
+function LSystem({ axiom = '', productions, finals, branchSymbols = '', ignoredSymbols = '', allowClassicSyntax = true, classicParametricSyntax = false, forceObjects = false, debug = false }) {
 
 	// TODO: forceObject to be more intelligent based on other productions??
 
@@ -167,9 +137,7 @@ function LSystem(_ref) {
 	};
 
 	// if using objects in axioms, as used in parametric L-Systems
-	this.getString = function () {
-		var onlySymbols = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
+	this.getString = function (onlySymbols = true) {
 		if (typeof this.axiom === 'string') return this.axiom;
 		if (onlySymbols === true) {
 			return this.axiom.reduce((prev, current) => {
@@ -186,10 +154,8 @@ function LSystem(_ref) {
 
 	this.getStringResult = this.getString;
 
-	this.setProduction = function (from, to) {
-		var allowAppendingMultiSuccessors = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-		var newProduction = [from, to];
+	this.setProduction = function (from, to, allowAppendingMultiSuccessors = false) {
+		let newProduction = [from, to];
 		if (newProduction === undefined) throw new Error('no production specified.');
 
 		if (to.successor && to.successors) {
@@ -209,30 +175,17 @@ function LSystem(_ref) {
 		if (newProduction[1].isStochastic) {
 			// calculate weight sum
 			newProduction[1].weightSum = 0;
-			for (var _iterator = newProduction[1].successors, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-				var _ref2;
-
-				if (_isArray) {
-					if (_i >= _iterator.length) break;
-					_ref2 = _iterator[_i++];
-				} else {
-					_i = _iterator.next();
-					if (_i.done) break;
-					_ref2 = _i.value;
-				}
-
-				var s = _ref2;
-
+			for (let s of newProduction[1].successors) {
 				newProduction[1].weightSum += s.weight;
 			}
 		}
 
-		var symbol = newProduction[0];
+		let symbol = newProduction[0];
 		if (allowAppendingMultiSuccessors === true && this.productions.has(symbol)) {
 
-			var existingProduction = this.productions.get(symbol);
-			var singleSuccessor = existingProduction.successor;
-			var multiSuccessors = existingProduction.successors;
+			let existingProduction = this.productions.get(symbol);
+			let singleSuccessor = existingProduction.successor;
+			let multiSuccessors = existingProduction.successors;
 
 			if (singleSuccessor && !multiSuccessors) {
 				// replace existing prod with new obj and add previous successor as first elem
@@ -252,21 +205,9 @@ function LSystem(_ref) {
 		if (newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
 
-		for (var _iterator2 = Object.entries(newProductions), _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-			var _ref4;
-
-			if (_isArray2) {
-				if (_i2 >= _iterator2.length) break;
-				_ref4 = _iterator2[_i2++];
-			} else {
-				_i2 = _iterator2.next();
-				if (_i2.done) break;
-				_ref4 = _i2.value;
-			}
-
-			var _ref3 = _ref4;
-			var from = _ref3[0];
-			var to = _ref3[1];
+		for (let _ref of Object.entries(newProductions)) {
+			let from = _ref[0];
+			let to = _ref[1];
 
 			this.setProduction(from, to, true);
 		}
@@ -277,7 +218,7 @@ function LSystem(_ref) {
 	};
 
 	this.setFinal = function (symbol, final) {
-		var newFinal = [symbol, final];
+		let newFinal = [symbol, final];
 		if (newFinal === undefined) {
 			throw new Error('no final specified.');
 		}
@@ -288,7 +229,7 @@ function LSystem(_ref) {
 	this.setFinals = function (newFinals) {
 		if (newFinals === undefined) throw new Error('no finals specified.');
 		this.finals = new Map();
-		for (var symbol in newFinals) {
+		for (let symbol in newFinals) {
 			if (newFinals.hasOwnProperty(symbol)) {
 				this.setFinal(symbol, newFinals[symbol]);
 			}
@@ -296,15 +237,13 @@ function LSystem(_ref) {
 	};
 
 	//var hasWeight = el => el.weight !== undefined;
-	this.getProductionResult = function (p, index, part, params) {
-		var recursive = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+	this.getProductionResult = function (p, index, part, params, recursive = false) {
 
-
-		var contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
-		var conditional = p.condition !== undefined;
-		var stochastic = false;
-		var result = false;
-		var precheck = true;
+		let contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
+		let conditional = p.condition !== undefined;
+		let stochastic = false;
+		let result = false;
+		let precheck = true;
 
 		// Check if condition is true, only then continue to check left and right contexts
 		if (conditional && p.condition({ index, currentAxiom: this.axiom, part, params }) === false) {
@@ -342,20 +281,7 @@ function LSystem(_ref) {
     This assumes, it's a list of functions.
     No recursion here: no successors inside successors.
     */
-				for (var _iterator3 = p.successors, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-					var _ref5;
-
-					if (_isArray3) {
-						if (_i3 >= _iterator3.length) break;
-						_ref5 = _iterator3[_i3++];
-					} else {
-						_i3 = _iterator3.next();
-						if (_i3.done) break;
-						_ref5 = _i3.value;
-					}
-
-					var _p = _ref5;
-
+				for (let _p of p.successors) {
 					if (p.isStochastic) {
 						currentWeight += _p.weight;
 						if (currentWeight < threshWeight) continue;
@@ -365,7 +291,7 @@ function LSystem(_ref) {
 
 					// last true is for recursiv call
 					// TODO: refactor getProductionResult to use an object
-					var _result = this.getProductionResult(_p, index, part, params, true);
+					let _result = this.getProductionResult(_p, index, part, params, true);
 					// console.log(part, p.successors);
 					// console.log(result);
 					// console.log("\n");
@@ -392,34 +318,21 @@ function LSystem(_ref) {
 
 	this.applyProductions = function () {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
-		var newAxiom = typeof this.axiom === 'string' ? '' : [];
-		var index = 0;
+		let newAxiom = typeof this.axiom === 'string' ? '' : [];
+		let index = 0;
 
 		// iterate all symbols/characters of the axiom and lookup according productions
-		for (var _iterator4 = this.axiom, _isArray4 = Array.isArray(_iterator4), _i4 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-			var _ref6;
-
-			if (_isArray4) {
-				if (_i4 >= _iterator4.length) break;
-				_ref6 = _iterator4[_i4++];
-			} else {
-				_i4 = _iterator4.next();
-				if (_i4.done) break;
-				_ref6 = _i4.value;
-			}
-
-			var part = _ref6;
-
+		for (let part of this.axiom) {
 
 			// Stuff for classic parametric L-Systems: get actual symbol and possible parameters
 			// params will be given the production function, if applicable.
 
-			var symbol = part.symbol || part;
-			var params = part.params || [];
+			let symbol = part.symbol || part;
+			let params = part.params || [];
 
-			var result = part;
+			let result = part;
 			if (this.productions.has(symbol)) {
-				var p = this.productions.get(symbol);
+				let p = this.productions.get(symbol);
 				result = this.getProductionResult(p, index, part, params);
 			}
 
@@ -440,42 +353,27 @@ function LSystem(_ref) {
 		return newAxiom;
 	};
 
-	this.iterate = function () {
-		var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-
+	this.iterate = function (n = 1) {
 		this.iterations = n;
-		var lastIteration = void 0;
-		for (var iteration = 0; iteration < n; iteration++) {
+		let lastIteration;
+		for (let iteration = 0; iteration < n; iteration++) {
 			lastIteration = this.applyProductions();
 		}
 		return lastIteration;
 	};
 
 	this.final = function (externalArg) {
-		var index = 0;
-		for (var _iterator5 = this.axiom, _isArray5 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-			var _ref7;
-
-			if (_isArray5) {
-				if (_i5 >= _iterator5.length) break;
-				_ref7 = _iterator5[_i5++];
-			} else {
-				_i5 = _iterator5.next();
-				if (_i5.done) break;
-				_ref7 = _i5.value;
-			}
-
-			var part = _ref7;
-
+		let index = 0;
+		for (let part of this.axiom) {
 
 			// if we have objects for each symbol, (when using parametric L-Systems)
 			// get actual identifiable symbol character
-			var symbol = part;
+			let symbol = part;
 			if (typeof part === 'object' && part.symbol) symbol = part.symbol;
 
 			if (this.finals.has(symbol)) {
-				var finalFunction = this.finals.get(symbol);
-				var typeOfFinalFunction = typeof finalFunction;
+				let finalFunction = this.finals.get(symbol);
+				let typeOfFinalFunction = typeof finalFunction;
 				if (typeOfFinalFunction !== 'function') {
 					throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
 				}
@@ -515,29 +413,16 @@ function LSystem(_ref) {
  	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
 
-	this.match = function (_ref8) {
-		var axiom_ = _ref8.axiom_,
-		    match = _ref8.match,
-		    ignoredSymbols = _ref8.ignoredSymbols,
-		    branchSymbols = _ref8.branchSymbols,
-		    index = _ref8.index,
-		    direction = _ref8.direction;
+	this.match = function ({ axiom_, match, ignoredSymbols, branchSymbols, index, direction }) {
 
-
-		var branchCount = 0;
-		var explicitBranchCount = 0;
+		let branchCount = 0;
+		let explicitBranchCount = 0;
 		axiom_ = axiom_ || this.axiom;
 		if (branchSymbols === undefined) branchSymbols = this.branchSymbols !== undefined ? this.branchSymbols : [];
 		if (ignoredSymbols === undefined) ignoredSymbols = this.ignoredSymbols !== undefined ? this.ignoredSymbols : [];
-		var returnMatchIndices = [];
+		let returnMatchIndices = [];
 
-		var branchStart = void 0,
-		    branchEnd = void 0,
-		    axiomIndex = void 0,
-		    loopIndexChange = void 0,
-		    matchIndex = void 0,
-		    matchIndexChange = void 0,
-		    matchIndexOverflow = void 0;
+		let branchStart, branchEnd, axiomIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow;
 		// set some variables depending on the direction to match
 
 		if (direction === 'right') {
@@ -568,8 +453,8 @@ function LSystem(_ref) {
 
 		for (; axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
 
-			var axiomSymbol = axiom_[axiomIndex].symbol || axiom_[axiomIndex];
-			var matchSymbol = match[matchIndex];
+			let axiomSymbol = axiom_[axiomIndex].symbol || axiom_[axiomIndex];
+			let matchSymbol = match[matchIndex];
 
 			// compare current symbol of axiom with current symbol of match
 			if (axiomSymbol === matchSymbol) {
