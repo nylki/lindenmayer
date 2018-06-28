@@ -126,7 +126,7 @@ function normalizeProduction(p, forceObjects) {
   return p;
 }
 
-function LSystem({ axiom = '', productions, finals, branchSymbols = '', ignoredSymbols = '', allowClassicSyntax = true, classicParametricSyntax = false, forceObjects = false, debug = false }) {
+function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignoredSymbols = '+-&^/|\\', allowClassicSyntax = true, classicParametricSyntax = false, forceObjects = false, debug = false }) {
 
 	// TODO: forceObject to be more intelligent based on other productions??
 
@@ -166,7 +166,7 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '', ignoredS
 
 		// Apply production transformers and normalizations
 		if (this.allowClassicSyntax === true) {
-			newProduction = transformClassicCSProduction(newProduction, this.ignoredSymbols);
+			newProduction = transformClassicCSProduction(newProduction);
 		}
 
 		newProduction = normalizeProduction(newProduction, this.forceObjects);
@@ -252,11 +252,11 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '', ignoredS
 			precheck = false;
 		} else if (contextSensitive) {
 			if (p.leftCtx !== undefined && p.rightCtx !== undefined) {
-				precheck = this.match({ direction: 'left', match: p.leftCtx, index: index, branchSymbols: '[]' }).result && this.match({ direction: 'right', match: p.rightCtx, index: index, branchSymbols: '[]', ignoredSymbols: ignoredSymbols }).result;
+				precheck = this.match({ direction: 'left', match: p.leftCtx, index: index, branchSymbols, ignoredSymbols }).result;
 			} else if (p.leftCtx !== undefined) {
-				precheck = this.match({ direction: 'left', match: p.leftCtx, index: index, branchSymbols: '[]' }).result;
+				precheck = this.match({ direction: 'left', match: p.leftCtx, index: index, branchSymbols, ignoredSymbols }).result;
 			} else if (p.rightCtx !== undefined) {
-				precheck = this.match({ direction: 'right', match: p.rightCtx, index: index, branchSymbols: '[]' }).result;
+				precheck = this.match({ direction: 'right', match: p.rightCtx, index: index, branchSymbols, ignoredSymbols }).result;
 			}
 		}
 

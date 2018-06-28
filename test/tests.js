@@ -48,7 +48,7 @@ describe('Basic String based L-Systems', function() {
 
 
 
-describe('String based L-Systems with additional context-sensitive classic ABOP syntax productions', function() {
+describe('String based L-Systems with additional context-sensitive classic ABOP syntax productions:', function() {
 
 it('Classic context sensitive syntax should work.', function() {
     let cs_LSystem7 = new LSystem({
@@ -72,14 +72,23 @@ it('Classic context sensitive syntax should work.', function() {
   });
 
 
-  it('Left side, classic CS should work.', function() {
-    let cs_LSystem8 = new LSystem({
+  it('Left side, classic CS should work with default ignored symbols.', function() {
+    let cs_LSystem8a = new LSystem({
+      axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
+      productions: {'BC<S': 'Z'}
+    });
+    expect(cs_LSystem8a.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
+  });
+  
+  it('Left side, classic CS should work with explitly set ignored symbols.', function() {
+    let cs_LSystem8b = new LSystem({
       axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
       productions: {'BC<S': 'Z'},
       ignoredSymbols: '+-'
     });
-    expect(cs_LSystem8.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
+    expect(cs_LSystem8b.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
   });
+
 
   it('multiple CS production on the same base symbol should work.', function () {
     // ATTENTION: Objecert order is not preserved in JS Objects
@@ -105,13 +114,23 @@ it('Classic context sensitive syntax should work.', function() {
 
 
 
-  it('right side, classic CS should work.', function() {
-    let cs_LSystem8 = new LSystem({
-      axiom: 'ABC[DE][SG[HI[JK]L]MNO]',
-      productions: {'S>G[H]M': 'Z'}
+  it('Right side, classic CS should work with default ignored symbols.', function() {
+    let cs_LSystem8a = new LSystem({
+      axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
+      productions: {'S>GM': 'Z'}
     });
-    expect(cs_LSystem8.iterate()).to.equal('ABC[DE][ZG[HI[JK]L]MNO]');
+    expect(cs_LSystem8a.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
   });
+  
+  it('Right side, classic CS should work with explitly set ignored symbols.', function() {
+    let cs_LSystem8b = new LSystem({
+      axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
+      productions: {'S>GM': 'Z'},
+      ignoredSymbols: '+-'
+    });
+    expect(cs_LSystem8b.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
+  });
+
 
 });
 
