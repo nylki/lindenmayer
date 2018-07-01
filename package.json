@@ -40,9 +40,9 @@
   "scripts": {
     "test": "npm run build && mocha test/tests.js",
     "test-stochastic": "npm run build && mocha test/stochastic_tests.js",
-    "build_": "npx rollup -c",
-    "build": "npx rollup -c && npm run build-minified && cp dist/lindenmayer.browser.min.js docs/examples/lindenmayer.js",
-    "build-minified": "npx rollup --environment minify -c",
+    "build_": "rollup -c",
+    "build": "rollup -c && npm run build-minified && cp dist/lindenmayer.browser.min.js docs/examples/lindenmayer.js",
+    "build-minified": "rollup --environment minify -c",
     "prepublish": "npm test"
   },
   "devDependencies": {
