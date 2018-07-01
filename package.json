@@ -11,9 +11,6 @@
     "graphics",
     "fractal"
   ],
-  "engines": {
-    "npm": ">= 5.2.0"
-  },
   "homepage": "https://github.com/nylki/lindenmayer",
   "bugs": {
     "url": "https://github.com/nylki/lindenmayer/issues"
