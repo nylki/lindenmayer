@@ -59,7 +59,10 @@ export default class LSystem {
 
 	setProduction(from, to, allowAppendingMultiSuccessors = false) {
 		let newProduction = [from, to];
-		if (newProduction === undefined) throw	new Error('no production specified.');
+
+		if (newProduction === undefined) {
+			throw new Error('no production specified.');
+		}
 
 		if (to.successor && to.successors) {
 			throw new Error('You can not have both a "successor" and a "successors" field in your production!');
@@ -107,7 +110,6 @@ export default class LSystem {
 	};
 
 	// set multiple productions from name:value Object
-	// TODO: ALLOW TUPLE/ARRAY
 	setProductions(newProductions) {
 		if (newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
@@ -115,7 +117,6 @@ export default class LSystem {
 		for (let [from, to] of Object.entries(newProductions)) {
 			this.setProduction(from, to, true);
 		}
-
 	};
 
 	clearProductions() {
@@ -196,7 +197,7 @@ export default class LSystem {
 		// If p has multiple successors
 		else if (p.successors) {
 			// This could be stochastic successors or multiple functions
-			// Tread every element in the list as an individual production object
+			// Treat every element in the list as an individual production object
 			// For stochastic productions (if all prods in the list have a 'weight' property)
 			// Get a random number then pick a production from the list according to their weight
 
@@ -220,24 +221,17 @@ export default class LSystem {
 				// and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
 
 				// last true is for recursiv call
-				// TODO: refactor getProductionResult to use an object
+				// TODO: refactor getProductionResult to use an object if not a hit on perf
 				let _result = this.getProductionResult(_p, index, part, params, true);
-				// console.log(part, p.successors);
-				// console.log(result);
-				// console.log("\n");
 				if (_result !== undefined && _result !== false) {
 					result = _result;
 					break;
 				}
 			}
-
-
 		}
 		// if successor is a function, execute function and append return value
 		else if (typeof p.successor === 'function') {
-
 			result = p.successor({index, currentAxiom: this.axiom, part, params});
-
 		} else {
 			result = p.successor;
 		}
