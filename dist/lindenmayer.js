@@ -179,7 +179,10 @@ class LSystem {
 
 	setProduction(from, to, allowAppendingMultiSuccessors = false) {
 		let newProduction = [from, to];
-		if (newProduction === undefined) throw new Error('no production specified.');
+
+		if (newProduction === undefined) {
+			throw new Error('no production specified.');
+		}
 
 		if (to.successor && to.successors) {
 			throw new Error('You can not have both a "successor" and a "successors" field in your production!');
@@ -223,7 +226,6 @@ class LSystem {
 	}
 
 	// set multiple productions from name:value Object
-	// TODO: ALLOW TUPLE/ARRAY
 	setProductions(newProductions) {
 		if (newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
@@ -278,6 +280,12 @@ class LSystem {
 					index: index,
 					branchSymbols: this.branchSymbols,
 					ignoredSymbols: this.ignoredSymbols
+				}).result && this.match({
+					direction: 'right',
+					match: p.rightCtx,
+					index: index,
+					branchSymbols: this.branchSymbols,
+					ignoredSymbols: this.ignoredSymbols
 				}).result;
 			} else if (p.leftCtx !== undefined) {
 				precheck = this.match({
@@ -306,7 +314,7 @@ class LSystem {
 		// If p has multiple successors
 		else if (p.successors) {
 				// This could be stochastic successors or multiple functions
-				// Tread every element in the list as an individual production object
+				// Treat every element in the list as an individual production object
 				// For stochastic productions (if all prods in the list have a 'weight' property)
 				// Get a random number then pick a production from the list according to their weight
 
@@ -330,11 +338,8 @@ class LSystem {
 					// and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
 
 					// last true is for recursiv call
-					// TODO: refactor getProductionResult to use an object
+					// TODO: refactor getProductionResult to use an object if not a hit on perf
 					let _result = this.getProductionResult(_p, index, part, params, true);
-					// console.log(part, p.successors);
-					// console.log(result);
-					// console.log("\n");
 					if (_result !== undefined && _result !== false) {
 						result = _result;
 						break;
@@ -343,7 +348,6 @@ class LSystem {
 			}
 			// if successor is a function, execute function and append return value
 			else if (typeof p.successor === 'function') {
-
 					result = p.successor({ index, currentAxiom: this.axiom, part, params });
 				} else {
 					result = p.successor;
@@ -381,7 +385,7 @@ class LSystem {
 				newAxiom += result;
 			} else if (result instanceof Array) {
 				// If result is an array, merge result into new axiom instead of pushing.
-				Array.prototype.push.apply(newAxiom, result);
+				newAxiom.push(...result);
 			} else {
 				newAxiom.push(result);
 			}
@@ -435,22 +439,17 @@ class LSystem {
  	If you use the classic syntax, it will by default be automatically transformed to proper
  	JS-Syntax.
  	Howerver, you can use the match helper function in your on productions:
- 
- 	index is the index of a production using `match`
+ 		index is the index of a production using `match`
  	eg. in a classic L-System
- 
- 	LSYS = ABCDE
+ 		LSYS = ABCDE
  	B<C>DE -> 'Z'
- 
- 	the index of the `B<C>D -> 'Z'` production would be the index of C (which is 2) when the
+ 		the index of the `B<C>D -> 'Z'` production would be the index of C (which is 2) when the
  	production would perform match(). so (if not using the ClassicLSystem class) you'd construction your context-sensitive production from C to Z like so:
- 
- 	LSYS.setProduction('C', (index, axiom) => {
+ 		LSYS.setProduction('C', (index, axiom) => {
  		(LSYS.match({index, match: 'B', direction: 'left'}) &&
  		 LSYS.match({index, match: 'DE', direction: 'right'}) ? 'Z' : 'C')
  	})
- 
- 	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
+ 		You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
 	match({ axiom_, match, ignoredSymbols, branchSymbols, index, direction }) {
 
