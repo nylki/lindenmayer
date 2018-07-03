@@ -268,7 +268,7 @@ export default class LSystem {
 				newAxiom += result;
 			} else if (result instanceof Array) {
 				// If result is an array, merge result into new axiom instead of pushing.
-				Array.prototype.push.apply(newAxiom, result);
+				newAxiom.push(...result);
 			} else {
 				newAxiom.push(result);
 			}
@@ -324,21 +324,21 @@ export default class LSystem {
 		If you use the classic syntax, it will by default be automatically transformed to proper
 		JS-Syntax.
 		Howerver, you can use the match helper function in your on productions:
-	
+
 		index is the index of a production using `match`
 		eg. in a classic L-System
-	
+
 		LSYS = ABCDE
 		B<C>DE -> 'Z'
-	
+
 		the index of the `B<C>D -> 'Z'` production would be the index of C (which is 2) when the
 		production would perform match(). so (if not using the ClassicLSystem class) you'd construction your context-sensitive production from C to Z like so:
-	
+
 		LSYS.setProduction('C', (index, axiom) => {
 			(LSYS.match({index, match: 'B', direction: 'left'}) &&
 			 LSYS.match({index, match: 'DE', direction: 'right'}) ? 'Z' : 'C')
 		})
-	
+
 		You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
 		*/
 	match({axiom_, match, ignoredSymbols, branchSymbols, index, direction}) {
