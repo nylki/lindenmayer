@@ -126,20 +126,43 @@ function normalizeProduction(p, forceObjects) {
   return p;
 }
 
-function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignoredSymbols = '+-&^/|\\', allowClassicSyntax = true, classicParametricSyntax = false, forceObjects = false, debug = false }) {
+class LSystem {
+	constructor({
+		axiom = '',
+		productions,
+		finals,
+		branchSymbols = '[]',
+		ignoredSymbols = '+-&^/|\\',
+		allowClassicSyntax = true,
+		classicParametricSyntax = false,
+		forceObjects = false,
+		debug = false
+	}) {
+		this.ignoredSymbols = ignoredSymbols;
+		this.debug = debug;
+		this.branchSymbols = branchSymbols;
+		this.allowClassicSyntax = allowClassicSyntax;
+		this.classicParametricSyntax = classicParametricSyntax;
+		this.forceObjects = forceObjects;
+
+		this.setAxiom(axiom);
+
+		this.clearProductions();
+		if (productions) this.setProductions(productions);
+		if (finals) this.setFinals(finals);
+	}
 
 	// TODO: forceObject to be more intelligent based on other productions??
-
-	this.setAxiom = function (axiom) {
+	setAxiom(axiom) {
 		this.axiom = this.forceObjects ? stringToObjects(axiom) : axiom;
-	};
+	}
 
-	this.getRaw = function () {
+	getRaw() {
 		return this.axiom;
-	};
+	}
 
 	// if using objects in axioms, as used in parametric L-Systems
-	this.getString = function (onlySymbols = true) {
+	getString(onlySymbols = true) {
 		if (typeof this.axiom === 'string') return this.axiom;
 		if (onlySymbols === true) {
 			return this.axiom.reduce((prev, current) => {
@@ -152,11 +175,9 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 		} else {
 			return JSON.stringify(this.axiom);
 		}
-	};
+	}
 
-	this.getStringResult = this.getString;
-
-	this.setProduction = function (from, to, allowAppendingMultiSuccessors = false) {
+	setProduction(from, to, allowAppendingMultiSuccessors = false) {
 		let newProduction = [from, to];
 		if (newProduction === undefined) throw new Error('no production specified.');
 
@@ -199,11 +220,11 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 		} else {
 			this.productions.set(symbol, newProduction[1]);
 		}
-	};
+	}
 
 	// set multiple productions from name:value Object
 	// TODO: ALLOW TUPLE/ARRAY
-	this.setProductions = function (newProductions) {
+	setProductions(newProductions) {
 		if (newProductions === undefined) throw new Error('no production specified.');
 		this.clearProductions();
 
@@ -213,22 +234,22 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 
 			this.setProduction(from, to, true);
 		}
-	};
+	}
 
-	this.clearProductions = function () {
+	clearProductions() {
 		this.productions = new Map();
-	};
+	}
 
-	this.setFinal = function (symbol, final) {
+	setFinal(symbol, final) {
 		let newFinal = [symbol, final];
 		if (newFinal === undefined) {
 			throw new Error('no final specified.');
 		}
 		this.finals.set(newFinal[0], newFinal[1]);
-	};
+	}
 
 	// set multiple finals from name:value Object
-	this.setFinals = function (newFinals) {
+	setFinals(newFinals) {
 		if (newFinals === undefined) throw new Error('no finals specified.');
 		this.finals = new Map();
 		for (let symbol in newFinals) {
@@ -236,11 +257,10 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 				this.setFinal(symbol, newFinals[symbol]);
 			}
 		}
-	};
+	}
 
 	//var hasWeight = el => el.weight !== undefined;
-	this.getProductionResult = function (p, index, part, params, recursive = false) {
-
+	getProductionResult(p, index, part, params, recursive = false) {
 		let contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
 		let conditional = p.condition !== undefined;
 		let stochastic = false;
@@ -252,11 +272,29 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 			precheck = false;
 		} else if (contextSensitive) {
 			if (p.leftCtx !== undefined && p.rightCtx !== undefined) {
-				precheck = this.match({ direction: 'left', match: p.leftCtx, index: index, branchSymbols, ignoredSymbols }).result;
+				precheck = this.match({
+					direction: 'left',
+					match: p.leftCtx,
+					index: index,
+					branchSymbols: this.branchSymbols,
+					ignoredSymbols: this.ignoredSymbols
+				}).result;
 			} else if (p.leftCtx !== undefined) {
-				precheck = this.match({ direction: 'left', match: p.leftCtx, index: index, branchSymbols, ignoredSymbols }).result;
+				precheck = this.match({
+					direction: 'left',
+					match: p.leftCtx,
+					index: index,
+					branchSymbols: this.branchSymbols,
+					ignoredSymbols: this.ignoredSymbols
+				}).result;
 			} else if (p.rightCtx !== undefined) {
-				precheck = this.match({ direction: 'right', match: p.rightCtx, index: index, branchSymbols, ignoredSymbols }).result;
+				precheck = this.match({
+					direction: 'right',
+					match: p.rightCtx,
+					index: index,
+					branchSymbols: this.branchSymbols,
+					ignoredSymbols: this.ignoredSymbols
+				}).result;
 			}
 		}
 
@@ -272,7 +310,7 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 				// For stochastic productions (if all prods in the list have a 'weight' property)
 				// Get a random number then pick a production from the list according to their weight
 
-				var currentWeight, threshWeight;
+				let currentWeight, threshWeight;
 				if (p.isStochastic) {
 					threshWeight = Math.random() * p.weightSum;
 					currentWeight = 0;
@@ -316,9 +354,9 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 			return recursive ? result : part;
 		}
 		return result;
-	};
+	}
 
-	this.applyProductions = function () {
+	applyProductions() {
 		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
 		let newAxiom = typeof this.axiom === 'string' ? '' : [];
 		let index = 0;
@@ -353,18 +391,18 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 		// finally set new axiom and also return it for convenience.
 		this.axiom = newAxiom;
 		return newAxiom;
-	};
+	}
 
-	this.iterate = function (n = 1) {
+	iterate(n = 1) {
 		this.iterations = n;
 		let lastIteration;
 		for (let iteration = 0; iteration < n; iteration++) {
 			lastIteration = this.applyProductions();
 		}
 		return lastIteration;
-	};
+	}
 
-	this.final = function (externalArg) {
+	final(externalArg) {
 		let index = 0;
 		for (let part of this.axiom) {
 
@@ -388,11 +426,11 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 			}
 			index++;
 		}
-	};
+	}
 
 	/*
  	how to use match():
-  	-----------------------
+ 	 -----------------------
  	It is mainly a helper function for context sensitive productions.
  	If you use the classic syntax, it will by default be automatically transformed to proper
  	JS-Syntax.
@@ -414,8 +452,7 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
  
  	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
  	*/
-
-	this.match = function ({ axiom_, match, ignoredSymbols, branchSymbols, index, direction }) {
+	match({ axiom_, match, ignoredSymbols, branchSymbols, index, direction }) {
 
 		let branchCount = 0;
 		let explicitBranchCount = 0;
@@ -504,24 +541,10 @@ function LSystem({ axiom = '', productions, finals, branchSymbols = '[]', ignore
 		}
 
 		return { result: false, matchIndices: returnMatchIndices };
-	};
-
-	this.ignoredSymbols = ignoredSymbols;
-	this.debug = debug;
-	this.branchSymbols = branchSymbols;
-	this.allowClassicSyntax = allowClassicSyntax;
-	this.classicParametricSyntax = classicParametricSyntax;
-	this.forceObjects = forceObjects;
-
-	this.setAxiom(axiom);
-
-	this.clearProductions();
-	if (productions) this.setProductions(productions);
-	if (finals) this.setFinals(finals);
-
-	return this;
+	}
 }
 
+LSystem.getStringResult = LSystem.getString;
 // Set classic syntax helpers to library scope to be used outside of library context
 // for users eg.
 LSystem.transformClassicStochasticProductions = transformClassicStochasticProductions;

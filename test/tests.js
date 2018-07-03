@@ -1,11 +1,11 @@
-'use strict'
+'use strict';
 
 let chai = require('chai');
 let chaiAsPromised = require('chai-as-promised');
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-let LSystem = require('../dist/lindenmayer.min.js');
+let LSystem = require('../dist/lindenmayer.js');
 
 
 describe('Basic String based L-Systems', function() {
@@ -130,13 +130,7 @@ it('Classic context sensitive syntax should work.', function() {
     });
     expect(cs_LSystem8b.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
   });
-
-
 });
-
-
-
-
 
 
 describe('Final functions', function() {
