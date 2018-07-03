@@ -161,6 +161,12 @@ export default class LSystem {
 					index: index,
 					branchSymbols: this.branchSymbols,
 					ignoredSymbols: this.ignoredSymbols
+				}).result && this.match({
+					direction: 'right',
+					match: p.rightCtx,
+					index: index,
+					branchSymbols: this.branchSymbols,
+					ignoredSymbols: this.ignoredSymbols
 				}).result;
 			} else if (p.leftCtx !== undefined) {
 				precheck = this.match({

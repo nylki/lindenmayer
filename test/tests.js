@@ -50,17 +50,26 @@ describe('Basic String based L-Systems', function() {
 
 describe('String based L-Systems with additional context-sensitive classic ABOP syntax productions:', function() {
 
-it('Classic context sensitive syntax should work.', function() {
-    let cs_LSystem7 = new LSystem({
+it('Classic context sensitive syntax should work for both sides.', function() {
+    let cs_LSystem7a = new LSystem({
       axiom: 'A[X]BC',
       productions: {'A<B>C': 'Z'}
     });
 
-    expect(cs_LSystem7.iterate()).to.equal('A[X]ZC');
+    expect(cs_LSystem7a.iterate()).to.equal('A[X]ZC');
   });
 
+  it('Classic context sensitive syntax should check both sides and not produce if only one side matches', function() {
+      let cs_LSystem7b = new LSystem({
+        axiom: 'ABD',
+        productions: {'A<B>C': 'Z'}
+      });
+
+      expect(cs_LSystem7b.iterate()).to.equal('ABD');
+    });
+
   it('Classic context sensitive syntax should work when not ignoring them', function() {
-    let cs_LSystem7b = new LSystem({
+    let cs_LSystem7c = new LSystem({
       axiom: 'FFB-+FF',
       productions: {
         'B-<F': 'Z'
@@ -68,7 +77,7 @@ it('Classic context sensitive syntax should work.', function() {
       ignoredSymbols: '+'
     });
 
-    expect(cs_LSystem7b.iterate()).to.equal('FFB-+ZF');
+    expect(cs_LSystem7c.iterate()).to.equal('FFB-+ZF');
   });
 
 
@@ -79,7 +88,7 @@ it('Classic context sensitive syntax should work.', function() {
     });
     expect(cs_LSystem8a.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
   });
-  
+
   it('Left side, classic CS should work with explitly set ignored symbols.', function() {
     let cs_LSystem8b = new LSystem({
       axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
@@ -95,7 +104,7 @@ it('Classic context sensitive syntax should work.', function() {
     // If you want to rely on the order you define productions
     // eg. one fails one not, you should define the productions iteratively via
     // setProduction
-    
+
     let cs_LSystemMulti = new LSystem({
       axiom: 'ABCDEFGHI',
       productions: {
@@ -121,7 +130,7 @@ it('Classic context sensitive syntax should work.', function() {
     });
     expect(cs_LSystem8a.iterate()).to.equal('A+B+C[DE][-Z-G[HI[JK]L-]M-NO]');
   });
-  
+
   it('Right side, classic CS should work with explitly set ignored symbols.', function() {
     let cs_LSystem8b = new LSystem({
       axiom: 'A+B+C[DE][-S-G[HI[JK]L-]M-NO]',
@@ -188,7 +197,7 @@ describe('Final functions', function() {
     vizsys.final();
     expect(vizsys.output).to.equal('//~/-##-#//~/-##-#~/-//~/-##-#-/##/-+--#+-/##/-+--#+--/##/-+--#+----');
   });
-  
+
   it('should be possible to insert external arguments to final functions, such as a drawing target', function() {
     let vizsys = new LSystem({
       axiom: 'A',
@@ -313,7 +322,7 @@ describe('L-System with multiple successors in production', function () {
 
 
   });
-  
+
   it('Having both "successor" and "successors" field should throw error', function () {
     let cs_LSystemMulti = new LSystem({
           axiom: 'A'
@@ -573,17 +582,17 @@ describe('L-Systems with Object based productions', function() {
       {symbol: '+'},
       {symbol: 'F', params: [3, 4]}
     ]});
-    
+
     lsystem.setProduction('F', {
       // a condition has to return a bool
       condition: ({params:[a,b]}) => a > 0 && b === 4,
       successor: {symbol: 'XYZ'}
     });
-      
+
     lsystem.iterate();
     expect(lsystem.getString()).to.equal('F+XYZ');
   });
-  
+
 
 });
 
