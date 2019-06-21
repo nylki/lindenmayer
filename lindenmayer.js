@@ -212,7 +212,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 	};
 
 	this.applyProductions = function() {
-		// a axiom can be a string or an array of objects that contain the key/value 'symbol'
+		// An axiom can be a string or an array of objects that contain the key/value 'symbol'
 		let newAxiom = (typeof this.axiom === 'string') ? '' : [];
 		let index = 0;
 		
@@ -236,7 +236,7 @@ export default function LSystem({axiom = '', productions, finals, branchSymbols=
 				newAxiom += result;
 			} else if (result instanceof Array){
 				// If result is an array, merge result into new axiom instead of pushing.
-				Array.prototype.push.apply(newAxiom, result);
+				newAxiom.push(...result);
 			} else {
 				newAxiom.push(result);
 			}
