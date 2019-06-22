@@ -1,7 +1,7 @@
 {
   "name": "lindenmayer",
   "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "author": "Tom Brewe <info@nylkiway.net>",
   "license": "MIT",
   "keywords": [
@@ -20,10 +20,10 @@
     "url": "git+https://github.com/nylki/lindenmayer.git"
   },
   "main": "dist/lindenmayer.js",
-  "module": "dist/lindenmayer.es.js",
+  "module": "dist/lindenmayer.esm.js",
   "files": [
     "dist/lindenmayer.browser.js",
-    "dist/lindenmayer.es.js",
+    "dist/lindenmayer.esm.js",
     "dist/lindenmayer.js",
     "README.md",
     "LICENSE"
@@ -36,26 +36,28 @@
   },
   "scripts": {
     "test": "npm run build && mocha test/tests.js",
-    "test-stochastic": "npm run build && mocha test/stochastic_tests.js",
-    "build_": "rollup -c",
-    "build": "rollup -c && npm run build-minified && cp dist/lindenmayer.browser.min.js docs/examples/lindenmayer.js",
-    "build-minified": "rollup --environment minify -c",
+    "test-stochastic": "npm run build && mocha test/additional_tests/stochastic_tests.js",
+    "build": "npm-run-all --sequential build-all copy-build-to-examples",
+    "copy-build-to-examples": "cp dist/lindenmayer.browser.js docs/examples/lindenmayer.js",
+    "build-all": "npm-run-all --parallel build-esm build-umd build-browser",
+    "build-esm": "rollup -c rollup.esm.config.js && rollup --environment minify -c rollup.esm.config.js",
+    "build-umd": "rollup -c rollup.umd.config.js && rollup --environment minify -c rollup.umd.config.js",
+    "build-browser": "rollup -c rollup.browser.config.js && rollup --environment minify -c rollup.browser.config.js",
     "prepublish": "npm test"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-plugin-external-helpers": "^6.22.0",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "babel-preset-env": "^1.7.0",
     "benchmark": "^2.1.4",
-    "chai": "^3.5.0",
-    "chai-as-promised": "^5.3.0",
-    "expect": "^1.20.2",
+    "chai": "^4.2.0",
+    "expect": "^24.8.0",
     "marky": "^1.2.0",
-    "mocha": "^2.5.3",
-    "rollup": "^0.47.6",
-    "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-uglify": "^2.0.1",
-    "uglify-es": "^3.3.9"
+    "mocha": "^6.1.4",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^1.16.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-terser": "^5.0.0"
   },
   "dependencies": {}
 }

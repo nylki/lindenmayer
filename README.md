@@ -331,7 +331,3 @@ let parametricLsystem = new lsys.LSystem({
 ```
 
 As you can see above, you need to explicitly define the `symbol` value, so the correct production can be applied.
-
-#### Classic Parametric L-System syntax
-they loook like `A -> A(1,2)B(5,2)`.
-Are planned, but not yet fully implemented. Stay tuned!

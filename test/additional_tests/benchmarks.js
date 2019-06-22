@@ -1,5 +1,5 @@
 var Benchmark = require('benchmark');
-let LSystem = require('../dist/lindenmayer.js');
+let LSystem = require('../../dist/lindenmayer.js');
 var suite = new Benchmark.Suite();
 
 let lsys1 = new LSystem({
@@ -36,19 +36,20 @@ let lsys3 = new LSystem({
 
 
 // add tests
+const n = 10;
 suite.add('strings', function() {
   lsys1.setAxiom('FF');
-  lsys1.iterate(11);
+  lsys1.iterate(n);
 }).add('strings transformed to objects', function() {
   lsys1b.setAxiom('FF');
-  lsys1b.iterate(11);
+  lsys1b.iterate(n);
 }).add('objects', function() {
   lsys2.setAxiom([{symbol: 'F'}, {symbol: 'F'}]);
-  lsys2.iterate(11);
+  lsys2.iterate(n);
 })
 .add('functions', function() {
   lsys3.setAxiom([{symbol: 'F'}, {symbol: 'F'}]);
-  lsys3.iterate(11);
+  lsys3.iterate(n);
 })
 
 // add listeners
