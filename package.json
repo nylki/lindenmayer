@@ -1,7 +1,7 @@
 {
   "name": "lindenmayer",
   "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "author": "Tom Brewe <info@nylkiway.net>",
   "license": "MIT",
   "keywords": [
@@ -37,6 +37,7 @@
   "scripts": {
     "test": "npm run build && mocha test/tests.js",
     "test-stochastic": "npm run build && mocha test/additional_tests/stochastic_tests.js",
+    "benchmarks": "node test/additional_tests/benchmarks.js",
     "build": "npm-run-all --sequential build-all copy-build-to-examples",
     "copy-build-to-examples": "cp dist/lindenmayer.browser.js docs/examples/lindenmayer.js",
     "build-all": "npm-run-all --parallel build-esm build-umd build-browser",
@@ -48,11 +49,11 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
-    "babel-preset-env": "^1.7.0",
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "expect": "^24.8.0",
-    "marky": "^1.2.0",
+    "marky": "^1.2.1",
     "mocha": "^6.1.4",
     "npm-run-all": "^4.1.5",
     "rollup": "^1.16.0",

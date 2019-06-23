@@ -1,7 +1,7 @@
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
-
 let minifyEnv = process.env.minify || false;
+
 const babelConf = {
   babelrc: false,
   presets: [
@@ -34,7 +34,6 @@ export default {
         reserved: ['LSystem'],
         toplevel: true
       },
-      ie8: false
     }) : {} ],
     
 };

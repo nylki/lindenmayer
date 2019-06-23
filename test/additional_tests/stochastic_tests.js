@@ -16,7 +16,7 @@ describe('Stochastic tests. These tests could potentially fail, because of their
     let lsystem  = new LSystem({
       axiom: 'F',
       productions: {
-          'F': { successors:
+        'F': { successors:
           [
             {successor: 'AF', weight: 0.89},
             {successor: 'BF', weight: 0.1},

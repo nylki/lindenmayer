@@ -34,7 +34,7 @@ export default {
         reserved: ['LSystem'],
         toplevel: true
       },
-      ie8: false
+
     }) : {}
   ],
     
