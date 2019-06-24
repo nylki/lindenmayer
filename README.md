@@ -59,7 +59,8 @@ let kochcurve = new LSystem({
 // Iterate the L-System two times and log the result.
 let result = kochcurve.iterate(2)
 console.log(result)
-//'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
+//'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F
+//-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
 ```
 
 There are multiple ways to set productions, including javascript functions:
