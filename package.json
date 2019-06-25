@@ -1,7 +1,7 @@
 {
   "name": "lindenmayer",
   "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "author": "Tom Brewe <info@nylkiway.net>",
   "license": "MIT",
   "keywords": [
@@ -58,6 +58,7 @@
     "npm-run-all": "^4.1.5",
     "rollup": "^1.16.0",
     "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^5.0.0"
   },
   "dependencies": {}

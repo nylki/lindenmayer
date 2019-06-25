@@ -1,3 +1,4 @@
+import './polyfills/objectEntries'
 import {
   transformClassicStochasticProductions,
   transformClassicCSProduction,

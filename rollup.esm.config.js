@@ -1,5 +1,7 @@
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
+import replace from 'rollup-plugin-replace';
+
 let minifyEnv = process.env.minify || false;
 
 const babelConf = {
@@ -27,6 +29,10 @@ export default {
     }
   ],
   plugins: [
+  replace({
+    include: 'polyfills/**',
+    "__BUILD_FORMAT__": 'esm'
+    }),
     babel(babelConf),
     minifyEnv ? terser({
       module: true,

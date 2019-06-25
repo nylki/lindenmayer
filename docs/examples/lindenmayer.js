@@ -1,6 +1,22 @@
 var LSystem = (function () {
   'use strict';
 
+  {
+    if (!Object.entries) {
+      Object.entries = function (obj) {
+        var ownProps = Object.keys(obj),
+            i = ownProps.length,
+            resArray = new Array(i); // preallocate the Array
+
+        while (i--) {
+          resArray[i] = [ownProps[i], obj[ownProps[i]]];
+        }
+
+        return resArray;
+      };
+    }
+  }
+
   // Get a list of productions that have identical initiators,
   // Output a single stochastic production. Probability per production
   // is defined by amount of input productions (4 => 25% each, 2 => 50% etc.)
