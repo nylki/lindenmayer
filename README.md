@@ -59,7 +59,8 @@ let kochcurve = new LSystem({
 // Iterate the L-System two times and log the result.
 let result = kochcurve.iterate(2)
 console.log(result)
-//'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
+//'F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F
+//-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F++F-F++F-F-F-F++F-F'
 ```
 
 There are multiple ways to set productions, including javascript functions:
@@ -103,7 +104,8 @@ lsystem.setProduction('B', (info) => (info.currentAxiom.length / 2) <= info.inde
 
 
 # Documentation
-The following section is a quick overview. The full API docs can be found [here](https://github.com/nylki/lindenmayer/blob/master/docs/index.md).
+The following section is a quick overview. Please refer to the [full documentation](https://github.com/nylki/lindenmayer/blob/master/docs/index.md) for a detailed usage reference. 
+
 ## Initialization
 
 ```.js
@@ -331,3 +333,5 @@ let parametricLsystem = new lsys.LSystem({
 ```
 
 As you can see above, you need to explicitly define the `symbol` value, so the correct production can be applied.
+
+[Full Documentation](https://github.com/nylki/lindenmayer/blob/master/docs/index.md)

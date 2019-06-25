@@ -20,9 +20,9 @@ default: `true`.
 
 - `branchSymbols`: A String tuple of the symbols treated as branches. default: `'[]'`
 
-- `ignoredSymbols`: A String of symbols to ignore when performing context sensitive checks. Eg. you may want to define `+-` in two-dimensional turtle-graphic L-Systems to be ignored. default: `''`.
+- `ignoredSymbols`: A String of symbols to ignore when performing context sensitive checks. Eg. you may want to define `+-` in two-dimensional turtle-graphic L-Systems to be ignored. default: `'+-&^/|\\'`.
 
-- `forceObjects`: Toggles automatic conversion of Strings into Objects. Eg. axiom 'AB' gets converted to [{symbol: 'A'}, {symbol: 'B'}]. default: `false`.
+- `forceObjects`: Toggles automatic conversion of Strings into Objects. Eg. axiom `'AB'` gets converted to `[{symbol: 'A'}, {symbol: 'B'}]`. default: `false`.
 
 
 
