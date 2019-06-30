@@ -38,10 +38,11 @@ npm install --save lindenmayer
 Then in your Node.js script:
 
 ```.js
-var LSystem = require('lindenmayer');
+var LSystem = require('lindenmayer')
 ```
 
-or if you use a bundler like Webpack or rollup:
+or via import syntax:
+
 ```.js
 import LSystem from 'lindenmayer'
 ```
@@ -52,13 +53,7 @@ Or in your `index.html`:
 <script src="node_modules/lindenmayer/dist/lindenmayer.browser.js"></script>
 ```
 
-
-There are three builds:
-
-- `lindenmayer.js` for Node.js
-- `lindenmayer.browser.js` for browsers (supports IE11)
-- `lindenmayer.esm.js` for browsers and environments that natively support the `import` syntax
-
+See [releases](https://github.com/nylki/lindenmayer/releases) for change logs.
 
 ## Quick Intro
 
