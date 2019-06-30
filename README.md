@@ -41,11 +41,23 @@ Then in your Node.js script:
 var LSystem = require('lindenmayer');
 ```
 
+or if you use a bundler like Webpack or rollup:
+```.js
+import LSystem from 'lindenmayer'
+```
+
 Or in your `index.html`:
 
 ```.html
 <script src="node_modules/lindenmayer/dist/lindenmayer.browser.js"></script>
 ```
+
+
+There are three builds:
+
+- `lindenmayer.js` for Node.js
+- `lindenmayer.browser.js` for browsers (supports IE11)
+- `lindenmayer.esm.js` for browsers and environments that natively support the `import` syntax
 
 
 ## Quick Intro
