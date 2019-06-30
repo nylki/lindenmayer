@@ -1,5 +1,8 @@
-var LSystem = (function () {
-  'use strict';
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.LSystem = factory());
+}(this, function () { 'use strict';
 
   {
     if (!Object.entries) {
@@ -103,19 +106,8 @@ var LSystem = (function () {
     if (typeof string !== 'string' && string instanceof String === false) return string;
     var transformed = [];
 
-    for (var _iterator = string, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-      var _ref;
-
-      if (_isArray) {
-        if (_i >= _iterator.length) break;
-        _ref = _iterator[_i++];
-      } else {
-        _i = _iterator.next();
-        if (_i.done) break;
-        _ref = _i.value;
-      }
-
-      var symbol = _ref;
+    for (var _i2 = 0; _i2 < string.length; _i2++) {
+      var symbol = string[_i2];
       transformed.push({
         symbol: symbol
       });
@@ -244,19 +236,8 @@ var LSystem = (function () {
         // calculate weight sum
         newProduction[1].weightSum = 0;
 
-        for (var _iterator = newProduction[1].successors, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-          var _ref2;
-
-          if (_isArray) {
-            if (_i >= _iterator.length) break;
-            _ref2 = _iterator[_i++];
-          } else {
-            _i = _iterator.next();
-            if (_i.done) break;
-            _ref2 = _i.value;
-          }
-
-          var s = _ref2;
+        for (var _i2 = 0, _newProduction$1$succ2 = newProduction[1].successors; _i2 < _newProduction$1$succ2.length; _i2++) {
+          var s = _newProduction$1$succ2[_i2];
           newProduction[1].weightSum += s.weight;
         }
       }
@@ -288,10 +269,10 @@ var LSystem = (function () {
       if (newProductions === undefined) throw new Error('no production specified.');
       this.clearProductions();
 
-      for (var _i2 = 0, _Object$entries = Object.entries(newProductions); _i2 < _Object$entries.length; _i2++) {
-        var _Object$entries$_i = _Object$entries[_i2],
-            from = _Object$entries$_i[0],
-            to = _Object$entries$_i[1];
+      for (var _i4 = 0, _Object$entries2 = Object.entries(newProductions); _i4 < _Object$entries2.length; _i4++) {
+        var _Object$entries2$_i = _Object$entries2[_i4],
+            from = _Object$entries2$_i[0],
+            to = _Object$entries2$_i[1];
         this.setProduction(from, to, true);
       }
     };
@@ -397,19 +378,8 @@ var LSystem = (function () {
           */
 
 
-          for (var _iterator2 = p.successors, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-            var _ref3;
-
-            if (_isArray2) {
-              if (_i3 >= _iterator2.length) break;
-              _ref3 = _iterator2[_i3++];
-            } else {
-              _i3 = _iterator2.next();
-              if (_i3.done) break;
-              _ref3 = _i3.value;
-            }
-
-            var _p = _ref3;
+          for (var _i6 = 0, _p$successors2 = p.successors; _i6 < _p$successors2.length; _i6++) {
+            var _p = _p$successors2[_i6];
 
             if (p.isStochastic) {
               currentWeight += _p.weight;
@@ -452,19 +422,8 @@ var LSystem = (function () {
       var newAxiom = typeof this.axiom === 'string' ? '' : [];
       var index = 0; // iterate all symbols/characters of the axiom and lookup according productions
 
-      for (var _iterator3 = this.axiom, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-        var _ref4;
-
-        if (_isArray3) {
-          if (_i4 >= _iterator3.length) break;
-          _ref4 = _iterator3[_i4++];
-        } else {
-          _i4 = _iterator3.next();
-          if (_i4.done) break;
-          _ref4 = _i4.value;
-        }
-
-        var part = _ref4;
+      for (var _i8 = 0, _this$axiom2 = this.axiom; _i8 < _this$axiom2.length; _i8++) {
+        var part = _this$axiom2[_i8];
         // Stuff for classic parametric L-Systems: get actual symbol and possible parameters
         // params will be given the production function, if applicable.
         var symbol = part.symbol || part;
@@ -514,19 +473,8 @@ var LSystem = (function () {
     _proto.final = function final(externalArg) {
       var index = 0;
 
-      for (var _iterator4 = this.axiom, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-        var _ref5;
-
-        if (_isArray4) {
-          if (_i5 >= _iterator4.length) break;
-          _ref5 = _iterator4[_i5++];
-        } else {
-          _i5 = _iterator4.next();
-          if (_i5.done) break;
-          _ref5 = _i5.value;
-        }
-
-        var part = _ref5;
+      for (var _i10 = 0, _this$axiom4 = this.axiom; _i10 < _this$axiom4.length; _i10++) {
+        var part = _this$axiom4[_i10];
         // if we have objects for each symbol, (when using parametric L-Systems)
         // get actual identifiable symbol character
         var symbol = part;
@@ -573,13 +521,13 @@ var LSystem = (function () {
     */
     ;
 
-    _proto.match = function match(_ref6) {
-      var axiom_ = _ref6.axiom_,
-          _match = _ref6.match,
-          ignoredSymbols = _ref6.ignoredSymbols,
-          branchSymbols = _ref6.branchSymbols,
-          index = _ref6.index,
-          direction = _ref6.direction;
+    _proto.match = function match(_ref2) {
+      var axiom_ = _ref2.axiom_,
+          _match = _ref2.match,
+          ignoredSymbols = _ref2.ignoredSymbols,
+          branchSymbols = _ref2.branchSymbols,
+          index = _ref2.index,
+          direction = _ref2.direction;
       var branchCount = 0;
       var explicitBranchCount = 0;
       axiom_ = axiom_ || this.axiom;
@@ -682,4 +630,4 @@ var LSystem = (function () {
 
   return LSystem;
 
-}());
+}));

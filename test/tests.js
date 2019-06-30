@@ -3,7 +3,7 @@
 let chai = require('chai');
 let expect = chai.expect;
 
-let LSystem = require('../dist/lindenmayer.min.js');
+let LSystem = require('../dist/lindenmayer.browser.min.js');
 
 
 describe('Basic String based L-Systems', function() {

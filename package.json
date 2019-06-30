@@ -1,7 +1,7 @@
 {
   "name": "lindenmayer",
   "description": "Lindenmayer is  a L-System/LSystem library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a very powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "author": "Tom Brewe <info@nylkiway.net>",
   "license": "MIT",
   "keywords": [
@@ -21,6 +21,8 @@
   },
   "main": "dist/lindenmayer.js",
   "module": "dist/lindenmayer.esm.js",
+  "jsnext:main": "dist/lindenmayer.esm.js",
+  "browser": "dist/lindenmayer.browser.js",
   "files": [
     "dist/lindenmayer.browser.js",
     "dist/lindenmayer.esm.js",
@@ -48,6 +50,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-for-of": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",

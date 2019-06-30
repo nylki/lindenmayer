@@ -9,12 +9,10 @@ const babelConf = {
   presets: [
     ['@babel/preset-env', {
       targets: {
-        chrome: 60,
-        firefox: 58,
-        safari: 11,
+        esmodules: true
       },
       modules: false,
-      loose: true
+      loose: false
     }]
   ]
 };

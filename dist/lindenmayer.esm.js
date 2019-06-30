@@ -117,17 +117,18 @@ function normalizeProduction(p, forceObjects) {
 }
 
 class LSystem {
-  constructor({
-    axiom = '',
-    productions,
-    finals,
-    branchSymbols = '[]',
-    ignoredSymbols = '+-&^/|\\',
-    allowClassicSyntax = true,
-    classicParametricSyntax = false,
-    forceObjects = false,
-    debug = false
-  }) {
+  constructor(_ref) {
+    let {
+      axiom = '',
+      productions,
+      finals,
+      branchSymbols = '[]',
+      ignoredSymbols = '+-&^/|\\',
+      allowClassicSyntax = true,
+      classicParametricSyntax = false,
+      forceObjects = false,
+      debug = false
+    } = _ref;
     this.ignoredSymbols = ignoredSymbols;
     this.debug = debug;
     this.branchSymbols = branchSymbols;
@@ -150,7 +151,8 @@ class LSystem {
   } // if using objects in axioms, as used in parametric L-Systems
 
 
-  getString(onlySymbols = true) {
+  getString() {
+    let onlySymbols = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     if (typeof this.axiom === 'string') return this.axiom;
 
     if (onlySymbols === true) {
@@ -167,7 +169,8 @@ class LSystem {
     }
   }
 
-  setProduction(from, to, allowAppendingMultiSuccessors = false) {
+  setProduction(from, to) {
+    let allowAppendingMultiSuccessors = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     let newProduction = [from, to];
 
     if (newProduction === undefined) {
@@ -255,7 +258,8 @@ class LSystem {
   } //var hasWeight = el => el.weight !== undefined;
 
 
-  getProductionResult(p, index, part, params, recursive = false) {
+  getProductionResult(p, index, part, params) {
+    let recursive = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     let contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
     let conditional = p.condition !== undefined;
     let result = false;
@@ -397,7 +401,8 @@ class LSystem {
     return newAxiom;
   }
 
-  iterate(n = 1) {
+  iterate() {
+    let n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
     this.iterations = n;
     let lastIteration;
 
@@ -458,14 +463,15 @@ class LSystem {
   */
 
 
-  match({
-    axiom_,
-    match,
-    ignoredSymbols,
-    branchSymbols,
-    index,
-    direction
-  }) {
+  match(_ref2) {
+    let {
+      axiom_,
+      match,
+      ignoredSymbols,
+      branchSymbols,
+      index,
+      direction
+    } = _ref2;
     let branchCount = 0;
     let explicitBranchCount = 0;
     axiom_ = axiom_ || this.axiom;

@@ -9,12 +9,10 @@ const babelConf = {
   presets: [
     ['@babel/preset-env', {
       targets: {
-        chrome: 60,
-        firefox: 58,
-        safari: 11
+        node: '8'
       },
       modules: false,
-      loose: true
+      loose: false
     }]
   ]
 };
@@ -30,9 +28,9 @@ export default {
     }
   ],
   plugins: [
-  replace({
-    include: 'polyfills/**',
-    "__BUILD_FORMAT__": 'umd'
+    replace({
+      include: 'polyfills/**',
+      "__BUILD_FORMAT__": 'umd'
     }),
     babel(babelConf),
     minifyEnv ? terser({

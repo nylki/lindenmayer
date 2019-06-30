@@ -10,7 +10,7 @@ let output = [
   {
     file: minifyEnv ? 'dist/lindenmayer.browser.min.js' : 'dist/lindenmayer.browser.js',
     name: 'LSystem',
-    format: 'iife'
+    format: 'umd'
   }
 ];
 
@@ -18,17 +18,21 @@ const babelConf = {
   babelrc: false,
   // https://github.com/rollup/rollup-plugin-babel/issues/254#issuecomment-423799147
   // exclude: [/\/core-js\//],
+  plugins: [
+    ["@babel/plugin-transform-for-of", {"assumeArray": true}]
+  ],
   presets: [
     ['@babel/preset-env', {
       targets: {
-        ie: 11
+        ie: '11'
       },
       // useBuiltIns: 'entry',
       // corejs: {version: 3},
       modules: false,
       loose: true
     }]
-  ]
+  ],
+
 };
   
   
