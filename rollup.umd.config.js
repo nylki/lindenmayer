@@ -9,7 +9,7 @@ const babelConf = {
   presets: [
     ['@babel/preset-env', {
       targets: {
-        node: '8'
+        node: '10'
       },
       modules: false,
       loose: false

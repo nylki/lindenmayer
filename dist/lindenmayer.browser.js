@@ -2,7 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.LSystem = factory());
-}(this, function () { 'use strict';
+}(this, (function () { 'use strict';
 
   {
     if (!Object.entries) {
@@ -141,9 +141,7 @@
     return p;
   }
 
-  var LSystem =
-  /*#__PURE__*/
-  function () {
+  var LSystem = /*#__PURE__*/function () {
     function LSystem(_ref) {
       var _ref$axiom = _ref.axiom,
           axiom = _ref$axiom === void 0 ? '' : _ref$axiom,
@@ -630,4 +628,4 @@
 
   return LSystem;
 
-}));
+})));
