@@ -135,7 +135,7 @@ myLsystem.setProduction('F', [
 
 ```
 
-If you want to learn more about parametric L-Systems take a look at the   [Getting Started Guide for Parametric L-Systems](gettingStartedParametric.md) or read further on here too as well.
+If you want to learn more about parametric L-Systems, the following chapters will give you some more details.
  
 
 ### Object-Based Productions
