@@ -3,7 +3,6 @@
 Lindenmayer is a [L-System](https://en.wikipedia.org/wiki/L-system) library using modern (ES6) JavaScript with focus on a concise syntax. The idea is to have a powerful but simple base functionality, that can handle most use-cases by simply allowing anonymous functions as productions, which makes it very flexible in comparison to classic L-Systems.
 
 The library can also parse to some extent classic L-System syntax as defined in Aristid Lindenmayers original work *Algorithmic Beauty of Plants* from 1990. For example branches: `[]` or context sensitive productions: `<>`.
-Most stuff should work. I am currently working on parametric L-System support.
 
 
 If you simply want to work with L-Systems in 3D and VR without defining your own draw methods, you can check out the accompanying [aframe-lsystem-component](https://github.com/nylki/aframe-lsystem-component).
