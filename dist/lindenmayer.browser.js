@@ -141,6 +141,339 @@
     return p;
   }
 
+  // axiom-utils.js — Axiom management utilities for L-System
+  /**
+   * Initialize the axiom value, optionally converting strings to object arrays.
+   * @param {*} axiom - The initial axiom (string or array of objects)
+   * @param {boolean} forceObjects - If true, convert string axioms to object arrays
+   * @returns {*} The processed axiom
+   */
+
+  function initializeAxiom(axiom, forceObjects) {
+    return forceObjects ? stringToObjects(axiom) : axiom;
+  }
+  /**
+   * Get the raw axiom value without any transformation.
+   * @param {*} axiom - The axiom to return
+   * @returns {*} The raw axiom value
+   */
+
+  function getAxiomRaw(axiom) {
+    return axiom;
+  }
+  /**
+   * Convert an axiom to its string representation.
+   * If the axiom is already a string, return it directly.
+   * If it's an array of symbol objects, concatenate the symbol properties.
+   * @param {*} axiom - The axiom to stringify
+   * @param {boolean} onlySymbols - If true, only return symbol characters; if false, return JSON
+   * @returns {string} The string representation
+   */
+
+  function getStringRepresentation(axiom, onlySymbols) {
+    if (onlySymbols === void 0) {
+      onlySymbols = true;
+    }
+
+    if (typeof axiom === 'string') return axiom;
+
+    if (onlySymbols === true) {
+      return axiom.reduce(function (prev, current) {
+        if (current.symbol === undefined) {
+          console.log('found:', current);
+          throw new Error('L-Systems that use only objects as symbols (eg: {symbol: \'F\', params: []}),' + ' cant use string symbols (eg. \'F\')!' + ' Check if you always return objects in your productions and no strings.');
+        }
+
+        return prev + current.symbol;
+      }, '');
+    } else {
+      return JSON.stringify(axiom);
+    }
+  }
+
+  // context-matcher.js — Context-sensitive matching for L-Systems
+  // Extracted from lindenmayer.js for single responsibility:
+  // this module handles all context-sensitive neighbor matching logic.
+
+  /**
+   * Initialize directional matching parameters based on match direction.
+   * @param {string} direction - 'left' or 'right'
+   * @param {number} index - Current position index in the axiom
+   * @param {string} match - The pattern to match against
+   * @param {string} branchSymbols - Branch symbol pair (e.g., '[]')
+   * @returns {object} Directional parameters for matching
+   */
+  function initializeDirectionParams(direction, index, match, branchSymbols) {
+    if (direction === 'right') {
+      var _ref = branchSymbols.length > 0 ? branchSymbols : [undefined, undefined],
+          branchStart = _ref[0],
+          branchEnd = _ref[1];
+
+      return {
+        loopIndexChange: +1,
+        matchIndexChange: +1,
+        axiomIndex: index + 1,
+        matchIndex: 0,
+        matchIndexOverflow: match.length,
+        branchStart: branchStart,
+        branchEnd: branchEnd
+      };
+    } else if (direction === 'left') {
+      var _ref2 = branchSymbols.length > 0 ? branchSymbols : [undefined, undefined],
+          _branchEnd = _ref2[0],
+          _branchStart = _ref2[1];
+
+      return {
+        loopIndexChange: -1,
+        matchIndexChange: -1,
+        axiomIndex: index - 1,
+        matchIndex: match.length - 1,
+        matchIndexOverflow: -1,
+        branchStart: _branchStart,
+        branchEnd: _branchEnd
+      };
+    } else {
+      throw new Error(direction + ' is not a valid direction for matching.');
+    }
+  }
+  /**
+   * Extract the symbol character from an axiom part (string or object).
+   * @param {*} part - An axiom element (string character or {symbol, params} object)
+   * @returns {string} The symbol character
+   */
+
+  function extractSymbol(part) {
+    return part.symbol || part;
+  }
+  /**
+   * Match a context pattern against axiom neighbors.
+   * Used for context-sensitive productions where a production applies
+   * only when the left and/or right neighbors match a pattern.
+   *
+   * @param {object} params
+   * @param {Array|string} params.axiom - The current axiom
+   * @param {string} params.match - The pattern to match
+   * @param {string} params.ignoredSymbols - Symbols to ignore during matching
+   * @param {string} params.branchSymbols - Branch delimiters (e.g., '[]')
+   * @param {number} params.index - Current position in the axiom
+   * @param {string} params.direction - 'left' or 'right'
+   * @returns {{result: boolean, matchIndices: number[]}}
+   */
+
+  function matchContextPattern(_ref3) {
+    var axiom = _ref3.axiom,
+        match = _ref3.match,
+        _ref3$ignoredSymbols = _ref3.ignoredSymbols,
+        ignoredSymbols = _ref3$ignoredSymbols === void 0 ? '' : _ref3$ignoredSymbols,
+        _ref3$branchSymbols = _ref3.branchSymbols,
+        branchSymbols = _ref3$branchSymbols === void 0 ? '[]' : _ref3$branchSymbols,
+        index = _ref3.index,
+        direction = _ref3.direction;
+    var branchCount = 0;
+    var explicitBranchCount = 0;
+    var returnMatchIndices = [];
+    var dirParams = initializeDirectionParams(direction, index, match, branchSymbols);
+    var loopIndexChange = dirParams.loopIndexChange,
+        matchIndexChange = dirParams.matchIndexChange,
+        axiomIndex = dirParams.axiomIndex,
+        matchIndex = dirParams.matchIndex,
+        matchIndexOverflow = dirParams.matchIndexOverflow,
+        branchStart = dirParams.branchStart,
+        branchEnd = dirParams.branchEnd;
+
+    for (; axiomIndex < axiom.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
+      var axiomSymbol = extractSymbol(axiom[axiomIndex]);
+      var matchSymbol = match[matchIndex];
+
+      if (axiomSymbol === matchSymbol) {
+        if (branchCount === 0 || explicitBranchCount > 0) {
+          if (axiomSymbol === branchStart) {
+            explicitBranchCount++;
+            branchCount++;
+            matchIndex += matchIndexChange;
+          } else if (axiomSymbol === branchEnd) {
+            explicitBranchCount = Math.max(0, explicitBranchCount - 1);
+            branchCount = Math.max(0, branchCount - 1);
+
+            if (explicitBranchCount === 0) {
+              matchIndex += matchIndexChange;
+            }
+          } else {
+            returnMatchIndices.push(axiomIndex);
+            matchIndex += matchIndexChange;
+          }
+        }
+
+        if (matchIndex === matchIndexOverflow) {
+          return {
+            result: true,
+            matchIndices: returnMatchIndices
+          };
+        }
+      } else if (axiomSymbol === branchStart) {
+        branchCount++;
+        if (explicitBranchCount > 0) explicitBranchCount++;
+      } else if (axiomSymbol === branchEnd) {
+        branchCount = Math.max(0, branchCount - 1);
+        if (explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount - 1);
+      } else if ((branchCount === 0 || explicitBranchCount > 0 && matchSymbol !== branchEnd) && ignoredSymbols.includes(axiomSymbol) === false) {
+        return {
+          result: false,
+          matchIndices: returnMatchIndices
+        };
+      }
+    }
+
+    return {
+      result: false,
+      matchIndices: returnMatchIndices
+    };
+  }
+
+  // production-evaluator.js — Production evaluation and application logic
+  /**
+   * Check if a context-sensitive production's left/right context matches.
+   * @param {object} production - The production object with optional leftCtx/rightCtx
+   * @param {number} index - Current position in the axiom
+   * @param {Array|string} axiom - The current axiom
+   * @param {string} branchSymbols - Branch delimiters
+   * @param {string} ignoredSymbols - Symbols to ignore during context matching
+   * @returns {boolean} Whether the context matches
+   */
+
+  function checkContextMatch(production, index, axiom, branchSymbols, ignoredSymbols) {
+    var hasLeftCtx = production.leftCtx !== undefined;
+    var hasRightCtx = production.rightCtx !== undefined;
+
+    if (hasLeftCtx && hasRightCtx) {
+      return matchContextPattern({
+        axiom: axiom,
+        match: production.leftCtx,
+        index: index,
+        direction: 'left',
+        branchSymbols: branchSymbols,
+        ignoredSymbols: ignoredSymbols
+      }).result && matchContextPattern({
+        axiom: axiom,
+        match: production.rightCtx,
+        index: index,
+        direction: 'right',
+        branchSymbols: branchSymbols,
+        ignoredSymbols: ignoredSymbols
+      }).result;
+    } else if (hasLeftCtx) {
+      return matchContextPattern({
+        axiom: axiom,
+        match: production.leftCtx,
+        index: index,
+        direction: 'left',
+        branchSymbols: branchSymbols,
+        ignoredSymbols: ignoredSymbols
+      }).result;
+    } else if (hasRightCtx) {
+      return matchContextPattern({
+        axiom: axiom,
+        match: production.rightCtx,
+        index: index,
+        direction: 'right',
+        branchSymbols: branchSymbols,
+        ignoredSymbols: ignoredSymbols
+      }).result;
+    }
+
+    return true;
+  }
+  /**
+   * Evaluate a stochastic or multi-successor production.
+   * Picks a successor based on weight distribution (stochastic) or
+   * evaluates each successor until one returns a valid result.
+   * @param {object} production - The production with successors array
+   * @param {number} index - Current position in the axiom
+   * @param {*} part - The current axiom part
+   * @param {Array} params - Parameters for parametric productions
+   * @param {Function} evaluateRecursively - Callback to evaluate a successor recursively
+   * @returns {*} The production result, or false if no successor matched
+   */
+
+  function evaluateMultiSuccessor(production, index, part, params, evaluateRecursively) {
+    var currentWeight, threshWeight;
+
+    if (production.isStochastic) {
+      threshWeight = Math.random() * production.weightSum;
+      currentWeight = 0;
+    }
+
+    for (var _i2 = 0, _production$successor2 = production.successors; _i2 < _production$successor2.length; _i2++) {
+      var successor = _production$successor2[_i2];
+
+      if (production.isStochastic) {
+        currentWeight += successor.weight;
+        if (currentWeight < threshWeight) continue;
+      }
+
+      var result = evaluateRecursively(successor, index, part, params);
+
+      if (result !== undefined && result !== false) {
+        return result;
+      }
+    }
+
+    return false;
+  }
+  /**
+   * Evaluate a single production's precheck conditions (condition + context).
+   * Returns true if the production should proceed, false otherwise.
+   * @param {object} production - The production object
+   * @param {number} index - Current position
+   * @param {*} part - Current axiom part
+   * @param {Array} params - Parameters
+   * @param {Array|string} axiom - The current axiom
+   * @param {string} branchSymbols - Branch delimiters
+   * @param {string} ignoredSymbols - Symbols to ignore
+   * @returns {boolean} Whether the production passes precheck
+   */
+
+  function evaluatePrecheck(production, index, part, params, axiom, branchSymbols, ignoredSymbols) {
+    var isConditional = production.condition !== undefined;
+    var isContextSensitive = production.leftCtx !== undefined || production.rightCtx !== undefined;
+
+    if (isConditional && production.condition({
+      index: index,
+      currentAxiom: axiom,
+      part: part,
+      params: params
+    }) === false) {
+      return false;
+    }
+
+    if (isContextSensitive) {
+      return checkContextMatch(production, index, axiom, branchSymbols, ignoredSymbols);
+    }
+
+    return true;
+  }
+  /**
+   * Append a production result to the new axiom being built.
+   * Handles string concatenation, array spreading, and single-element pushing.
+   * @param {*} newAxiom - The axiom being built (string or array)
+   * @param {*} result - The production result to append
+   * @returns {*} The updated new axiom
+   */
+
+  function appendResultToAxiom(newAxiom, result) {
+    if (typeof newAxiom === 'string') {
+      return newAxiom + result;
+    } else if (result instanceof Array) {
+      newAxiom.push.apply(newAxiom, result);
+      return newAxiom;
+    } else {
+      newAxiom.push(result);
+      return newAxiom;
+    }
+  }
+
+  // lindenmayer.js — L-System core class
+
   var LSystem = /*#__PURE__*/function () {
     function LSystem(_ref) {
       var _ref$axiom = _ref.axiom,
@@ -168,19 +501,38 @@
       this.setAxiom(axiom);
       this.clearProductions();
       if (productions) this.setProductions(productions);
-      if (finals) this.setFinals(finals);
-    } // TODO: forceObject to be more intelligent based on other productions??
+      if (finals) this.setFinalFunctions(finals);
+    } // ─── Axiom Management ──────────────────────────────────────────────────────
 
 
     var _proto = LSystem.prototype;
 
     _proto.setAxiom = function setAxiom(axiom) {
-      this.axiom = this.forceObjects ? stringToObjects(axiom) : axiom;
+      this.axiom = initializeAxiom(axiom, this.forceObjects);
     };
 
+    _proto.getAxiomRaw = function getAxiomRaw$1() {
+      return getAxiomRaw(this.axiom);
+    }
+    /**
+     * @deprecated Use getAxiomRaw() instead. Kept for backward compatibility.
+     */
+    ;
+
     _proto.getRaw = function getRaw() {
-      return this.axiom;
-    } // if using objects in axioms, as used in parametric L-Systems
+      return this.getAxiomRaw();
+    };
+
+    _proto.getStringRepresentation = function getStringRepresentation$1(onlySymbols) {
+      if (onlySymbols === void 0) {
+        onlySymbols = true;
+      }
+
+      return getStringRepresentation(this.axiom, onlySymbols);
+    }
+    /**
+     * @deprecated Use getStringRepresentation() instead. Kept for backward compatibility.
+     */
     ;
 
     _proto.getString = function getString(onlySymbols) {
@@ -188,21 +540,9 @@
         onlySymbols = true;
       }
 
-      if (typeof this.axiom === 'string') return this.axiom;
-
-      if (onlySymbols === true) {
-        return this.axiom.reduce(function (prev, current) {
-          if (current.symbol === undefined) {
-            console.log('found:', current);
-            throw new Error('L-Systems that use only objects as symbols (eg: {symbol: \'F\', params: []}), cant use string symbols (eg. \'F\')! Check if you always return objects in your productions and no strings.');
-          }
-
-          return prev + current.symbol;
-        }, '');
-      } else {
-        return JSON.stringify(this.axiom);
-      }
-    };
+      return this.getStringRepresentation(onlySymbols);
+    } // ─── Production Management ─────────────────────────────────────────────────
+    ;
 
     _proto.setProduction = function setProduction(from, to, allowAppendingMultiSuccessors) {
       if (allowAppendingMultiSuccessors === void 0) {
@@ -224,19 +564,19 @@
         newProduction = transformClassicCSProduction(newProduction);
       }
 
-      newProduction = normalizeProduction(newProduction, this.forceObjects); // check wether production is stochastic
+      newProduction = normalizeProduction(newProduction, this.forceObjects); // Mark whether production is stochastic (all successors have weights)
 
       newProduction[1].isStochastic = newProduction[1].successors !== undefined && newProduction[1].successors.every(function (successor) {
         return successor.weight !== undefined;
       });
 
       if (newProduction[1].isStochastic) {
-        // calculate weight sum
+        // Calculate total weight sum for stochastic selection
         newProduction[1].weightSum = 0;
 
         for (var _i2 = 0, _newProduction$1$succ2 = newProduction[1].successors; _i2 < _newProduction$1$succ2.length; _i2++) {
-          var s = _newProduction$1$succ2[_i2];
-          newProduction[1].weightSum += s.weight;
+          var successor = _newProduction$1$succ2[_i2];
+          newProduction[1].weightSum += successor.weight;
         }
       }
 
@@ -248,8 +588,7 @@
         var multiSuccessors = existingProduction.successors;
 
         if (singleSuccessor && !multiSuccessors) {
-          // replace existing prod with new obj and add previous successor as first elem
-          // to new successors field.
+          // Promote existing single successor to a successors array
           existingProduction = {
             successors: [existingProduction]
           };
@@ -260,8 +599,7 @@
       } else {
         this.productions.set(symbol, newProduction[1]);
       }
-    } // set multiple productions from name:value Object
-    ;
+    };
 
     _proto.setProductions = function setProductions(newProductions) {
       if (newProductions === undefined) throw new Error('no production specified.');
@@ -277,180 +615,112 @@
 
     _proto.clearProductions = function clearProductions() {
       this.productions = new Map();
-    };
+    } // ─── Final Function Management ─────────────────────────────────────────────
+    ;
 
-    _proto.setFinal = function setFinal(symbol, final) {
-      var newFinal = [symbol, final];
-
-      if (newFinal === undefined) {
+    _proto.setFinalFunction = function setFinalFunction(symbol, final) {
+      if (final === undefined) {
         throw new Error('no final specified.');
       }
 
-      this.finals.set(newFinal[0], newFinal[1]);
-    } // set multiple finals from name:value Object
-    ;
+      this.finals.set(symbol, final);
+    };
 
-    _proto.setFinals = function setFinals(newFinals) {
+    _proto.setFinalFunctions = function setFinalFunctions(newFinals) {
       if (newFinals === undefined) throw new Error('no finals specified.');
       this.finals = new Map();
 
       for (var symbol in newFinals) {
         if (newFinals.hasOwnProperty(symbol)) {
-          this.setFinal(symbol, newFinals[symbol]);
+          this.setFinalFunction(symbol, newFinals[symbol]);
         }
       }
-    } //var hasWeight = el => el.weight !== undefined;
+    }
+    /**
+     * @deprecated Use setFinalFunction() instead. Kept for backward compatibility.
+     */
     ;
 
-    _proto.getProductionResult = function getProductionResult(p, index, part, params, recursive) {
+    _proto.setFinal = function setFinal(symbol, final) {
+      return this.setFinalFunction(symbol, final);
+    }
+    /**
+     * @deprecated Use setFinalFunctions() instead. Kept for backward compatibility.
+     */
+    ;
+
+    _proto.setFinals = function setFinals(newFinals) {
+      return this.setFinalFunctions(newFinals);
+    } // ─── Production Result Evaluation ──────────────────────────────────────────
+    ;
+
+    _proto.getProductionResult = function getProductionResult(production, index, part, params, recursive) {
+      var _this = this;
+
       if (recursive === void 0) {
         recursive = false;
       }
 
-      var contextSensitive = p.leftCtx !== undefined || p.rightCtx !== undefined;
-      var conditional = p.condition !== undefined;
+      var precheckPassed = evaluatePrecheck(production, index, part, params, this.axiom, this.branchSymbols, this.ignoredSymbols);
+
+      if (!precheckPassed) {
+        return recursive ? false : part;
+      }
+
       var result = false;
-      var precheck = true; // Check if condition is true, only then continue to check left and right contexts
 
-      if (conditional && p.condition({
-        index: index,
-        currentAxiom: this.axiom,
-        part: part,
-        params: params
-      }) === false) {
-        precheck = false;
-      } else if (contextSensitive) {
-        if (p.leftCtx !== undefined && p.rightCtx !== undefined) {
-          precheck = this.match({
-            direction: 'left',
-            match: p.leftCtx,
-            index: index,
-            branchSymbols: this.branchSymbols,
-            ignoredSymbols: this.ignoredSymbols
-          }).result && this.match({
-            direction: 'right',
-            match: p.rightCtx,
-            index: index,
-            branchSymbols: this.branchSymbols,
-            ignoredSymbols: this.ignoredSymbols
-          }).result;
-        } else if (p.leftCtx !== undefined) {
-          precheck = this.match({
-            direction: 'left',
-            match: p.leftCtx,
-            index: index,
-            branchSymbols: this.branchSymbols,
-            ignoredSymbols: this.ignoredSymbols
-          }).result;
-        } else if (p.rightCtx !== undefined) {
-          precheck = this.match({
-            direction: 'right',
-            match: p.rightCtx,
-            index: index,
-            branchSymbols: this.branchSymbols,
-            ignoredSymbols: this.ignoredSymbols
-          }).result;
-        }
-      } // If conditions and context don't allow product, keep result = false
-
-
-      if (precheck === false) {
-        result = false;
-      } // If p has multiple successors
-      else if (p.successors) {
-          // This could be stochastic successors or multiple functions
-          // Treat every element in the list as an individual production object
-          // For stochastic productions (if all prods in the list have a 'weight' property)
-          // Get a random number then pick a production from the list according to their weight
-          var currentWeight, threshWeight;
-
-          if (p.isStochastic) {
-            threshWeight = Math.random() * p.weightSum;
-            currentWeight = 0;
-          }
-          /*
-          go through the list and use
-          the first valid production in that list. (that returns true)
-          This assumes, it's a list of functions.
-          No recursion here: no successors inside successors.
-          */
-
-
-          for (var _i6 = 0, _p$successors2 = p.successors; _i6 < _p$successors2.length; _i6++) {
-            var _p = _p$successors2[_i6];
-
-            if (p.isStochastic) {
-              currentWeight += _p.weight;
-              if (currentWeight < threshWeight) continue;
-            } // If currentWeight >= thresWeight, a production is choosen stochastically
-            // and evaluated recursively because it , kax also have rightCtx, leftCtx and condition to further inhibit production. This is not standard L-System behaviour though!
-            // last true is for recursiv call
-            // TODO: refactor getProductionResult to use an object if not a hit on perf
-
-
-            var _result = this.getProductionResult(_p, index, part, params, true);
-
-            if (_result !== undefined && _result !== false) {
-              result = _result;
-              break;
-            }
-          }
-        } // if successor is a function, execute function and append return value
-        else if (typeof p.successor === 'function') {
-            result = p.successor({
-              index: index,
-              currentAxiom: this.axiom,
-              part: part,
-              params: params
-            });
-          } else {
-            result = p.successor;
-          }
+      if (production.successors) {
+        result = evaluateMultiSuccessor(production, index, part, params, function (successor, idx, prt, prms) {
+          return _this.getProductionResult(successor, idx, prt, prms, true);
+        });
+      } else if (typeof production.successor === 'function') {
+        result = production.successor({
+          index: index,
+          currentAxiom: this.axiom,
+          part: part,
+          params: params
+        });
+      } else {
+        result = production.successor;
+      }
 
       if (!result) {
-        // Allow undefined or false results for recursive calls of this func
         return recursive ? result : part;
       }
 
       return result;
-    };
+    } // ─── Iteration ─────────────────────────────────────────────────────────────
+    ;
 
-    _proto.applyProductions = function applyProductions() {
-      // a axiom can be a string or an array of objects that contain the key/value 'symbol'
+    _proto.applyProductionsOnce = function applyProductionsOnce() {
       var newAxiom = typeof this.axiom === 'string' ? '' : [];
-      var index = 0; // iterate all symbols/characters of the axiom and lookup according productions
+      var index = 0;
 
-      for (var _i8 = 0, _this$axiom2 = this.axiom; _i8 < _this$axiom2.length; _i8++) {
-        var part = _this$axiom2[_i8];
-        // Stuff for classic parametric L-Systems: get actual symbol and possible parameters
-        // params will be given the production function, if applicable.
+      for (var _i6 = 0, _this$axiom2 = this.axiom; _i6 < _this$axiom2.length; _i6++) {
+        var part = _this$axiom2[_i6];
         var symbol = part.symbol || part;
         var params = part.params || [];
         var result = part;
 
         if (this.productions.has(symbol)) {
-          var p = this.productions.get(symbol);
-          result = this.getProductionResult(p, index, part, params);
-        } // Got result. Now add result to new axiom.
-
-
-        if (typeof newAxiom === 'string') {
-          newAxiom += result;
-        } else if (result instanceof Array) {
-          var _newAxiom;
-
-          // If result is an array, merge result into new axiom instead of pushing.
-          (_newAxiom = newAxiom).push.apply(_newAxiom, result);
-        } else {
-          newAxiom.push(result);
+          var production = this.productions.get(symbol);
+          result = this.getProductionResult(production, index, part, params);
         }
 
+        newAxiom = appendResultToAxiom(newAxiom, result);
         index++;
-      } // finally set new axiom and also return it for convenience.
-
+      }
 
       this.axiom = newAxiom;
       return newAxiom;
+    }
+    /**
+     * @deprecated Use applyProductionsOnce() instead. Kept for backward compatibility.
+     */
+    ;
+
+    _proto.applyProductions = function applyProductions() {
+      return this.applyProductionsOnce();
     };
 
     _proto.iterate = function iterate(n) {
@@ -462,32 +732,27 @@
       var lastIteration;
 
       for (var iteration = 0; iteration < n; iteration++) {
-        lastIteration = this.applyProductions();
+        lastIteration = this.applyProductionsOnce();
       }
 
       return lastIteration;
-    };
+    } // ─── Final Execution ───────────────────────────────────────────────────────
+    ;
 
-    _proto.final = function final(externalArg) {
+    _proto.executeFinals = function executeFinals(externalArg) {
       var index = 0;
 
-      for (var _i10 = 0, _this$axiom4 = this.axiom; _i10 < _this$axiom4.length; _i10++) {
-        var part = _this$axiom4[_i10];
-        // if we have objects for each symbol, (when using parametric L-Systems)
-        // get actual identifiable symbol character
-        var symbol = part;
-        if (typeof part === 'object' && part.symbol) symbol = part.symbol;
+      for (var _i8 = 0, _this$axiom4 = this.axiom; _i8 < _this$axiom4.length; _i8++) {
+        var part = _this$axiom4[_i8];
+        var symbol = typeof part === 'object' && part.symbol ? part.symbol : part;
 
         if (this.finals.has(symbol)) {
           var finalFunction = this.finals.get(symbol);
-          var typeOfFinalFunction = typeof finalFunction;
+          var functionType = typeof finalFunction;
 
-          if (typeOfFinalFunction !== 'function') {
-            throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + typeOfFinalFunction + '!');
-          } // execute symbols function
-          // supply in first argument an details object with current index and part
-          // and in the first argument inject the external argument (like a render target)
-
+          if (functionType !== 'function') {
+            throw Error('\'' + symbol + '\'' + ' has an object for a final function. But it is __not a function__ but a ' + functionType + '!');
+          }
 
           finalFunction({
             index: index,
@@ -498,25 +763,22 @@
         index++;
       }
     }
-    /*
-    how to use match():
-     -----------------------
-    It is mainly a helper function for context sensitive productions.
-    If you use the classic syntax, it will by default be automatically transformed to proper
-    JS-Syntax.
-    Howerver, you can use the match helper function in your on productions:
-    	index is the index of a production using `match`
-    eg. in a classic L-System
-    	LSYS = ABCDE
-    B<C>DE -> 'Z'
-    	the index of the `B<C>D -> 'Z'` production would be the index of C (which is 2) when the
-    production would perform match(). so (if not using the ClassicLSystem class) you'd construction your context-sensitive production from C to Z like so:
-    	LSYS.setProduction('C', (index, axiom) => {
-    	(LSYS.match({index, match: 'B', direction: 'left'}) &&
-    	 LSYS.match({index, match: 'DE', direction: 'right'}) ? 'Z' : 'C')
-    })
-    	You can just write match({index, ...} instead of match({index: index, ..}) because of new ES6 Object initialization, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#New_notations_in_ECMAScript_6
-    */
+    /**
+     * @deprecated Use executeFinals() instead. Kept for backward compatibility.
+     */
+    ;
+
+    _proto.final = function final(externalArg) {
+      return this.executeFinals(externalArg);
+    } // ─── Context Matching ──────────────────────────────────────────────────────
+
+    /**
+     * Match a context pattern against axiom neighbors.
+     * Delegates to the extracted matchContextPattern function.
+     *
+     * @param {object} params - {axiom_, match, ignoredSymbols, branchSymbols, index, direction}
+     * @returns {{result: boolean, matchIndices: number[]}}
+     */
     ;
 
     _proto.match = function match(_ref2) {
@@ -526,101 +788,22 @@
           branchSymbols = _ref2.branchSymbols,
           index = _ref2.index,
           direction = _ref2.direction;
-      var branchCount = 0;
-      var explicitBranchCount = 0;
-      axiom_ = axiom_ || this.axiom;
-      if (branchSymbols === undefined) branchSymbols = this.branchSymbols !== undefined ? this.branchSymbols : [];
-      if (ignoredSymbols === undefined) ignoredSymbols = this.ignoredSymbols !== undefined ? this.ignoredSymbols : [];
-      var returnMatchIndices = [];
-      var branchStart, branchEnd, axiomIndex, loopIndexChange, matchIndex, matchIndexChange, matchIndexOverflow; // set some variables depending on the direction to match
-
-      if (direction === 'right') {
-        loopIndexChange = matchIndexChange = +1;
-        axiomIndex = index + 1;
-        matchIndex = 0;
-        matchIndexOverflow = _match.length;
-
-        if (branchSymbols.length > 0) {
-          var _branchSymbols = branchSymbols;
-          branchStart = _branchSymbols[0];
-          branchEnd = _branchSymbols[1];
-        }
-      } else if (direction === 'left') {
-        loopIndexChange = matchIndexChange = -1;
-        axiomIndex = index - 1;
-        matchIndex = _match.length - 1;
-        matchIndexOverflow = -1;
-
-        if (branchSymbols.length > 0) {
-          var _branchSymbols2 = branchSymbols;
-          branchEnd = _branchSymbols2[0];
-          branchStart = _branchSymbols2[1];
-        }
-      } else {
-        throw Error(direction, 'is not a valid direction for matching.');
-      }
-
-      for (; axiomIndex < axiom_.length && axiomIndex >= 0; axiomIndex += loopIndexChange) {
-        var axiomSymbol = axiom_[axiomIndex].symbol || axiom_[axiomIndex];
-        var matchSymbol = _match[matchIndex]; // compare current symbol of axiom with current symbol of match
-
-        if (axiomSymbol === matchSymbol) {
-          if (branchCount === 0 || explicitBranchCount > 0) {
-            // if its a match and previously NOT inside branch (branchCount===0) or in explicitly wanted branch (explicitBranchCount > 0)
-            // if a bracket was explicitly stated in match axiom
-            if (axiomSymbol === branchStart) {
-              explicitBranchCount++;
-              branchCount++;
-              matchIndex += matchIndexChange;
-            } else if (axiomSymbol === branchEnd) {
-              explicitBranchCount = Math.max(0, explicitBranchCount - 1);
-              branchCount = Math.max(0, branchCount - 1); // only increase match if we are out of explicit branch
-
-              if (explicitBranchCount === 0) {
-                matchIndex += matchIndexChange;
-              }
-            } else {
-              returnMatchIndices.push(axiomIndex);
-              matchIndex += matchIndexChange;
-            }
-          } // overflowing matchIndices (matchIndex + 1 for right match, matchIndexEnd for left match )?
-          // -> no more matches to do. return with true, as everything matched until here
-          // *yay*
-
-
-          if (matchIndex === matchIndexOverflow) {
-            return {
-              result: true,
-              matchIndices: returnMatchIndices
-            };
-          }
-        } else if (axiomSymbol === branchStart) {
-          branchCount++;
-          if (explicitBranchCount > 0) explicitBranchCount++;
-        } else if (axiomSymbol === branchEnd) {
-          branchCount = Math.max(0, branchCount - 1);
-          if (explicitBranchCount > 0) explicitBranchCount = Math.max(0, explicitBranchCount - 1);
-        } else if ((branchCount === 0 || explicitBranchCount > 0 && matchSymbol !== branchEnd) && ignoredSymbols.includes(axiomSymbol) === false) {
-          // not in branchSymbols/branch? or if in explicit branch, and not at the very end of
-          // condition (at the ]), and symbol not in ignoredSymbols ? then false
-          return {
-            result: false,
-            matchIndices: returnMatchIndices
-          };
-        }
-      }
-
-      return {
-        result: false,
-        matchIndices: returnMatchIndices
-      };
+      var axiom = axiom_ || this.axiom;
+      var resolvedBranchSymbols = branchSymbols !== undefined ? branchSymbols : this.branchSymbols;
+      var resolvedIgnoredSymbols = ignoredSymbols !== undefined ? ignoredSymbols : this.ignoredSymbols;
+      return matchContextPattern({
+        axiom: axiom,
+        match: _match,
+        ignoredSymbols: resolvedIgnoredSymbols,
+        branchSymbols: resolvedBranchSymbols,
+        index: index,
+        direction: direction
+      });
     };
 
     return LSystem;
-  }();
-  LSystem.getStringResult = LSystem.getString; // Set classic syntax helpers to library scope to be used outside of library context
-  // for users eg.
-
+  }(); // ─── Static API (backward compatible) ────────────────────────────────────────
+  LSystem.getStringResult = LSystem.getStringRepresentation;
   LSystem.transformClassicStochasticProductions = transformClassicStochasticProductions;
   LSystem.transformClassicCSProduction = transformClassicCSProduction;
   LSystem.transformClassicParametricAxiom = transformClassicParametricAxiom;
